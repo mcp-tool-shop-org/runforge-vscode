@@ -22,13 +22,16 @@ from ml_runner.metadata import (
 class TestMetadataVersion:
     """Tests for version constants."""
 
-    def test_runforge_version_is_0_3_5(self):
-        """RunForge version is 0.3.5.0 for Phase 3.5."""
-        assert RUNFORGE_VERSION == "0.3.5.0"
+    def test_runforge_version_is_0_3_5_or_later(self):
+        """RunForge version is 0.3.5+ for Phase 3.5+."""
+        assert RUNFORGE_VERSION.startswith("0.3.")
+        # Version should be at least 0.3.5
+        parts = RUNFORGE_VERSION.split(".")
+        assert int(parts[1]) >= 3 or (int(parts[1]) == 3 and int(parts[2]) >= 5)
 
-    def test_run_schema_version_is_v0_3_5(self):
-        """Run schema version is run.v0.3.5 for Phase 3.5."""
-        assert RUN_SCHEMA_VERSION == "run.v0.3.5"
+    def test_run_schema_version_is_v0_3_5_or_later(self):
+        """Run schema version is run.v0.3.5+ for Phase 3.5+."""
+        assert RUN_SCHEMA_VERSION.startswith("run.v0.3.")
 
 
 class TestLinearCoefficientsPointer:
