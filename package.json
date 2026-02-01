@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge",
   "description": "Push-button ML training with presets and indexed outputs",
-  "version": "0.3.5.0",
+  "version": "0.3.6.0",
   "publisher": "mcp-tool-shop",
   "repository": {
     "type": "git",
@@ -85,6 +85,12 @@
         "title": "View Latest Linear Coefficients",
         "category": "RunForge",
         "icon": "$(symbol-numeric)"
+      },
+      {
+        "command": "runforge.viewInterpretabilityIndex",
+        "title": "View Latest Interpretability Index",
+        "category": "RunForge",
+        "icon": "$(list-tree)"
       }
     ],
     "configuration": {
