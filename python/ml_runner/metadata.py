@@ -24,7 +24,10 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.3.2.0"
+RUNFORGE_VERSION = "0.3.3.0"
+
+# Run schema version
+RUN_SCHEMA_VERSION = "run.v0.3.3"
 
 
 def generate_run_id(
@@ -80,6 +83,9 @@ def create_run_metadata(
     profile_version: Optional[str] = None,
     expanded_parameters_hash: Optional[str] = None,
     hyperparameters: Optional[List[Dict[str, Any]]] = None,
+    metrics_v1_schema_version: Optional[str] = None,
+    metrics_v1_profile: Optional[str] = None,
+    metrics_v1_artifact_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create run metadata dict.
@@ -87,6 +93,7 @@ def create_run_metadata(
     Phase 2.2.1 fields: run.schema.v0.2.2.1
     Phase 3.1 addition: model_family
     Phase 3.2 addition: profile info and hyperparameters (optional)
+    Phase 3.3 addition: schema_version, metrics_v1 pointer
 
     Args:
         run_id: Unique run identifier
@@ -104,6 +111,9 @@ def create_run_metadata(
         profile_version: Training profile version (Phase 3.2, omit if None)
         expanded_parameters_hash: SHA-256 of expanded profile params (Phase 3.2, omit if None)
         hyperparameters: List of {name, value, source} dicts (Phase 3.2, omit if empty)
+        metrics_v1_schema_version: Schema version from metrics.v1.json (Phase 3.3)
+        metrics_v1_profile: Metrics profile from metrics.v1.json (Phase 3.3)
+        metrics_v1_artifact_path: Relative path to metrics.v1.json (Phase 3.3)
 
     Returns:
         Metadata dict conforming to schema
@@ -118,6 +128,7 @@ def create_run_metadata(
     metadata: Dict[str, Any] = {
         "run_id": run_id,
         "runforge_version": RUNFORGE_VERSION,
+        "schema_version": RUN_SCHEMA_VERSION,  # Phase 3.3 addition
         "created_at": created_at.isoformat(),
         "dataset": {
             "path": dataset_path,
@@ -137,6 +148,15 @@ def create_run_metadata(
             "model_pkl": model_pkl_path,
         },
     }
+
+    # Phase 3.3: Add metrics_v1 pointer if provided
+    if metrics_v1_schema_version and metrics_v1_profile and metrics_v1_artifact_path:
+        metadata["metrics_v1"] = {
+            "schema_version": metrics_v1_schema_version,
+            "metrics_profile": metrics_v1_profile,
+            "artifact_path": metrics_v1_artifact_path,
+        }
+        metadata["artifacts"]["metrics_v1_json"] = metrics_v1_artifact_path
 
     # Phase 3.2: Only include profile fields if profile was used
     # IMPORTANT: Fields are OMITTED when no profile is used, not set to null

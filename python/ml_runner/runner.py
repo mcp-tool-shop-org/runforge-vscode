@@ -273,6 +273,10 @@ def run_training(
         profile_version=resolved.profile_version,
         expanded_parameters_hash=resolved.expanded_parameters_hash,
         hyperparameters=hyperparam_provenance,
+        # Phase 3.3: Metrics v1 pointer
+        metrics_v1_schema_version=metrics_v1["schema_version"],
+        metrics_v1_profile=metrics_v1["metrics_profile"],
+        metrics_v1_artifact_path="metrics.v1.json",
     )
 
     # Write run.json to output directory
