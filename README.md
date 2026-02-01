@@ -19,6 +19,7 @@ npm run compile
 | `RunForge: Inspect Dataset` | Validate dataset before training (v0.2.2.1+) |
 | `RunForge: Open Latest Run Metadata` | View metadata for most recent run (v0.2.2.1+) |
 | `RunForge: Inspect Model Artifact` | View pipeline structure of model.pkl (v0.2.2.2+) |
+| `RunForge: Browse Runs` | Browse all runs with actions (summary, diagnostics, artifact) (v0.2.3+) |
 
 ## Usage
 
@@ -193,6 +194,33 @@ All diagnostics are machine-readable JSON (no log parsing needed).
 
 ---
 
+## Browse Runs (v0.2.3+)
+
+Phase 2.3 adds a unified run browser with quick actions.
+
+### Using Browse Runs
+
+1. Open Command Palette (`Ctrl+Shift+P`)
+2. Run `RunForge: Browse Runs`
+3. Select a run from the list (newest first)
+4. Choose an action:
+   - **Open Run Summary** — View run metadata as readable markdown
+   - **View Diagnostics** — See what happened during the run
+   - **Inspect Model Artifact** — View pipeline structure
+   - **Copy Dataset Fingerprint** — Copy SHA-256 to clipboard
+
+### Synthesized Diagnostics
+
+Diagnostics are derived from run.json fields:
+
+| Condition | Diagnostic |
+|-----------|------------|
+| `dropped_rows_missing_values > 0` | `MISSING_VALUES_DROPPED` |
+
+Full structured diagnostics emission is planned for future phases.
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
@@ -200,6 +228,10 @@ See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
 See [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) for observability requirements.
 
 See [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) for introspection requirements.
+
+See [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) for UX polish requirements.
+
+See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
 **Phase 2.1 is complete and frozen. All future phases must preserve the guarantees defined in CONTRACT.md.**
 
