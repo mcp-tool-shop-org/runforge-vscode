@@ -1,0 +1,13 @@
+{
+  "id": "hq-train",
+  "name": "High Quality Training",
+  "defaults": {
+    "epochs": 200,
+    "learning_rate": 0.005,
+    "regularization": 0.5,
+    "solver": "lbfgs",
+    "max_iter": 500,
+    "seed": 42,
+    "device": "cpu"
+  }
+}

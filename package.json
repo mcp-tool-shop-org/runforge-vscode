@@ -1,0 +1,81 @@
+{
+  "name": "runforge",
+  "displayName": "RunForge",
+  "description": "Push-button ML training with presets and indexed outputs",
+  "version": "0.1.0",
+  "publisher": "mcp-tool-shop",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcp-tool-shop/runforge"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "ml",
+    "training",
+    "machine-learning",
+    "presets"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "license": "MIT",
+  "contributes": {
+    "commands": [
+      {
+        "command": "runforge.trainStandard",
+        "title": "Train (Standard)",
+        "category": "RunForge",
+        "icon": "$(play)"
+      },
+      {
+        "command": "runforge.trainHighQuality",
+        "title": "Train (High Quality)",
+        "category": "RunForge",
+        "icon": "$(star)"
+      },
+      {
+        "command": "runforge.openRuns",
+        "title": "Open Runs",
+        "category": "RunForge",
+        "icon": "$(folder)"
+      }
+    ],
+    "configuration": {
+      "title": "RunForge",
+      "properties": {
+        "runforge.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Path to Python executable"
+        },
+        "runforge.mlRunnerModule": {
+          "type": "string",
+          "default": "ml_runner",
+          "description": "Python module to run for training"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.19.11",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
