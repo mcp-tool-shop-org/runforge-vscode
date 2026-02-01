@@ -8,6 +8,10 @@ Phase 2.2.1:
 
 Phase 3.1:
 - model_family field for model selection tracking
+
+Phase 3.2:
+- profile_name, profile_version, expanded_parameters_hash (only if profile used)
+- hyperparameters dict with provenance tracking
 """
 
 import json
@@ -20,7 +24,7 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.3.1.0"
+RUNFORGE_VERSION = "0.3.2.0"
 
 
 def generate_run_id(
@@ -72,12 +76,17 @@ def create_run_metadata(
     model_pkl_path: str,
     model_family: str = "logistic_regression",
     created_at: Optional[datetime] = None,
+    profile_name: Optional[str] = None,
+    profile_version: Optional[str] = None,
+    expanded_parameters_hash: Optional[str] = None,
+    hyperparameters: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """
     Create run metadata dict.
 
     Phase 2.2.1 fields: run.schema.v0.2.2.1
     Phase 3.1 addition: model_family
+    Phase 3.2 addition: profile info and hyperparameters (optional)
 
     Args:
         run_id: Unique run identifier
@@ -91,6 +100,10 @@ def create_run_metadata(
         model_pkl_path: Relative path to model.pkl
         model_family: Model family used (Phase 3.1)
         created_at: Optional fixed timestamp (for determinism)
+        profile_name: Training profile name (Phase 3.2, omit if None)
+        profile_version: Training profile version (Phase 3.2, omit if None)
+        expanded_parameters_hash: SHA-256 of expanded profile params (Phase 3.2, omit if None)
+        hyperparameters: List of {name, value, source} dicts (Phase 3.2, omit if empty)
 
     Returns:
         Metadata dict conforming to schema
@@ -102,7 +115,7 @@ def create_run_metadata(
         else:
             created_at = datetime.now(timezone.utc)
 
-    return {
+    metadata: Dict[str, Any] = {
         "run_id": run_id,
         "runforge_version": RUNFORGE_VERSION,
         "created_at": created_at.isoformat(),
@@ -124,6 +137,19 @@ def create_run_metadata(
             "model_pkl": model_pkl_path,
         },
     }
+
+    # Phase 3.2: Only include profile fields if profile was used
+    # IMPORTANT: Fields are OMITTED when no profile is used, not set to null
+    if profile_name is not None:
+        metadata["profile_name"] = profile_name
+        metadata["profile_version"] = profile_version
+        metadata["expanded_parameters_hash"] = expanded_parameters_hash
+
+    # Phase 3.2: Include hyperparameters if any were set
+    if hyperparameters:
+        metadata["hyperparameters"] = hyperparameters
+
+    return metadata
 
 
 def write_run_metadata(metadata: Dict[str, Any], run_dir: Path) -> Path:

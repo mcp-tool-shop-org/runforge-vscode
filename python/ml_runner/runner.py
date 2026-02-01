@@ -38,7 +38,7 @@ from .inspect import compute_dataset_fingerprint
 from .metadata import generate_run_id, create_run_metadata, write_run_metadata, RUNFORGE_VERSION
 from .provenance import append_run_to_index
 from .model_factory import create_estimator, get_model_display_name
-from .resolver import resolve_config, ResolvedConfig
+from .resolver import resolve_config, ResolvedConfig, get_param_provenance
 from .hyperparams import validate_and_convert, HyperparamError
 
 
@@ -231,6 +231,10 @@ def run_training(
 
     # Phase 2.2.1: Generate run metadata
     run_id = generate_run_id(dataset_fingerprint, "label")
+
+    # Phase 3.2: Get hyperparameter provenance for metadata
+    hyperparam_provenance = get_param_provenance(resolved) if resolved.hyperparameters else None
+
     metadata = create_run_metadata(
         run_id=run_id,
         dataset_path=str(dataset_file.resolve()),
@@ -242,6 +246,11 @@ def run_training(
         accuracy=round(accuracy, 4),
         model_pkl_path="artifacts/model.pkl",
         model_family=actual_model_family,
+        # Phase 3.2: Profile info (only if profile was used)
+        profile_name=resolved.profile_name,
+        profile_version=resolved.profile_version,
+        expanded_parameters_hash=resolved.expanded_parameters_hash,
+        hyperparameters=hyperparam_provenance,
     )
 
     # Write run.json to output directory

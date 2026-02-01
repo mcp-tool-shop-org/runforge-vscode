@@ -437,11 +437,11 @@ class TestMetadataModelFamily:
             assert metadata["model_family"] == model
 
     def test_version_updated_for_phase_31(self):
-        """RUNFORGE_VERSION is updated for Phase 3.1."""
+        """RUNFORGE_VERSION is updated for Phase 3.1+."""
         from ml_runner.metadata import RUNFORGE_VERSION
 
-        # Should be 0.3.1.0 for Phase 3.1
-        assert RUNFORGE_VERSION.startswith("0.3.1")
+        # Should be 0.3.x for Phase 3.x
+        assert RUNFORGE_VERSION.startswith("0.3.")
 
 
 class TestArtifactInspection:
