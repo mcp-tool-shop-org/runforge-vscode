@@ -145,6 +145,8 @@ All runs are indexed in `.runforge/index.json` for traceability:
 
 Phase 2.2.2 adds read-only inspection of trained artifacts.
 
+**Inspection is read-only and does not retrain or modify artifacts.**
+
 ### Pipeline Inspection
 
 Inspect what's inside a `model.pkl` without retraining:

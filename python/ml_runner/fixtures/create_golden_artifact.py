@@ -4,6 +4,12 @@ Create golden artifact for testing Phase 2.2.2 artifact inspection.
 This script creates a deterministic pipeline that can be used for
 byte-identical golden tests. Run once to generate the fixture.
 
+PROVENANCE:
+- Created for Phase 2.2.2 golden tests
+- Uses Phase 2.1 deterministic pipeline structure (StandardScaler + LogisticRegression)
+- Stored as test fixture in fixtures/golden_pipeline.pkl
+- If updating, regenerate golden_inspection.json to match
+
 Usage:
     python -m ml_runner.fixtures.create_golden_artifact
 """
