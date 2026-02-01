@@ -10,12 +10,16 @@ Phase 2.2.2 adds:
 
 Phase 3.1 adds:
 - --model: Explicit model selection for training
+
+Phase 3.2 adds:
+- --param: Explicit hyperparameter setting (repeatable)
+- --profile: Named training profile selection
 """
 
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from .runner import run_training
 from .inspect import run_inspect_command
 from .metadata import run_metadata_command
@@ -25,6 +29,7 @@ from .artifact_inspect import (
     ArtifactLoadError,
     NotAPipelineError,
 )
+from .params import parse_params, ParamParseError
 
 
 def main() -> int:
@@ -67,6 +72,20 @@ def main() -> int:
         choices=["logistic_regression", "random_forest", "linear_svc"],
         default="logistic_regression",
         help="Model family to use (default: logistic_regression)",
+    )
+    # Phase 3.2: Hyperparameters
+    train_parser.add_argument(
+        "--param",
+        action="append",
+        default=[],
+        metavar="NAME=VALUE",
+        help="Set hyperparameter (repeatable, e.g., --param C=1.0 --param max_iter=200)",
+    )
+    # Phase 3.2: Training profiles
+    train_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Named training profile (e.g., default, fast, thorough)",
     )
 
     # inspect command (Phase 2.2.1)
@@ -126,12 +145,21 @@ def main() -> int:
 
     if args.command == "train":
         try:
+            # Phase 3.2: Parse hyperparameters
+            try:
+                params = parse_params(args.param) if args.param else {}
+            except ParamParseError as e:
+                print(f"ERROR: {e}", file=sys.stderr)
+                return 1
+
             run_training(
                 preset_id=args.preset,
                 out_dir=args.out,
                 seed=args.seed,
                 device=args.device,
                 model_family=args.model,
+                # Phase 3.2: Pass parsed params and profile (not yet used by run_training)
+                # These will be wired in later commits
             )
             return 0
         except Exception as e:
