@@ -117,6 +117,26 @@ Run metadata must include:
 - Hyperparameters must be recorded after profile expansion
 - Order must be deterministic (canonical JSON)
 
+### 5.2 Profile Metadata Rules
+
+**When a profile IS used (--profile specified):**
+
+Metadata MUST include:
+
+- `profile_name`
+- `profile_version`
+- `expanded_parameters_hash`
+
+**When NO profile is used:**
+
+Metadata MUST:
+
+- **Omit `profile_name` entirely** (not null, not "none")
+- **Omit `profile_version` entirely**
+- **Omit `expanded_parameters_hash` entirely**
+
+This keeps JSON minimal and stable.
+
 ---
 
 ## 6. Training Profiles (Named Aliases)
