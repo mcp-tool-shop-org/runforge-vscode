@@ -13,6 +13,7 @@ import { showRunsPicker } from './views/runs-picker.js';
 import { inspectDataset, formatInspectResult } from './observability/inspect-command.js';
 import { getLatestRunMetadata, openMetadataInEditor } from './observability/metadata-command.js';
 import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } from './observability/artifact-inspect-command.js';
+import { browseRuns } from './observability/browse-runs-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -37,7 +38,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('runforge.inspectDataset', () => runInspectDataset()),
     vscode.commands.registerCommand('runforge.openLatestMetadata', () => runOpenLatestMetadata()),
     // Phase 2.2.2: Artifact inspection
-    vscode.commands.registerCommand('runforge.inspectArtifact', () => runInspectArtifact())
+    vscode.commands.registerCommand('runforge.inspectArtifact', () => runInspectArtifact()),
+    // Phase 2.3: Browse runs
+    vscode.commands.registerCommand('runforge.browseRuns', () => runBrowseRuns())
   );
 }
 
@@ -283,4 +286,30 @@ async function runInspectArtifact(): Promise<void> {
     channel.appendLine(`ERROR: ${message}`);
     vscode.window.showErrorMessage(`Artifact inspection failed: ${message}`);
   }
+}
+
+/**
+ * Phase 2.3: Browse runs command
+ */
+async function runBrowseRuns(): Promise<void> {
+  const workspaceRoot = getWorkspaceRoot();
+  if (!workspaceRoot) {
+    vscode.window.showErrorMessage('Please open a workspace folder first.');
+    return;
+  }
+
+  // Get Python path from config
+  const config = vscode.workspace.getConfiguration('runforge');
+  const pythonPath = config.get<string>('pythonPath', 'python');
+
+  // Get runner path
+  if (!extensionPath) {
+    vscode.window.showErrorMessage('Extension path not available.');
+    return;
+  }
+  const runnerPath = path.join(extensionPath, 'python', 'ml_runner');
+
+  const channel = getOutputChannel();
+
+  await browseRuns(workspaceRoot, pythonPath, runnerPath, channel);
 }

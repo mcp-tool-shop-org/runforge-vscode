@@ -61,6 +61,12 @@
         "title": "Inspect Model Artifact",
         "category": "RunForge",
         "icon": "$(file-binary)"
+      },
+      {
+        "command": "runforge.browseRuns",
+        "title": "Browse Runs",
+        "category": "RunForge",
+        "icon": "$(list-unordered)"
       }
     ],
     "configuration": {
