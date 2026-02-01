@@ -1,0 +1,27 @@
+{
+  "$schema": "https://runforge.dev/schemas/request.v1.json",
+  "version": 1,
+  "preset": "thorough",
+  "dataset": {
+    "path": "data/training/customers.csv",
+    "label_column": "churn"
+  },
+  "model": {
+    "family": "random_forest",
+    "hyperparameters": {
+      "n_estimators": 200,
+      "max_depth": 10,
+      "min_samples_split": 5
+    }
+  },
+  "device": {
+    "type": "gpu",
+    "gpu_reason": null
+  },
+  "created_at": "2026-02-01T14:30:00Z",
+  "created_by": "runforge-vscode@0.3.6",
+  "rerun_from": "20260201-120000-abc12345",
+  "name": "Customer Churn - High Quality",
+  "tags": ["production", "v2", "quarterly-review"],
+  "notes": "Rerun with increased estimators after stakeholder feedback."
+}

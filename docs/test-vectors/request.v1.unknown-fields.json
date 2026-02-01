@@ -1,0 +1,30 @@
+{
+  "$schema": "https://runforge.dev/schemas/request.v1.json",
+  "version": 1,
+  "preset": "balanced",
+  "dataset": {
+    "path": "data/iris.csv",
+    "label_column": "label",
+    "future_dataset_field": "this field does not exist in v1 schema"
+  },
+  "model": {
+    "family": "logistic_regression",
+    "hyperparameters": {},
+    "future_model_field": 42
+  },
+  "device": {
+    "type": "cpu",
+    "gpu_reason": null
+  },
+  "created_at": "2026-02-01T12:00:00Z",
+  "created_by": "runforge-vscode@0.4.0",
+  "rerun_from": null,
+  "name": null,
+  "tags": [],
+  "notes": null,
+  "future_top_level_field": {
+    "nested": true,
+    "values": [1, 2, 3]
+  },
+  "another_future_field": "forward compatibility test"
+}
