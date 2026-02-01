@@ -442,3 +442,138 @@ class TestMetadataModelFamily:
 
         # Should be 0.3.1.0 for Phase 3.1
         assert RUNFORGE_VERSION.startswith("0.3.1")
+
+
+class TestArtifactInspection:
+    """Tests for artifact inspection with different model families."""
+
+    def test_inspect_logistic_regression_artifact(self, tmp_path):
+        """Artifact inspection correctly identifies LogisticRegression."""
+        import pickle
+        import numpy as np
+        from ml_runner.runner import train_model
+        from ml_runner.artifact_inspect import inspect_artifact
+
+        # Train and save a LogisticRegression model
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, _ = train_model(
+            X=X, y=y, model_family="logistic_regression",
+            regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+        )
+
+        model_path = tmp_path / "model.pkl"
+        with open(model_path, "wb") as f:
+            pickle.dump(pipeline, f)
+
+        # Inspect the artifact (returns dict)
+        result = inspect_artifact(model_path)
+
+        # Find the clf step
+        clf_step = next(s for s in result["pipeline_steps"] if s["name"] == "clf")
+        assert "LogisticRegression" in clf_step["type"]
+
+    def test_inspect_random_forest_artifact(self, tmp_path):
+        """Artifact inspection correctly identifies RandomForestClassifier."""
+        import pickle
+        import numpy as np
+        from ml_runner.runner import train_model
+        from ml_runner.artifact_inspect import inspect_artifact
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, _ = train_model(
+            X=X, y=y, model_family="random_forest",
+            regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+        )
+
+        model_path = tmp_path / "model.pkl"
+        with open(model_path, "wb") as f:
+            pickle.dump(pipeline, f)
+
+        result = inspect_artifact(model_path)
+
+        clf_step = next(s for s in result["pipeline_steps"] if s["name"] == "clf")
+        assert "RandomForestClassifier" in clf_step["type"]
+
+    def test_inspect_linear_svc_artifact(self, tmp_path):
+        """Artifact inspection correctly identifies LinearSVC."""
+        import pickle
+        import numpy as np
+        from ml_runner.runner import train_model
+        from ml_runner.artifact_inspect import inspect_artifact
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, _ = train_model(
+            X=X, y=y, model_family="linear_svc",
+            regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+        )
+
+        model_path = tmp_path / "model.pkl"
+        with open(model_path, "wb") as f:
+            pickle.dump(pipeline, f)
+
+        result = inspect_artifact(model_path)
+
+        clf_step = next(s for s in result["pipeline_steps"] if s["name"] == "clf")
+        assert "LinearSVC" in clf_step["type"]
+
+    def test_all_models_have_two_pipeline_steps(self, tmp_path):
+        """All model pipelines have exactly 2 steps (scaler + clf)."""
+        import pickle
+        import numpy as np
+        from ml_runner.runner import train_model
+        from ml_runner.artifact_inspect import inspect_artifact
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
+            pipeline, _ = train_model(
+                X=X, y=y, model_family=model_family,
+                regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+            )
+
+            model_path = tmp_path / f"model_{model_family}.pkl"
+            with open(model_path, "wb") as f:
+                pickle.dump(pipeline, f)
+
+            result = inspect_artifact(model_path)
+            assert result["step_count"] == 2, f"{model_family} has {result['step_count']} steps"
+
+    def test_inspection_is_read_only(self, tmp_path):
+        """Artifact inspection does not modify the artifact."""
+        import pickle
+        import numpy as np
+        from ml_runner.runner import train_model
+        from ml_runner.artifact_inspect import inspect_artifact
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, _ = train_model(
+            X=X, y=y, model_family="random_forest",
+            regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+        )
+
+        model_path = tmp_path / "model.pkl"
+        with open(model_path, "wb") as f:
+            pickle.dump(pipeline, f)
+
+        # Get file hash before inspection
+        import hashlib
+        with open(model_path, "rb") as f:
+            hash_before = hashlib.sha256(f.read()).hexdigest()
+
+        # Inspect
+        inspect_artifact(model_path)
+
+        # Get file hash after inspection
+        with open(model_path, "rb") as f:
+            hash_after = hashlib.sha256(f.read()).hexdigest()
+
+        assert hash_before == hash_after
