@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge",
   "description": "Push-button ML training with presets and indexed outputs",
-  "version": "0.3.1.0",
+  "version": "0.3.2.0",
   "publisher": "mcp-tool-shop",
   "repository": {
     "type": "git",
@@ -92,6 +92,18 @@
             "Linear SVC (support vector classifier, margin-based)"
           ],
           "description": "Model family to use for training (Phase 3.1)"
+        },
+        "runforge.profile": {
+          "type": "string",
+          "default": "",
+          "enum": ["", "default", "fast", "thorough"],
+          "enumDescriptions": [
+            "No profile (use preset defaults)",
+            "Default profile (no hyperparameter overrides)",
+            "Fast profile (reduced iterations for quick runs)",
+            "Thorough profile (more trees/iterations, uses RandomForest)"
+          ],
+          "description": "Training profile to use (Phase 3.2). Profiles can override model family and hyperparameters."
         }
       }
     }

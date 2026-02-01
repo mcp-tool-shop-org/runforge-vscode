@@ -219,6 +219,11 @@ export function spawnRunnerScript(
     args.push('--model', options.model_family);
   }
 
+  // Phase 3.2: Training profile
+  if (options.profile) {
+    args.push('--profile', options.profile);
+  }
+
   const startTime = Date.now();
   const runId = runIdFromDir(options.run_dir);
 

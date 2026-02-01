@@ -119,6 +119,9 @@ export interface RunIdComponents {
 /** Model family type (Phase 3.1) */
 export type ModelFamily = 'logistic_regression' | 'random_forest' | 'linear_svc';
 
+/** Training profile type (Phase 3.2) */
+export type TrainingProfile = '' | 'default' | 'fast' | 'thorough';
+
 /** Python runner spawn options */
 export interface RunnerOptions {
   preset_id: PresetId;
@@ -130,6 +133,8 @@ export interface RunnerOptions {
   dataset_path?: string;
   /** Model family to use (Phase 3.1, default: logistic_regression) */
   model_family?: ModelFamily;
+  /** Training profile to use (Phase 3.2, empty = no profile) */
+  profile?: TrainingProfile;
 }
 
 /** Workspace paths */

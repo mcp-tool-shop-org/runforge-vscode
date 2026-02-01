@@ -6,7 +6,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
-import type { PresetId, RunRequest, RunResult, IndexEntry, DeviceType, ModelFamily } from '../types.js';
+import type { PresetId, RunRequest, RunResult, IndexEntry, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
 import { checkPython, spawnRunnerScript, type RunnerCallbacks } from './python-runner.js';
 import { detectGpu, selectDevice, getCpuFallbackMessage, formatBytes } from './gpu-probe.js';
 import {
@@ -105,6 +105,8 @@ export async function executeRun(
   const pythonPath = config.get<string>('pythonPath', 'python');
   // Phase 3.1: Model selection from settings
   const modelFamily = config.get<ModelFamily>('modelFamily', 'logistic_regression');
+  // Phase 3.2: Training profile from settings
+  const profile = config.get<TrainingProfile>('profile', '');
 
   // Check Python availability
   channel.appendLine('Checking Python installation...');
@@ -174,6 +176,9 @@ export async function executeRun(
   channel.appendLine(`  Preset:  ${presetId}`);
   channel.appendLine(`  Name:    ${name}`);
   channel.appendLine(`  Model:   ${modelFamily}`);
+  if (profile) {
+    channel.appendLine(`  Profile: ${profile}`);
+  }
   channel.appendLine(`  Device:  ${actualDevice} (${gpuReason})`);
   if (seed !== undefined) {
     channel.appendLine(`  Seed:    ${seed}`);
@@ -256,6 +261,7 @@ export async function executeRun(
       cwd: workspaceRoot,
       dataset_path: datasetPath,
       model_family: modelFamily,
+      profile: profile || undefined,
     }, callbacks);
 
     // Store process handle for potential kill
