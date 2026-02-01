@@ -16,6 +16,7 @@ import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } 
 import { browseRuns } from './observability/browse-runs-command.js';
 import { viewLatestMetricsV1 } from './observability/metrics-v1-command.js';
 import { viewLatestFeatureImportance } from './observability/feature-importance-command.js';
+import { viewLatestLinearCoefficients } from './observability/linear-coefficients-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -46,7 +47,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Phase 3.3: View metrics v1
     vscode.commands.registerCommand('runforge.viewMetricsV1', () => viewLatestMetricsV1()),
     // Phase 3.4: View feature importance
-    vscode.commands.registerCommand('runforge.viewFeatureImportance', () => viewLatestFeatureImportance())
+    vscode.commands.registerCommand('runforge.viewFeatureImportance', () => viewLatestFeatureImportance()),
+    // Phase 3.5: View linear coefficients
+    vscode.commands.registerCommand('runforge.viewLinearCoefficients', () => viewLatestLinearCoefficients())
   );
 }
 
