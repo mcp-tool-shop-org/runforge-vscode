@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/pipeline.inspect.schema.v0.2.2.2.json",
+  "title": "RunForge Pipeline Inspection",
+  "description": "Schema for read-only inspection output of sklearn Pipeline artifacts. Phase 2.2.2: structural information only, no learned values.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2.2.2",
+      "description": "Fixed schema version for this inspection format"
+    },
+    "artifact_path": {
+      "type": "string",
+      "description": "Relative path to the inspected model.pkl file"
+    },
+    "pipeline_steps": {
+      "type": "array",
+      "description": "Ordered list of pipeline steps, preserving execution order",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Step name as defined in the pipeline"
+          },
+          "type": {
+            "type": "string",
+            "description": "Class name of the transformer/estimator"
+          },
+          "module": {
+            "type": "string",
+            "description": "Fully qualified module path"
+          }
+        },
+        "required": ["name", "type", "module"],
+        "additionalProperties": false
+      }
+    },
+    "has_preprocessing": {
+      "type": "boolean",
+      "description": "Explicit flag indicating preprocessing steps are present (e.g., scaler, encoder)"
+    },
+    "step_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of pipeline steps"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_path",
+    "pipeline_steps",
+    "has_preprocessing",
+    "step_count"
+  ],
+  "additionalProperties": false
+}
