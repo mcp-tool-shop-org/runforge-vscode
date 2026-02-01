@@ -266,7 +266,7 @@ class TestTrainModel:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="logistic_regression",
@@ -277,9 +277,9 @@ class TestTrainModel:
             seed=42,
         )
 
-        assert isinstance(pipeline, Pipeline)
-        assert 0.0 <= accuracy <= 1.0
-        assert hasattr(pipeline, "predict")
+        assert isinstance(result.pipeline, Pipeline)
+        assert 0.0 <= result.accuracy <= 1.0
+        assert hasattr(result.pipeline, "predict")
 
     def test_train_random_forest_produces_pipeline(self, tmp_path):
         """train_model with random_forest produces valid pipeline."""
@@ -290,7 +290,7 @@ class TestTrainModel:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="random_forest",
@@ -301,9 +301,9 @@ class TestTrainModel:
             seed=42,
         )
 
-        assert isinstance(pipeline, Pipeline)
-        assert 0.0 <= accuracy <= 1.0
-        assert hasattr(pipeline, "predict")
+        assert isinstance(result.pipeline, Pipeline)
+        assert 0.0 <= result.accuracy <= 1.0
+        assert hasattr(result.pipeline, "predict")
 
     def test_train_linear_svc_produces_pipeline(self, tmp_path):
         """train_model with linear_svc produces valid pipeline."""
@@ -314,7 +314,7 @@ class TestTrainModel:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="linear_svc",
@@ -325,9 +325,9 @@ class TestTrainModel:
             seed=42,
         )
 
-        assert isinstance(pipeline, Pipeline)
-        assert 0.0 <= accuracy <= 1.0
-        assert hasattr(pipeline, "predict")
+        assert isinstance(result.pipeline, Pipeline)
+        assert 0.0 <= result.accuracy <= 1.0
+        assert hasattr(result.pipeline, "predict")
 
     def test_pipeline_has_scaler_and_clf_steps(self):
         """All pipelines have scaler and clf steps (stable naming)."""
@@ -338,7 +338,7 @@ class TestTrainModel:
         y = np.array([0, 0, 0, 1, 1, 1])
 
         for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
-            pipeline, _ = train_model(
+            result = train_model(
                 X=X,
                 y=y,
                 model_family=model_family,
@@ -349,7 +349,7 @@ class TestTrainModel:
                 seed=42,
             )
 
-            step_names = [name for name, _ in pipeline.steps]
+            step_names = [name for name, _ in result.pipeline.steps]
             assert "scaler" in step_names, f"{model_family} missing scaler step"
             assert "clf" in step_names, f"{model_family} missing clf step"
 
@@ -362,16 +362,16 @@ class TestTrainModel:
         y = np.array([0, 0, 0, 1, 1, 1])
 
         for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
-            _, acc1 = train_model(
+            result1 = train_model(
                 X=X, y=y, model_family=model_family,
                 regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
             )
-            _, acc2 = train_model(
+            result2 = train_model(
                 X=X, y=y, model_family=model_family,
                 regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
             )
 
-            assert acc1 == acc2, f"{model_family} not deterministic"
+            assert result1.accuracy == result2.accuracy, f"{model_family} not deterministic"
 
 
 class TestMetadataModelFamily:
@@ -458,14 +458,14 @@ class TestArtifactInspection:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, _ = train_model(
+        result = train_model(
             X=X, y=y, model_family="logistic_regression",
             regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
         )
 
         model_path = tmp_path / "model.pkl"
         with open(model_path, "wb") as f:
-            pickle.dump(pipeline, f)
+            pickle.dump(result.pipeline, f)
 
         # Inspect the artifact (returns dict)
         result = inspect_artifact(model_path)
@@ -484,14 +484,14 @@ class TestArtifactInspection:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, _ = train_model(
+        result = train_model(
             X=X, y=y, model_family="random_forest",
             regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
         )
 
         model_path = tmp_path / "model.pkl"
         with open(model_path, "wb") as f:
-            pickle.dump(pipeline, f)
+            pickle.dump(result.pipeline, f)
 
         result = inspect_artifact(model_path)
 
@@ -508,14 +508,14 @@ class TestArtifactInspection:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, _ = train_model(
+        result = train_model(
             X=X, y=y, model_family="linear_svc",
             regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
         )
 
         model_path = tmp_path / "model.pkl"
         with open(model_path, "wb") as f:
-            pickle.dump(pipeline, f)
+            pickle.dump(result.pipeline, f)
 
         result = inspect_artifact(model_path)
 
@@ -533,14 +533,14 @@ class TestArtifactInspection:
         y = np.array([0, 0, 0, 1, 1, 1])
 
         for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
-            pipeline, _ = train_model(
+            result = train_model(
                 X=X, y=y, model_family=model_family,
                 regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
             )
 
             model_path = tmp_path / f"model_{model_family}.pkl"
             with open(model_path, "wb") as f:
-                pickle.dump(pipeline, f)
+                pickle.dump(result.pipeline, f)
 
             result = inspect_artifact(model_path)
             assert result["step_count"] == 2, f"{model_family} has {result['step_count']} steps"
@@ -555,14 +555,14 @@ class TestArtifactInspection:
         X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
         y = np.array([0, 0, 0, 1, 1, 1])
 
-        pipeline, _ = train_model(
+        result = train_model(
             X=X, y=y, model_family="random_forest",
             regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
         )
 
         model_path = tmp_path / "model.pkl"
         with open(model_path, "wb") as f:
-            pickle.dump(pipeline, f)
+            pickle.dump(result.pipeline, f)
 
         # Get file hash before inspection
         import hashlib

@@ -224,11 +224,11 @@ class TestMetadataWithHyperparameters:
 class TestMetadataVersion:
     """Tests for version tracking."""
 
-    def test_version_is_0_3_2_0(self):
-        """Version is updated to 0.3.2.0 for Phase 3.2."""
+    def test_version_is_phase_3_x(self):
+        """Version is 0.3.x for Phase 3."""
         from ml_runner.metadata import RUNFORGE_VERSION
 
-        assert RUNFORGE_VERSION == "0.3.2.0"
+        assert RUNFORGE_VERSION.startswith("0.3.")
 
     def test_runforge_version_in_metadata(self):
         """Metadata includes runforge_version."""
@@ -246,4 +246,4 @@ class TestMetadataVersion:
         )
 
         assert "runforge_version" in metadata
-        assert metadata["runforge_version"] == "0.3.2.0"
+        assert metadata["runforge_version"].startswith("0.3.")

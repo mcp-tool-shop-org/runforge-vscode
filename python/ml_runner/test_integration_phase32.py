@@ -50,7 +50,7 @@ class TestHyperparameterIntegration:
         y = np.array([0, 1, 0, 1, 0])
 
         # Train with custom C value
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="logistic_regression",
@@ -63,7 +63,7 @@ class TestHyperparameterIntegration:
         )
 
         # Verify the params were applied
-        clf = pipeline.named_steps["clf"]
+        clf = result.pipeline.named_steps["clf"]
         assert clf.C == 0.5
         assert clf.max_iter == 200
 
@@ -74,7 +74,7 @@ class TestHyperparameterIntegration:
         X = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
         y = np.array([0, 1, 0, 1, 0])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="random_forest",
@@ -86,7 +86,7 @@ class TestHyperparameterIntegration:
             hyperparams={"n_estimators": 50, "max_depth": 3},
         )
 
-        clf = pipeline.named_steps["clf"]
+        clf = result.pipeline.named_steps["clf"]
         assert clf.n_estimators == 50
         assert clf.max_depth == 3
 
@@ -97,7 +97,7 @@ class TestHyperparameterIntegration:
         X = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
         y = np.array([0, 1, 0, 1, 0])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="linear_svc",
@@ -109,7 +109,7 @@ class TestHyperparameterIntegration:
             hyperparams={"C": 2.0, "max_iter": 500},
         )
 
-        clf = pipeline.named_steps["clf"]
+        clf = result.pipeline.named_steps["clf"]
         assert clf.C == 2.0
         assert clf.max_iter == 500
 
@@ -120,7 +120,7 @@ class TestHyperparameterIntegration:
         X = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
         y = np.array([0, 1, 0, 1, 0])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="logistic_regression",
@@ -132,7 +132,7 @@ class TestHyperparameterIntegration:
             hyperparams={},
         )
 
-        clf = pipeline.named_steps["clf"]
+        clf = result.pipeline.named_steps["clf"]
         assert clf.C == 1.0  # From regularization default
         assert clf.max_iter == 100  # From max_iter default
 
@@ -143,7 +143,7 @@ class TestHyperparameterIntegration:
         X = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
         y = np.array([0, 1, 0, 1, 0])
 
-        pipeline, accuracy = train_model(
+        result = train_model(
             X=X,
             y=y,
             model_family="random_forest",
@@ -155,7 +155,7 @@ class TestHyperparameterIntegration:
             hyperparams=None,
         )
 
-        clf = pipeline.named_steps["clf"]
+        clf = result.pipeline.named_steps["clf"]
         assert clf.n_estimators == 100  # Default
 
 

@@ -236,8 +236,8 @@ class TestTrainModelDeterminism:
                       [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]])
         y = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
 
-        # Train twice with same params
-        pipeline_1, accuracy_1 = train_model(
+        # Train twice with same params (train_model returns TrainResult)
+        result_1 = train_model(
             X=X, y=y,
             model_family="logistic_regression",
             regularization=1.0,
@@ -248,7 +248,7 @@ class TestTrainModelDeterminism:
             hyperparams={"C": 0.5, "max_iter": 50},
         )
 
-        pipeline_2, accuracy_2 = train_model(
+        result_2 = train_model(
             X=X, y=y,
             model_family="logistic_regression",
             regularization=1.0,
@@ -259,11 +259,11 @@ class TestTrainModelDeterminism:
             hyperparams={"C": 0.5, "max_iter": 50},
         )
 
-        assert accuracy_1 == accuracy_2
+        assert result_1.accuracy == result_2.accuracy
 
         # Check model coefficients are identical
-        clf_1 = pipeline_1.named_steps["clf"]
-        clf_2 = pipeline_2.named_steps["clf"]
+        clf_1 = result_1.pipeline.named_steps["clf"]
+        clf_2 = result_2.pipeline.named_steps["clf"]
         np.testing.assert_array_almost_equal(clf_1.coef_, clf_2.coef_)
 
     def test_random_forest_deterministic_with_hyperparams(self):
@@ -274,7 +274,7 @@ class TestTrainModelDeterminism:
                       [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]])
         y = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
 
-        pipeline_1, accuracy_1 = train_model(
+        result_1 = train_model(
             X=X, y=y,
             model_family="random_forest",
             regularization=1.0,
@@ -285,7 +285,7 @@ class TestTrainModelDeterminism:
             hyperparams={"n_estimators": 50, "max_depth": 3},
         )
 
-        pipeline_2, accuracy_2 = train_model(
+        result_2 = train_model(
             X=X, y=y,
             model_family="random_forest",
             regularization=1.0,
@@ -296,4 +296,4 @@ class TestTrainModelDeterminism:
             hyperparams={"n_estimators": 50, "max_depth": 3},
         )
 
-        assert accuracy_1 == accuracy_2
+        assert result_1.accuracy == result_2.accuracy
