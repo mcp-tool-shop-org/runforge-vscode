@@ -735,33 +735,59 @@ Use `RunForge: View Latest Interpretability Index` to see a formatted summary wi
 
 ---
 
-## Contract
+## Getting Started
 
-See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
+For a guided walkthrough, see [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md).
 
-See [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) for observability requirements.
+---
 
-See [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) for introspection requirements.
+## Contract & Documentation
 
-See [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) for UX polish requirements.
+### Core Documents
 
-See [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) for Phase 3 capability expansion rules.
+| Document | Purpose |
+|----------|---------|
+| [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) | How RunForge establishes trust |
+| [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) | Guided 2-3 minute tour |
+| [CONTRACT.md](CONTRACT.md) | Full behavioral contract |
+| [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) | Phase 3 expansion rules |
 
-See [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) for model selection requirements.
+### Phase 2 (Frozen)
 
-See [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) for hyperparameter and profile requirements.
+| Document | Scope |
+|----------|-------|
+| [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) | Observability |
+| [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) | Introspection |
+| [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) | UX polish |
 
-See [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) for model-aware metrics requirements.
+### Phase 3 (Frozen as of v0.3.6.0)
 
-See [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) for feature importance requirements.
+| Document | Scope |
+|----------|-------|
+| [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) | Model selection |
+| [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) | Hyperparameters & profiles |
+| [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) | Model-aware metrics |
+| [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) | Feature importance |
+| [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) | Linear coefficients |
+| [docs/PHASE-3.6-ACCEPTANCE.md](docs/PHASE-3.6-ACCEPTANCE.md) | Interpretability index |
 
-See [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) for linear coefficients requirements.
+### Future
 
-See [docs/PHASE-3.6-ACCEPTANCE.md](docs/PHASE-3.6-ACCEPTANCE.md) for interpretability index requirements.
+See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned improvements.
 
-See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
+---
 
-**Phase 2 is complete and frozen. Phase 3 extends Phase 2 without breaking any existing guarantees. See CONTRACT-PHASE-3.md for rules.**
+## Phase Status
+
+| Phase | Focus | Status |
+|-------|-------|--------|
+| **Phase 2** | Core training, observability | Frozen |
+| **Phase 3** | Model selection, interpretability | **Frozen (v0.3.6.0)** |
+| **Phase 4** | TBD | Requires new contract |
+
+**All Phase 2 and Phase 3 guarantees are locked. Future work requires Phase 4 contracts.**
+
+---
 
 ## License
 
