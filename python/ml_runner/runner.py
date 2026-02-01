@@ -52,6 +52,10 @@ from .linear_coefficients import (
     write_linear_coefficients,
     supports_linear_coefficients,
 )
+from .interpretability_index import (
+    build_interpretability_index,
+    write_interpretability_index,
+)
 
 
 class LoadResult(NamedTuple):
@@ -350,6 +354,16 @@ def run_training(
     # Write run.json to output directory
     run_json_path = write_run_metadata(metadata, out_path)
     print(f"Metadata saved: {run_json_path}")
+
+    # Phase 3.6: Build and write interpretability index
+    interp_index = build_interpretability_index(
+        run_json=metadata,
+        run_dir=out_path,
+    )
+    interp_index_path = write_interpretability_index(interp_index, out_path)
+    print(f"Interpretability index saved: {interp_index_path}")
+    available_count = len(interp_index.get("available_artifacts", {}))
+    print(f"  Available artifacts: {available_count}")
 
     # Phase 2.2.1: Update provenance index
     # Find the .runforge directory by walking up from output directory

@@ -24,10 +24,10 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.3.5.0"
+RUNFORGE_VERSION = "0.3.6.0"
 
 # Run schema version
-RUN_SCHEMA_VERSION = "run.v0.3.5"
+RUN_SCHEMA_VERSION = "run.v0.3.6"
 
 
 def generate_run_id(
