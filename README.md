@@ -21,6 +21,7 @@ npm run compile
 | `RunForge: Inspect Model Artifact` | View pipeline structure of model.pkl (v0.2.2.2+) |
 | `RunForge: Browse Runs` | Browse all runs with actions (summary, diagnostics, artifact) (v0.2.3+) |
 | `RunForge: View Latest Metrics` | View detailed metrics from metrics.v1.json (v0.3.3+) |
+| `RunForge: View Latest Feature Importance` | View feature importance for RandomForest models (v0.3.4+) |
 
 ## Usage
 
@@ -404,6 +405,81 @@ Training now produces `metrics.v1.json` alongside `metrics.json`:
 - All existing tools continue to work
 - Profile fields in `run.json` appear together or not at all
 
+---
+
+## Feature Importance (v0.3.4+)
+
+Phase 3.4 adds read-only feature importance extraction for supported models.
+
+### Supported Models
+
+Feature importance is only available for models with native importance signals:
+
+| Model | Supported | Importance Type |
+|-------|-----------|-----------------|
+| RandomForest | ✅ | Gini importance |
+| LogisticRegression | ❌ | Not in v1 |
+| LinearSVC | ❌ | Not in v1 |
+
+**No approximations**: If the model doesn't support native importance, no artifact is emitted.
+
+### Feature Importance Artifact
+
+RandomForest runs produce `artifacts/feature_importance.v1.json`:
+
+```json
+{
+  "schema_version": "feature_importance.v1",
+  "model_family": "random_forest",
+  "importance_type": "gini_importance",
+  "num_features": 10,
+  "features_by_importance": [
+    {"name": "feature_a", "importance": 0.35, "rank": 1},
+    {"name": "feature_b", "importance": 0.25, "rank": 2}
+  ],
+  "features_by_original_order": [
+    {"name": "feature_a", "importance": 0.35, "index": 0},
+    {"name": "feature_b", "importance": 0.25, "index": 1}
+  ],
+  "top_k": ["feature_a", "feature_b"]
+}
+```
+
+### Run Metadata
+
+`run.json` includes feature importance reference when available:
+
+```json
+{
+  "feature_importance_schema_version": "feature_importance.v1",
+  "feature_importance_artifact": "artifacts/feature_importance.v1.json",
+  "artifacts": {
+    "model_pkl": "artifacts/model.pkl",
+    "feature_importance_json": "artifacts/feature_importance.v1.json"
+  }
+}
+```
+
+When feature importance is not available, these fields are omitted entirely (not null).
+
+### Diagnostics
+
+Unsupported models emit structured diagnostics:
+
+| Code | Description |
+|------|-------------|
+| `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | Model doesn't support native feature importance |
+| `FEATURE_NAMES_UNAVAILABLE` | Feature names could not be resolved |
+
+### Not Supported in v1
+
+The following are explicitly out of scope for v1:
+
+- Coefficient-based importance for linear models
+- SHAP/LIME explanations
+- Permutation importance
+- Partial dependence plots
+
 ### Supported Hyperparameters
 
 **Logistic Regression:**
@@ -441,6 +517,8 @@ See [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) for model selec
 See [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) for hyperparameter and profile requirements.
 
 See [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) for model-aware metrics requirements.
+
+See [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) for feature importance requirements.
 
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
