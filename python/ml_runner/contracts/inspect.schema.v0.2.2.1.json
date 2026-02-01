@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/inspect.schema.v0.2.2.1.json",
+  "title": "RunForge Dataset Inspection",
+  "description": "Schema for dataset inspection output produced by RunForge Phase 2.2.1+",
+  "type": "object",
+  "properties": {
+    "dataset_path": {
+      "type": "string",
+      "description": "Path to the inspected dataset"
+    },
+    "fingerprint_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of dataset file bytes"
+    },
+    "columns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of column names in order"
+    },
+    "num_rows": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total row count (before any processing)"
+    },
+    "label_column": {
+      "type": "string",
+      "description": "Expected label column name"
+    },
+    "num_features_excluding_label": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of columns excluding label"
+    },
+    "label_present": {
+      "type": "boolean",
+      "description": "Whether the label column exists"
+    }
+  },
+  "required": [
+    "dataset_path",
+    "fingerprint_sha256",
+    "columns",
+    "num_rows",
+    "label_column",
+    "num_features_excluding_label",
+    "label_present"
+  ],
+  "additionalProperties": false
+}

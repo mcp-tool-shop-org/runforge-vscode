@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/index.schema.v0.2.2.1.json",
+  "title": "RunForge Provenance Index",
+  "description": "Schema for .runforge/index.json provenance tracking",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2.2.1",
+      "description": "Schema version for this index format"
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataset_fingerprint_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "label_column": {
+            "type": "string"
+          },
+          "run_dir": {
+            "type": "string",
+            "description": "Relative path to run directory"
+          },
+          "model_pkl": {
+            "type": "string",
+            "description": "Relative path to model.pkl"
+          }
+        },
+        "required": [
+          "run_id",
+          "created_at",
+          "dataset_fingerprint_sha256",
+          "label_column",
+          "run_dir",
+          "model_pkl"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Append-only list of runs, newest last"
+    }
+  },
+  "required": ["schema_version", "runs"],
+  "additionalProperties": false
+}

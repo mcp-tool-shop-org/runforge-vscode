@@ -63,11 +63,11 @@ class TestLabelColumnContract:
         csv_path = tmp_path / "test.csv"
         csv_path.write_text(csv_content)
 
-        X, y, num_samples, num_features = load_csv(csv_path)
+        result = load_csv(csv_path)
 
-        assert num_samples == 5
-        assert num_features == 2  # feature1, feature2
-        assert list(y) == [0, 1, 0, 1, 0]
+        assert result.num_samples == 5
+        assert result.num_features == 2  # feature1, feature2
+        assert list(result.y) == [0, 1, 0, 1, 0]
 
     def test_csv_without_label_column_fails(self, tmp_path: Path):
         """CSV without 'label' column should fail with expected message."""
@@ -93,16 +93,16 @@ class TestLabelColumnContract:
         csv_path = tmp_path / "test.csv"
         csv_path.write_text(csv_content)
 
-        X, y, num_samples, num_features = load_csv(csv_path)
+        result = load_csv(csv_path)
 
-        assert num_samples == 5
-        assert num_features == 3  # feature1, feature2, feature3
+        assert result.num_samples == 5
+        assert result.num_features == 3  # feature1, feature2, feature3
         # Check that features are correctly extracted (label column excluded)
-        assert X.shape == (5, 3)
+        assert result.X.shape == (5, 3)
         # First row: feature1=1.0, feature2=2.0, feature3=3.0
-        assert X[0, 0] == 1.0
-        assert X[0, 1] == 2.0
-        assert X[0, 2] == 3.0
+        assert result.X[0, 0] == 1.0
+        assert result.X[0, 1] == 2.0
+        assert result.X[0, 2] == 3.0
 
 
 class TestTrainValSplit:
@@ -345,11 +345,12 @@ class TestMissingValuesHandling:
         csv_path = tmp_path / "test.csv"
         csv_path.write_text(csv_content)
 
-        X, y, num_samples, num_features = load_csv(csv_path)
+        result = load_csv(csv_path)
 
         # 2 rows dropped (rows 2 and 4 have missing values)
-        assert num_samples == 3
-        assert X.shape == (3, 2)
+        assert result.num_samples == 3
+        assert result.X.shape == (3, 2)
+        assert result.rows_dropped == 2
 
     def test_missing_values_deterministic(self, tmp_path: Path):
         """Missing value handling must be deterministic."""
@@ -362,11 +363,12 @@ class TestMissingValuesHandling:
         csv_path.write_text(csv_content)
 
         # Run twice
-        X1, y1, _, _ = load_csv(csv_path)
-        X2, y2, _, _ = load_csv(csv_path)
+        result1 = load_csv(csv_path)
+        result2 = load_csv(csv_path)
 
-        assert np.array_equal(X1, X2)
-        assert np.array_equal(y1, y2)
+        assert np.array_equal(result1.X, result2.X)
+        assert np.array_equal(result1.y, result2.y)
+        assert result1.rows_dropped == result2.rows_dropped
 
     def test_all_rows_missing_fails(self, tmp_path: Path):
         """If all rows have missing values, should fail."""

@@ -13,9 +13,11 @@ npm run compile
 
 | Command | Description |
 |---------|-------------|
-| `ML: Train (Standard)` | Run training with std-train preset |
-| `ML: Train (High Quality)` | Run training with hq-train preset |
-| `ML: Open Runs` | View completed training runs |
+| `RunForge: Train (Standard)` | Run training with std-train preset |
+| `RunForge: Train (High Quality)` | Run training with hq-train preset |
+| `RunForge: Open Runs` | View completed training runs |
+| `RunForge: Inspect Dataset` | Validate dataset before training (v0.2.2.1+) |
+| `RunForge: Open Latest Run Metadata` | View metadata for most recent run (v0.2.2.1+) |
 
 ## Usage
 
@@ -101,9 +103,48 @@ Correctness and transparency take priority over automation.
 
 ---
 
+---
+
+## Observability (v0.2.2.1+)
+
+Phase 2.2.1 adds visibility into training runs without changing training behavior.
+
+### Run Metadata
+
+Each training run produces a `run.json` with:
+
+- Run ID and timestamp
+- Dataset fingerprint (SHA-256)
+- Label column and feature count
+- Dropped rows count
+- Metrics snapshot
+- Artifact paths
+
+### Dataset Inspection
+
+Inspect datasets before training:
+
+```bash
+python -m ml_runner inspect --dataset data.csv --label label
+```
+
+Returns column names, row count, feature count, and label validation.
+
+### Provenance Tracking
+
+All runs are indexed in `.runforge/index.json` for traceability:
+
+- Given a `model.pkl`, trace back to run metadata
+- Find all runs for a given dataset fingerprint
+- Append-only index (never reorders or deletes)
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
+
+See [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) for observability requirements.
 
 **Phase 2.1 is complete and frozen. All future phases must preserve the guarantees defined in CONTRACT.md.**
 

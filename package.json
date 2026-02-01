@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge",
   "description": "Push-button ML training with presets and indexed outputs",
-  "version": "0.1.0",
+  "version": "0.2.2.1",
   "publisher": "mcp-tool-shop",
   "repository": {
     "type": "git",
@@ -43,6 +43,18 @@
         "title": "Open Runs",
         "category": "RunForge",
         "icon": "$(folder)"
+      },
+      {
+        "command": "runforge.inspectDataset",
+        "title": "Inspect Dataset",
+        "category": "RunForge",
+        "icon": "$(search)"
+      },
+      {
+        "command": "runforge.openLatestMetadata",
+        "title": "Open Latest Run Metadata",
+        "category": "RunForge",
+        "icon": "$(json)"
       }
     ],
     "configuration": {

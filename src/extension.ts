@@ -1,12 +1,20 @@
 /**
  * RunForge Extension
  * Push-button ML training with presets and indexed outputs
+ *
+ * Phase 2.2.1: Observability commands (inspect, metadata)
  */
 
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import { executeRun, getOutputChannel, disposeOutputChannel, isRunning, setExtensionPath } from './runner/run-manager.js';
 import { showRunsPicker } from './views/runs-picker.js';
+import { inspectDataset, formatInspectResult } from './observability/inspect-command.js';
+import { getLatestRunMetadata, openMetadataInEditor } from './observability/metadata-command.js';
 import type { PresetId } from './types.js';
+
+/** Extension path for bundled runner */
+let extensionPath: string | undefined;
 
 /**
  * Extension activation
@@ -15,13 +23,17 @@ export function activate(context: vscode.ExtensionContext): void {
   console.log('RunForge extension activated');
 
   // Set extension path for bundled runner
+  extensionPath = context.extensionPath;
   setExtensionPath(context.extensionPath);
 
   // Register commands
   context.subscriptions.push(
     vscode.commands.registerCommand('runforge.trainStandard', () => startTraining('std-train')),
     vscode.commands.registerCommand('runforge.trainHighQuality', () => startTraining('hq-train')),
-    vscode.commands.registerCommand('runforge.openRuns', () => openRuns())
+    vscode.commands.registerCommand('runforge.openRuns', () => openRuns()),
+    // Phase 2.2.1: Observability commands
+    vscode.commands.registerCommand('runforge.inspectDataset', () => runInspectDataset()),
+    vscode.commands.registerCommand('runforge.openLatestMetadata', () => runOpenLatestMetadata())
   );
 }
 
@@ -110,4 +122,98 @@ function getWorkspaceRoot(): string | undefined {
     return undefined;
   }
   return folders[0].uri.fsPath;
+}
+
+/**
+ * Phase 2.2.1: Inspect dataset command
+ */
+async function runInspectDataset(): Promise<void> {
+  const workspaceRoot = getWorkspaceRoot();
+  if (!workspaceRoot) {
+    vscode.window.showErrorMessage('Please open a workspace folder first.');
+    return;
+  }
+
+  // Get dataset path from environment or prompt
+  let datasetPath = process.env.RUNFORGE_DATASET;
+
+  if (!datasetPath) {
+    const fileUri = await vscode.window.showOpenDialog({
+      canSelectFiles: true,
+      canSelectFolders: false,
+      canSelectMany: false,
+      filters: {
+        'CSV Files': ['csv'],
+        'All Files': ['*'],
+      },
+      title: 'Select Dataset to Inspect',
+    });
+
+    if (!fileUri || fileUri.length === 0) {
+      return; // User cancelled
+    }
+
+    datasetPath = fileUri[0].fsPath;
+  }
+
+  // Get Python path from config
+  const config = vscode.workspace.getConfiguration('runforge');
+  const pythonPath = config.get<string>('pythonPath', 'python');
+
+  // Get runner path
+  if (!extensionPath) {
+    vscode.window.showErrorMessage('Extension path not available.');
+    return;
+  }
+  const runnerPath = path.join(extensionPath, 'python', 'ml_runner');
+
+  const channel = getOutputChannel();
+  channel.show(true);
+  channel.appendLine('');
+  channel.appendLine('Inspecting dataset...');
+
+  try {
+    const result = await inspectDataset(pythonPath, runnerPath, datasetPath);
+
+    channel.appendLine(formatInspectResult(result));
+
+    if (!result.label_present) {
+      vscode.window.showWarningMessage(
+        `Label column '${result.label_column}' not found in dataset. Available columns: ${result.columns.join(', ')}`
+      );
+    } else {
+      vscode.window.showInformationMessage(
+        `Dataset: ${result.num_rows} rows, ${result.num_features_excluding_label} features`
+      );
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    channel.appendLine(`ERROR: ${message}`);
+    vscode.window.showErrorMessage(`Dataset inspection failed: ${message}`);
+  }
+}
+
+/**
+ * Phase 2.2.1: Open latest run metadata command
+ */
+async function runOpenLatestMetadata(): Promise<void> {
+  const workspaceRoot = getWorkspaceRoot();
+  if (!workspaceRoot) {
+    vscode.window.showErrorMessage('Please open a workspace folder first.');
+    return;
+  }
+
+  try {
+    const metadata = await getLatestRunMetadata(workspaceRoot);
+
+    if (!metadata) {
+      vscode.window.showInformationMessage('No runs found. Run a training first.');
+      return;
+    }
+
+    await openMetadataInEditor(metadata);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    vscode.window.showErrorMessage(`Failed to load metadata: ${message}`);
+  }
 }

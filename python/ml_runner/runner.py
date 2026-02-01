@@ -7,6 +7,11 @@ Phase 2.1: CSV-based supervised learning with Logistic Regression.
 - Strict metrics schema (3 keys only)
 - Pipeline artifact (includes preprocessing)
 - Handles missing values
+
+Phase 2.2.1: Observability layer (no training changes)
+- Run metadata export (run.json)
+- Dataset fingerprinting
+- Provenance tracking
 """
 
 import json
@@ -14,11 +19,46 @@ import os
 import pickle
 import random
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, NamedTuple
 
 import numpy as np
 
 from .presets import get_preset
+from .inspect import compute_dataset_fingerprint
+from .metadata import generate_run_id, create_run_metadata, write_run_metadata, RUNFORGE_VERSION
+from .provenance import append_run_to_index
+
+
+class LoadResult(NamedTuple):
+    """Result from load_csv with all observability data."""
+    X: np.ndarray
+    y: np.ndarray
+    num_samples: int
+    num_features: int
+    rows_dropped: int
+
+
+def _find_runforge_dir(start_path: Path) -> Optional[Path]:
+    """
+    Find the .runforge directory by walking up from start_path.
+
+    Returns the .runforge directory if found, None otherwise.
+    Handles the case where start_path is already inside .runforge.
+    """
+    current = start_path.resolve()
+
+    # Check if we're already inside a .runforge directory
+    for parent in [current] + list(current.parents):
+        if parent.name == ".runforge":
+            return parent
+
+    # Otherwise look for .runforge as a sibling or in parent directories
+    for parent in current.parents:
+        runforge = parent / ".runforge"
+        if runforge.exists() and runforge.is_dir():
+            return runforge
+
+    return None
 
 
 def run_training(
@@ -68,7 +108,7 @@ def run_training(
     if not dataset_file.exists():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
-    print(f"RunForge Training Runner v0.2.1")
+    print(f"RunForge Training Runner v{RUNFORGE_VERSION}")
     print(f"=" * 50)
     print(f"Preset:         {preset['name']} ({preset_id})")
     print(f"Epochs:         {defaults['epochs']}")
@@ -83,11 +123,21 @@ def run_training(
     print(f"=" * 50)
     print()
 
+    # Phase 2.2.1: Compute dataset fingerprint before loading
+    dataset_fingerprint = compute_dataset_fingerprint(dataset_file)
+    print(f"Dataset fingerprint: {dataset_fingerprint[:16]}...")
+
     # Load and parse CSV
     print("Loading dataset...")
-    X, y, num_samples, num_features = load_csv(dataset_file)
+    load_result = load_csv(dataset_file)
+    X, y = load_result.X, load_result.y
+    num_samples = load_result.num_samples
+    num_features = load_result.num_features
+    rows_dropped = load_result.rows_dropped
     print(f"  Samples:  {num_samples}")
     print(f"  Features: {num_features}")
+    if rows_dropped > 0:
+        print(f"  Dropped:  {rows_dropped} rows with missing values")
     print()
 
     # Train model with 80/20 split
@@ -119,18 +169,61 @@ def run_training(
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
 
+    # Phase 2.2.1: Generate run metadata
+    run_id = generate_run_id(dataset_fingerprint, "label")
+    metadata = create_run_metadata(
+        run_id=run_id,
+        dataset_path=str(dataset_file.resolve()),
+        dataset_fingerprint=dataset_fingerprint,
+        label_column="label",
+        num_samples=num_samples,
+        num_features=num_features,
+        dropped_rows=rows_dropped,
+        accuracy=round(accuracy, 4),
+        model_pkl_path="artifacts/model.pkl",
+    )
+
+    # Write run.json to output directory
+    run_json_path = write_run_metadata(metadata, out_path)
+    print(f"Metadata saved: {run_json_path}")
+
+    # Phase 2.2.1: Update provenance index
+    # Find the .runforge directory by walking up from output directory
+    runforge_dir = _find_runforge_dir(out_path)
+    if runforge_dir:
+        try:
+            # Calculate relative path from .runforge to the run
+            run_rel_path = out_path.relative_to(runforge_dir)
+            append_run_to_index(
+                runforge_dir=runforge_dir,
+                run_id=run_id,
+                created_at=metadata["created_at"],
+                dataset_fingerprint=dataset_fingerprint,
+                label_column="label",
+                run_dir=str(run_rel_path / "run.json").replace("\\", "/"),
+                model_pkl=str(run_rel_path / "artifacts" / "model.pkl").replace("\\", "/"),
+            )
+            print(f"Provenance index updated: {runforge_dir / 'index.json'}")
+        except Exception as e:
+            # Don't fail training if provenance update fails
+            print(f"Warning: Could not update provenance index: {e}")
+    else:
+        print("Note: Not in a .runforge workspace, skipping provenance index")
+
     print()
     print(f"=" * 50)
     print(f"Training complete!")
+    print(f"Run ID:              {run_id}")
     print(f"Validation Accuracy: {accuracy:.4f}")
     print(f"Total Samples:       {num_samples}")
     print(f"Features:            {num_features}")
+    print(f"Dropped Rows:        {rows_dropped}")
     print(f"Model saved:         {model_path}")
     print(f"Metrics saved:       {metrics_path}")
     print(f"=" * 50)
 
 
-def load_csv(path: Path) -> Tuple[np.ndarray, np.ndarray, int, int]:
+def load_csv(path: Path) -> LoadResult:
     """
     Load CSV file into numpy arrays.
 
@@ -142,10 +235,12 @@ def load_csv(path: Path) -> Tuple[np.ndarray, np.ndarray, int, int]:
     - Rows with missing values are dropped
 
     Returns:
-        X: Feature matrix (n_samples, n_features)
-        y: Label vector (n_samples,)
-        num_samples: Number of samples (after dropping missing)
-        num_features: Number of features
+        LoadResult with:
+        - X: Feature matrix (n_samples, n_features)
+        - y: Label vector (n_samples,)
+        - num_samples: Number of samples (after dropping missing)
+        - num_features: Number of features
+        - rows_dropped: Count of rows dropped due to missing values
     """
     # Read CSV manually (stdlib only)
     with open(path, "r", encoding="utf-8") as f:
@@ -218,7 +313,7 @@ def load_csv(path: Path) -> Tuple[np.ndarray, np.ndarray, int, int]:
     y = np.array(labels)
     num_samples = X.shape[0]
 
-    return X, y, num_samples, num_features
+    return LoadResult(X, y, num_samples, num_features, rows_dropped)
 
 
 def train_logistic_regression(

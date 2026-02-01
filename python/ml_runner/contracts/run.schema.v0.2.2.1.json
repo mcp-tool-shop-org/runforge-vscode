@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/run.schema.v0.2.2.1.json",
+  "title": "RunForge Run Metadata",
+  "description": "Schema for run.json metadata file produced by RunForge Phase 2.2.1+",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Stable identifier: YYYYMMDD-HHMMSS-<shortHash>"
+    },
+    "runforge_version": {
+      "type": "string",
+      "description": "Version of RunForge that produced this run"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of run creation"
+    },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to dataset file"
+        },
+        "fingerprint_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 hash of dataset file bytes"
+        }
+      },
+      "required": ["path", "fingerprint_sha256"],
+      "additionalProperties": false
+    },
+    "label_column": {
+      "type": "string",
+      "description": "Name of the label column used"
+    },
+    "num_samples": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of samples after dropping missing values"
+    },
+    "num_features": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of feature columns (excluding label)"
+    },
+    "dropped_rows_missing_values": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of rows dropped due to missing values"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "num_samples": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "num_features": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["accuracy", "num_samples", "num_features"],
+      "additionalProperties": false,
+      "description": "Exactly 3 keys matching Phase 2.1 metrics contract"
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "model_pkl": {
+          "type": "string",
+          "description": "Relative path to model.pkl from run directory"
+        }
+      },
+      "required": ["model_pkl"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "run_id",
+    "runforge_version",
+    "created_at",
+    "dataset",
+    "label_column",
+    "num_samples",
+    "num_features",
+    "dropped_rows_missing_values",
+    "metrics",
+    "artifacts"
+  ],
+  "additionalProperties": false
+}
