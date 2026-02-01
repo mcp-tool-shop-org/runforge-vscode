@@ -20,6 +20,7 @@ npm run compile
 | `RunForge: Open Latest Run Metadata` | View metadata for most recent run (v0.2.2.1+) |
 | `RunForge: Inspect Model Artifact` | View pipeline structure of model.pkl (v0.2.2.2+) |
 | `RunForge: Browse Runs` | Browse all runs with actions (summary, diagnostics, artifact) (v0.2.3+) |
+| `RunForge: View Latest Metrics` | View detailed metrics from metrics.v1.json (v0.3.3+) |
 
 ## Usage
 
@@ -329,6 +330,80 @@ Hyperparameters and profiles are recorded in `run.json`:
 
 When no profile is used, profile fields are omitted entirely (not null).
 
+---
+
+## Model-Aware Metrics (v0.3.3+)
+
+Phase 3.3 adds detailed, model-aware metrics with capability-based profile selection.
+
+### Metrics Profiles
+
+Metrics profiles are automatically selected based on model capabilities:
+
+| Profile | Description | Metrics |
+|---------|-------------|---------|
+| `classification.base.v1` | All classifiers | accuracy, precision, recall, f1, confusion matrix |
+| `classification.proba.v1` | Binary + predict_proba | base + ROC-AUC, log loss |
+| `classification.multiclass.v1` | 3+ classes | base + per-class precision/recall/f1 |
+
+### Profile Selection Logic
+
+- Binary classification + `predict_proba` → `classification.proba.v1`
+- Multiclass (3+ classes) → `classification.multiclass.v1`
+- Otherwise → `classification.base.v1`
+
+### Model Capabilities
+
+| Model | predict_proba | decision_function |
+|-------|---------------|-------------------|
+| LogisticRegression | ✅ | ✅ |
+| RandomForest | ✅ | ❌ |
+| LinearSVC | ❌ | ✅ (ROC-AUC only) |
+
+### Metrics Artifact
+
+Training now produces `metrics.v1.json` alongside `metrics.json`:
+
+```json
+{
+  "schema_version": "metrics.v1",
+  "metrics_profile": "classification.proba.v1",
+  "num_classes": 2,
+  "accuracy": 0.95,
+  "precision_macro": 0.94,
+  "recall_macro": 0.93,
+  "f1_macro": 0.94,
+  "confusion_matrix": [[45, 5], [3, 47]],
+  "roc_auc": 0.97,
+  "log_loss": 0.15
+}
+```
+
+### Run Metadata
+
+`run.json` now includes metrics_v1 pointer:
+
+```json
+{
+  "schema_version": "run.v0.3.3",
+  "metrics_v1": {
+    "schema_version": "metrics.v1",
+    "metrics_profile": "classification.proba.v1",
+    "artifact_path": "metrics.v1.json"
+  },
+  "artifacts": {
+    "model_pkl": "artifacts/model.pkl",
+    "metrics_v1_json": "metrics.v1.json"
+  }
+}
+```
+
+### Backward Compatibility
+
+- `metrics.json` (Phase 2) remains unchanged
+- All existing tools continue to work
+- Profile fields in `run.json` appear together or not at all
+
 ### Supported Hyperparameters
 
 **Logistic Regression:**
@@ -364,6 +439,8 @@ See [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) for Phase 3 capability expansion 
 See [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) for model selection requirements.
 
 See [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) for hyperparameter and profile requirements.
+
+See [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) for model-aware metrics requirements.
 
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
