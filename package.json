@@ -67,6 +67,12 @@
         "title": "Browse Runs",
         "category": "RunForge",
         "icon": "$(list-unordered)"
+      },
+      {
+        "command": "runforge.viewMetricsV1",
+        "title": "View Latest Metrics",
+        "category": "RunForge",
+        "icon": "$(graph)"
       }
     ],
     "configuration": {

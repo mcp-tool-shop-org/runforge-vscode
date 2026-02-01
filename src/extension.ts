@@ -14,6 +14,7 @@ import { inspectDataset, formatInspectResult } from './observability/inspect-com
 import { getLatestRunMetadataSafe, openMetadataInEditor } from './observability/metadata-command.js';
 import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } from './observability/artifact-inspect-command.js';
 import { browseRuns } from './observability/browse-runs-command.js';
+import { viewLatestMetricsV1 } from './observability/metrics-v1-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -40,7 +41,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Phase 2.2.2: Artifact inspection
     vscode.commands.registerCommand('runforge.inspectArtifact', () => runInspectArtifact()),
     // Phase 2.3: Browse runs
-    vscode.commands.registerCommand('runforge.browseRuns', () => runBrowseRuns())
+    vscode.commands.registerCommand('runforge.browseRuns', () => runBrowseRuns()),
+    // Phase 3.3: View metrics v1
+    vscode.commands.registerCommand('runforge.viewMetricsV1', () => viewLatestMetricsV1())
   );
 }
 
