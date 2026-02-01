@@ -33,3 +33,8 @@ def get_inspect_schema() -> dict:
 def get_index_schema() -> dict:
     """Get the provenance index schema."""
     return load_schema("index.schema.v0.2.2.1")
+
+
+def get_linear_coefficients_schema() -> dict:
+    """Get the linear coefficients schema (Phase 3.5+)."""
+    return load_schema("linear_coefficients.schema.v1")

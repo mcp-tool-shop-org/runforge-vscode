@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/linear_coefficients.schema.v1.json",
+  "title": "RunForge Linear Coefficients v1",
+  "description": "Linear model coefficient artifact for RunForge Phase 3.5+. Read-only extraction from trained linear classifiers. IMPORTANT: Coefficients are in STANDARDIZED feature space (after StandardScaler). One unit = one standard deviation of the original feature.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "linear_coefficients.v1",
+      "description": "Schema version identifier"
+    },
+    "model_family": {
+      "type": "string",
+      "enum": ["logistic_regression", "linear_svc"],
+      "description": "Model family that produced these coefficients"
+    },
+    "coefficient_space": {
+      "const": "standardized",
+      "description": "Coefficients are in standardized feature space (post-StandardScaler). Values represent influence per 1 standard deviation increase in the feature."
+    },
+    "num_features": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of features"
+    },
+    "num_classes": {
+      "type": "integer",
+      "minimum": 2,
+      "description": "Number of classes in the classification problem"
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": ["integer", "string"]
+      },
+      "minItems": 2,
+      "description": "Class labels in deterministic order (sorted)"
+    },
+    "intercepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": ["integer", "string"],
+            "description": "Class label"
+          },
+          "intercept": {
+            "type": "number",
+            "description": "Intercept (bias) term for this class"
+          }
+        },
+        "required": ["class", "intercept"],
+        "additionalProperties": false
+      },
+      "description": "Intercept terms per class"
+    },
+    "coefficients_by_class": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": ["integer", "string"],
+            "description": "Class label"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Feature column name"
+                },
+                "coefficient": {
+                  "type": "number",
+                  "description": "Coefficient value (can be negative)"
+                },
+                "abs_coefficient": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Absolute value of coefficient"
+                },
+                "rank": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Rank by absolute coefficient magnitude (1 = largest magnitude)"
+                }
+              },
+              "required": ["name", "coefficient", "abs_coefficient", "rank"],
+              "additionalProperties": false
+            },
+            "description": "Features sorted by absolute coefficient (descending), with stable tie-breaking by name (ascending)"
+          }
+        },
+        "required": ["class", "features"],
+        "additionalProperties": false
+      },
+      "description": "Coefficients grouped by class, each sorted by absolute magnitude"
+    },
+    "top_k_by_class": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": ["integer", "string"],
+            "description": "Class label"
+          },
+          "top_features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "description": "Top-k feature names by absolute coefficient (max 10)"
+          }
+        },
+        "required": ["class", "top_features"],
+        "additionalProperties": false
+      },
+      "description": "Top-k features per class (convenience field)"
+    }
+  },
+  "required": [
+    "schema_version",
+    "model_family",
+    "coefficient_space",
+    "num_features",
+    "num_classes",
+    "classes",
+    "intercepts",
+    "coefficients_by_class",
+    "top_k_by_class"
+  ],
+  "additionalProperties": false
+}
