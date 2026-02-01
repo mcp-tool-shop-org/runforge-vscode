@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/interpretability.index.schema.v1.json",
+  "title": "RunForge Interpretability Index v1",
+  "description": "Unified index of interpretability artifacts for a single run. Phase 3.6+. Read-only linking and summarization only - no new computation.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "interpretability.index.v1",
+      "description": "Schema version identifier"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Run identifier from run.json"
+    },
+    "runforge_version": {
+      "type": "string",
+      "description": "RunForge version that produced this index"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when index was created"
+    },
+    "available_artifacts": {
+      "type": "object",
+      "description": "Map of available interpretability artifacts. Absent entries mean artifact not available for this run.",
+      "properties": {
+        "metrics_v1": {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "type": "string",
+              "description": "Schema version from metrics.v1.json"
+            },
+            "path": {
+              "type": "string",
+              "description": "Relative path to artifact"
+            },
+            "summary": {
+              "type": "object",
+              "properties": {
+                "metrics_profile": {
+                  "type": "string",
+                  "description": "Metrics profile used"
+                },
+                "accuracy": {
+                  "type": "number",
+                  "description": "Accuracy from run.json (not duplicated from metrics.v1.json)"
+                }
+              },
+              "required": ["metrics_profile"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["schema_version", "path", "summary"],
+          "additionalProperties": false
+        },
+        "feature_importance_v1": {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "type": "string",
+              "description": "Schema version from feature_importance.v1.json"
+            },
+            "path": {
+              "type": "string",
+              "description": "Relative path to artifact"
+            },
+            "summary": {
+              "type": "object",
+              "properties": {
+                "model_family": {
+                  "type": "string",
+                  "description": "Model family that produced importance"
+                },
+                "top_k": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "maxItems": 5,
+                  "description": "Top feature names by importance (max 5, no values)"
+                }
+              },
+              "required": ["model_family", "top_k"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["schema_version", "path", "summary"],
+          "additionalProperties": false
+        },
+        "linear_coefficients_v1": {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "type": "string",
+              "description": "Schema version from linear_coefficients.v1.json"
+            },
+            "path": {
+              "type": "string",
+              "description": "Relative path to artifact"
+            },
+            "summary": {
+              "type": "object",
+              "properties": {
+                "model_family": {
+                  "type": "string",
+                  "description": "Model family that produced coefficients"
+                },
+                "num_classes": {
+                  "type": "integer",
+                  "minimum": 2,
+                  "description": "Number of classes"
+                },
+                "top_k_by_class": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "class": {
+                        "type": ["integer", "string"],
+                        "description": "Class label"
+                      },
+                      "top_features": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "maxItems": 5,
+                        "description": "Top feature names by absolute coefficient (max 5, no values)"
+                      }
+                    },
+                    "required": ["class", "top_features"],
+                    "additionalProperties": false
+                  },
+                  "description": "Top features per class (names only, no coefficients)"
+                }
+              },
+              "required": ["model_family", "num_classes", "top_k_by_class"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["schema_version", "path", "summary"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "runforge_version",
+    "created_at",
+    "available_artifacts"
+  ],
+  "additionalProperties": false
+}

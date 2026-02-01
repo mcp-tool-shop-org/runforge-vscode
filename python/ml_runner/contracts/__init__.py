@@ -38,3 +38,8 @@ def get_index_schema() -> dict:
 def get_linear_coefficients_schema() -> dict:
     """Get the linear coefficients schema (Phase 3.5+)."""
     return load_schema("linear_coefficients.schema.v1")
+
+
+def get_interpretability_index_schema() -> dict:
+    """Get the interpretability index schema (Phase 3.6+)."""
+    return load_schema("interpretability.index.schema.v1")
