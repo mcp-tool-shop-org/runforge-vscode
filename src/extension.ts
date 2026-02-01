@@ -3,6 +3,7 @@
  * Push-button ML training with presets and indexed outputs
  *
  * Phase 2.2.1: Observability commands (inspect, metadata)
+ * Phase 2.2.2: Artifact inspection
  */
 
 import * as vscode from 'vscode';
@@ -11,6 +12,7 @@ import { executeRun, getOutputChannel, disposeOutputChannel, isRunning, setExten
 import { showRunsPicker } from './views/runs-picker.js';
 import { inspectDataset, formatInspectResult } from './observability/inspect-command.js';
 import { getLatestRunMetadata, openMetadataInEditor } from './observability/metadata-command.js';
+import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } from './observability/artifact-inspect-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -33,7 +35,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('runforge.openRuns', () => openRuns()),
     // Phase 2.2.1: Observability commands
     vscode.commands.registerCommand('runforge.inspectDataset', () => runInspectDataset()),
-    vscode.commands.registerCommand('runforge.openLatestMetadata', () => runOpenLatestMetadata())
+    vscode.commands.registerCommand('runforge.openLatestMetadata', () => runOpenLatestMetadata()),
+    // Phase 2.2.2: Artifact inspection
+    vscode.commands.registerCommand('runforge.inspectArtifact', () => runInspectArtifact())
   );
 }
 
@@ -215,5 +219,68 @@ async function runOpenLatestMetadata(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     vscode.window.showErrorMessage(`Failed to load metadata: ${message}`);
+  }
+}
+
+/**
+ * Phase 2.2.2: Inspect model artifact command
+ */
+async function runInspectArtifact(): Promise<void> {
+  const workspaceRoot = getWorkspaceRoot();
+  if (!workspaceRoot) {
+    vscode.window.showErrorMessage('Please open a workspace folder first.');
+    return;
+  }
+
+  // Prompt user to select model.pkl file
+  const fileUri = await vscode.window.showOpenDialog({
+    canSelectFiles: true,
+    canSelectFolders: false,
+    canSelectMany: false,
+    filters: {
+      'Model Files': ['pkl'],
+      'All Files': ['*'],
+    },
+    title: 'Select Model Artifact to Inspect',
+    defaultUri: vscode.Uri.file(path.join(workspaceRoot, '.runforge')),
+  });
+
+  if (!fileUri || fileUri.length === 0) {
+    return; // User cancelled
+  }
+
+  const artifactPath = fileUri[0].fsPath;
+
+  // Get Python path from config
+  const config = vscode.workspace.getConfiguration('runforge');
+  const pythonPath = config.get<string>('pythonPath', 'python');
+
+  // Get runner path
+  if (!extensionPath) {
+    vscode.window.showErrorMessage('Extension path not available.');
+    return;
+  }
+  const runnerPath = path.join(extensionPath, 'python', 'ml_runner');
+
+  const channel = getOutputChannel();
+  channel.show(true);
+  channel.appendLine('');
+  channel.appendLine('Inspecting model artifact...');
+
+  try {
+    const result = await inspectArtifact(pythonPath, runnerPath, artifactPath, workspaceRoot);
+
+    channel.appendLine(formatArtifactInspectResult(result));
+
+    // Open JSON in editor
+    await openInspectionInEditor(result);
+
+    vscode.window.showInformationMessage(
+      `Pipeline: ${result.step_count} steps, preprocessing: ${result.has_preprocessing ? 'yes' : 'no'}`
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    channel.appendLine(`ERROR: ${message}`);
+    vscode.window.showErrorMessage(`Artifact inspection failed: ${message}`);
   }
 }

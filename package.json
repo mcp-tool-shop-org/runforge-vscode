@@ -55,6 +55,12 @@
         "title": "Open Latest Run Metadata",
         "category": "RunForge",
         "icon": "$(json)"
+      },
+      {
+        "command": "runforge.inspectArtifact",
+        "title": "Inspect Model Artifact",
+        "category": "RunForge",
+        "icon": "$(file-binary)"
       }
     ],
     "configuration": {
