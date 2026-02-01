@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/diagnostics.schema.v0.2.2.2.json",
+  "title": "RunForge Diagnostics",
+  "description": "Schema for structured diagnostics in RunForge Phase 2.2.2. Diagnostics explain why a run behaved the way it did.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "string",
+        "enum": [
+          "MISSING_VALUES_DROPPED",
+          "LABEL_NOT_FOUND",
+          "LABEL_TYPE_INVALID",
+          "ZERO_ROWS",
+          "ZERO_FEATURES",
+          "LABEL_ONLY_DATASET"
+        ],
+        "description": "Diagnostic code identifying the type of diagnostic"
+      },
+      "severity": {
+        "type": "string",
+        "enum": ["info", "warning", "error"],
+        "description": "Severity level of the diagnostic"
+      },
+      "message": {
+        "type": "string",
+        "description": "Human-readable diagnostic message"
+      },
+      "details": {
+        "type": "object",
+        "description": "Optional machine-readable details about the diagnostic",
+        "additionalProperties": true
+      }
+    },
+    "required": ["code", "severity", "message"],
+    "additionalProperties": false
+  }
+}
