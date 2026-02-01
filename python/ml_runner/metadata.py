@@ -24,10 +24,10 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.3.3.0"
+RUNFORGE_VERSION = "0.3.4.0"
 
 # Run schema version
-RUN_SCHEMA_VERSION = "run.v0.3.3"
+RUN_SCHEMA_VERSION = "run.v0.3.4"
 
 
 def generate_run_id(
@@ -86,6 +86,8 @@ def create_run_metadata(
     metrics_v1_schema_version: Optional[str] = None,
     metrics_v1_profile: Optional[str] = None,
     metrics_v1_artifact_path: Optional[str] = None,
+    feature_importance_schema_version: Optional[str] = None,
+    feature_importance_artifact_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create run metadata dict.
@@ -94,6 +96,7 @@ def create_run_metadata(
     Phase 3.1 addition: model_family
     Phase 3.2 addition: profile info and hyperparameters (optional)
     Phase 3.3 addition: schema_version, metrics_v1 pointer
+    Phase 3.4 addition: feature_importance pointer (optional)
 
     Args:
         run_id: Unique run identifier
@@ -114,6 +117,8 @@ def create_run_metadata(
         metrics_v1_schema_version: Schema version from metrics.v1.json (Phase 3.3)
         metrics_v1_profile: Metrics profile from metrics.v1.json (Phase 3.3)
         metrics_v1_artifact_path: Relative path to metrics.v1.json (Phase 3.3)
+        feature_importance_schema_version: Schema version from feature_importance.v1.json (Phase 3.4)
+        feature_importance_artifact_path: Relative path to feature_importance.v1.json (Phase 3.4)
 
     Returns:
         Metadata dict conforming to schema
@@ -157,6 +162,12 @@ def create_run_metadata(
             "artifact_path": metrics_v1_artifact_path,
         }
         metadata["artifacts"]["metrics_v1_json"] = metrics_v1_artifact_path
+
+    # Phase 3.4: Add feature importance pointer if available
+    if feature_importance_schema_version and feature_importance_artifact_path:
+        metadata["feature_importance_schema_version"] = feature_importance_schema_version
+        metadata["feature_importance_artifact"] = feature_importance_artifact_path
+        metadata["artifacts"]["feature_importance_json"] = feature_importance_artifact_path
 
     # Phase 3.2: Only include profile fields if profile was used
     # IMPORTANT: Fields are OMITTED when no profile is used, not set to null

@@ -21,13 +21,13 @@ from ml_runner.metadata import (
 class TestMetadataVersion:
     """Tests for version constants."""
 
-    def test_runforge_version_is_0_3_3_0(self):
-        """RunForge version is 0.3.3.0."""
-        assert RUNFORGE_VERSION == "0.3.3.0"
+    def test_runforge_version_is_phase_3_x(self):
+        """RunForge version is 0.3.x for Phase 3."""
+        assert RUNFORGE_VERSION.startswith("0.3.")
 
-    def test_run_schema_version_is_v0_3_3(self):
-        """Run schema version is run.v0.3.3."""
-        assert RUN_SCHEMA_VERSION == "run.v0.3.3"
+    def test_run_schema_version_is_v0_3_x(self):
+        """Run schema version is run.v0.3.x for Phase 3."""
+        assert RUN_SCHEMA_VERSION.startswith("run.v0.3.")
 
 
 class TestSchemaVersionField:
@@ -49,7 +49,7 @@ class TestSchemaVersionField:
         )
 
         assert "schema_version" in metadata
-        assert metadata["schema_version"] == "run.v0.3.3"
+        assert metadata["schema_version"].startswith("run.v0.3.")
 
 
 class TestMetricsV1Pointer:

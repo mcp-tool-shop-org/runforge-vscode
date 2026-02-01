@@ -41,6 +41,12 @@ from .model_factory import create_estimator, get_model_display_name
 from .resolver import resolve_config, ResolvedConfig, get_param_provenance
 from .hyperparams import validate_and_convert, HyperparamError
 from .metrics_v1 import compute_metrics_v1, write_metrics_v1, get_metrics_profile_display_name
+from .feature_importance import (
+    extract_feature_importance,
+    write_feature_importance,
+    supports_feature_importance,
+    get_feature_names_from_csv_header,
+)
 
 
 class LoadResult(NamedTuple):
@@ -251,6 +257,30 @@ def run_training(
     print(f"Metrics v1 saved: {metrics_v1_path}")
     print(f"  Profile: {get_metrics_profile_display_name(metrics_v1['metrics_profile'])}")
 
+    # Phase 3.4: Extract and write feature importance (if supported)
+    feature_importance_artifact_path: Optional[str] = None
+    feature_importance_schema_version: Optional[str] = None
+
+    feature_names = get_feature_names_from_csv_header(dataset_file, "label")
+    fi_result = extract_feature_importance(
+        pipeline=pipeline,
+        model_family=actual_model_family,
+        feature_names=feature_names,
+    )
+
+    if fi_result.success and fi_result.artifact:
+        fi_path = write_feature_importance(fi_result.artifact, out_path)
+        feature_importance_artifact_path = "artifacts/feature_importance.v1.json"
+        feature_importance_schema_version = fi_result.artifact["schema_version"]
+        print(f"Feature importance saved: {fi_path}")
+        print(f"  Top features: {', '.join(fi_result.artifact['top_k'][:5])}")
+    else:
+        # Emit diagnostic (not an error - just means feature importance unavailable)
+        if fi_result.diagnostic:
+            print(f"Feature importance: {fi_result.diagnostic.value}")
+            if fi_result.diagnostic_message:
+                print(f"  {fi_result.diagnostic_message}")
+
     # Phase 2.2.1: Generate run metadata
     run_id = generate_run_id(dataset_fingerprint, "label")
 
@@ -277,6 +307,9 @@ def run_training(
         metrics_v1_schema_version=metrics_v1["schema_version"],
         metrics_v1_profile=metrics_v1["metrics_profile"],
         metrics_v1_artifact_path="metrics.v1.json",
+        # Phase 3.4: Feature importance (only if available)
+        feature_importance_schema_version=feature_importance_schema_version,
+        feature_importance_artifact_path=feature_importance_artifact_path,
     )
 
     # Write run.json to output directory
