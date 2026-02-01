@@ -15,6 +15,7 @@ import { getLatestRunMetadataSafe, openMetadataInEditor } from './observability/
 import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } from './observability/artifact-inspect-command.js';
 import { browseRuns } from './observability/browse-runs-command.js';
 import { viewLatestMetricsV1 } from './observability/metrics-v1-command.js';
+import { viewLatestFeatureImportance } from './observability/feature-importance-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -43,7 +44,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Phase 2.3: Browse runs
     vscode.commands.registerCommand('runforge.browseRuns', () => runBrowseRuns()),
     // Phase 3.3: View metrics v1
-    vscode.commands.registerCommand('runforge.viewMetricsV1', () => viewLatestMetricsV1())
+    vscode.commands.registerCommand('runforge.viewMetricsV1', () => viewLatestMetricsV1()),
+    // Phase 3.4: View feature importance
+    vscode.commands.registerCommand('runforge.viewFeatureImportance', () => viewLatestFeatureImportance())
   );
 }
 

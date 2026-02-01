@@ -73,6 +73,12 @@
         "title": "View Latest Metrics",
         "category": "RunForge",
         "icon": "$(graph)"
+      },
+      {
+        "command": "runforge.viewFeatureImportance",
+        "title": "View Latest Feature Importance",
+        "category": "RunForge",
+        "icon": "$(list-ordered)"
       }
     ],
     "configuration": {
