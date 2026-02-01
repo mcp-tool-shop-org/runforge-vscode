@@ -31,6 +31,7 @@ from .artifact_inspect import (
     NotAPipelineError,
     SCHEMA_VERSION,
 )
+from .cli import run_inspect_artifact_command
 
 
 @pytest.fixture
@@ -399,3 +400,81 @@ class TestReadOnlyBehavior:
 
         # Only the model.pkl should exist (from fixture)
         assert files_before == files_after
+
+
+class TestCLIInspectArtifact:
+    """Test CLI inspect-artifact command."""
+
+    @pytest.fixture
+    def golden_artifact_path(self) -> Path:
+        """Path to the golden pipeline artifact."""
+        return Path(__file__).parent / "fixtures" / "golden_pipeline.pkl"
+
+    def test_cli_success(self, golden_artifact_path: Path, capsys):
+        """CLI should output JSON and return 0."""
+        if not golden_artifact_path.exists():
+            pytest.skip("Golden artifact not available")
+
+        exit_code = run_inspect_artifact_command(str(golden_artifact_path), None)
+
+        assert exit_code == 0
+
+        captured = capsys.readouterr()
+        # Should output valid JSON
+        parsed = json.loads(captured.out)
+        assert parsed["schema_version"] == SCHEMA_VERSION
+
+    def test_cli_nonexistent_file(self, capsys):
+        """CLI should return 1 for nonexistent file."""
+        exit_code = run_inspect_artifact_command("/nonexistent/path.pkl", None)
+
+        assert exit_code == 1
+
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.err
+        assert "Artifact not found" in captured.err
+
+    def test_cli_corrupted_file(self, tmp_path: Path, capsys):
+        """CLI should return 1 for corrupted file."""
+        bad_file = tmp_path / "bad.pkl"
+        bad_file.write_bytes(b"not a pickle")
+
+        exit_code = run_inspect_artifact_command(str(bad_file), None)
+
+        assert exit_code == 1
+
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.err
+
+    def test_cli_non_pipeline(self, tmp_path: Path, capsys):
+        """CLI should return 1 for non-Pipeline artifact."""
+        not_pipeline = tmp_path / "dict.pkl"
+        with open(not_pipeline, "wb") as f:
+            pickle.dump({"not": "a pipeline"}, f)
+
+        exit_code = run_inspect_artifact_command(str(not_pipeline), None)
+
+        assert exit_code == 1
+
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.err
+        assert "Pipeline" in captured.err
+
+    def test_cli_with_base_path(self, golden_artifact_path: Path, tmp_path: Path, capsys):
+        """CLI should use base_path for relative path."""
+        if not golden_artifact_path.exists():
+            pytest.skip("Golden artifact not available")
+
+        # Copy artifact to nested location
+        nested = tmp_path / "runs" / "run1" / "artifacts"
+        nested.mkdir(parents=True)
+        nested_pkl = nested / "model.pkl"
+        nested_pkl.write_bytes(golden_artifact_path.read_bytes())
+
+        exit_code = run_inspect_artifact_command(str(nested_pkl), str(tmp_path))
+
+        assert exit_code == 0
+
+        captured = capsys.readouterr()
+        parsed = json.loads(captured.out)
+        assert parsed["artifact_path"] == "runs/run1/artifacts/model.pkl"
