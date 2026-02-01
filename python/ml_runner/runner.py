@@ -40,6 +40,7 @@ from .provenance import append_run_to_index
 from .model_factory import create_estimator, get_model_display_name
 from .resolver import resolve_config, ResolvedConfig, get_param_provenance
 from .hyperparams import validate_and_convert, HyperparamError
+from .metrics_v1 import compute_metrics_v1, write_metrics_v1, get_metrics_profile_display_name
 
 
 class LoadResult(NamedTuple):
@@ -49,6 +50,14 @@ class LoadResult(NamedTuple):
     num_samples: int
     num_features: int
     rows_dropped: int
+
+
+class TrainResult(NamedTuple):
+    """Result from train_model with pipeline and validation data."""
+    pipeline: Any
+    accuracy: float
+    X_val: np.ndarray
+    y_val: np.ndarray
 
 
 def _find_runforge_dir(start_path: Path) -> Optional[Path]:
@@ -200,7 +209,7 @@ def run_training(
     # Train model with 80/20 split
     model_name = get_model_display_name(actual_model_family)
     print(f"Training {model_name} (80/20 split)...")
-    pipeline, accuracy = train_model(
+    train_result = train_model(
         X=X,
         y=y,
         model_family=actual_model_family,
@@ -211,6 +220,8 @@ def run_training(
         seed=actual_seed,
         hyperparams=typed_hyperparams,
     )
+    pipeline = train_result.pipeline
+    accuracy = train_result.accuracy
 
     # Save pipeline artifact
     model_path = artifacts_path / "model.pkl"
@@ -228,6 +239,17 @@ def run_training(
     metrics_path = out_path / "metrics.json"
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
+
+    # Phase 3.3: Compute and write metrics.v1.json
+    metrics_v1 = compute_metrics_v1(
+        pipeline=pipeline,
+        X_val=train_result.X_val,
+        y_val=train_result.y_val,
+        model_family=actual_model_family,
+    )
+    metrics_v1_path = write_metrics_v1(metrics_v1, out_path)
+    print(f"Metrics v1 saved: {metrics_v1_path}")
+    print(f"  Profile: {get_metrics_profile_display_name(metrics_v1['metrics_profile'])}")
 
     # Phase 2.2.1: Generate run metadata
     run_id = generate_run_id(dataset_fingerprint, "label")
@@ -480,12 +502,13 @@ def train_model(
     epochs: int,
     seed: int,
     hyperparams: Optional[Dict[str, Any]] = None,
-) -> Tuple[object, float]:
+) -> TrainResult:
     """
     Train a classifier using sklearn Pipeline with model selection.
 
     Phase 3.1: Supports multiple model families via model_factory.
     Phase 3.2: Accepts hyperparameter overrides from profiles/CLI.
+    Phase 3.3: Returns validation data for metrics_v1 computation.
     Uses deterministic 80/20 train/val split.
     Accuracy is computed on validation set only.
 
@@ -501,8 +524,7 @@ def train_model(
         hyperparams: Optional dict of hyperparameter overrides (Phase 3.2)
 
     Returns:
-        pipeline: Trained sklearn Pipeline (scaler + classifier)
-        accuracy: Validation accuracy
+        TrainResult with pipeline, accuracy, X_val, y_val
     """
     from sklearn.model_selection import train_test_split
     from sklearn.pipeline import Pipeline
@@ -593,4 +615,4 @@ def train_model(
     # Final validation accuracy
     accuracy = pipeline.score(X_val, y_val)
 
-    return pipeline, accuracy
+    return TrainResult(pipeline, accuracy, X_val, y_val)
