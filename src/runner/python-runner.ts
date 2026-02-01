@@ -214,6 +214,11 @@ export function spawnRunnerScript(
     args.push('--seed', String(options.seed));
   }
 
+  // Phase 3.1: Model selection
+  if (options.model_family) {
+    args.push('--model', options.model_family);
+  }
+
   const startTime = Date.now();
   const runId = runIdFromDir(options.run_dir);
 

@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge",
   "description": "Push-button ML training with presets and indexed outputs",
-  "version": "0.2.3.0",
+  "version": "0.3.1.0",
   "publisher": "mcp-tool-shop",
   "repository": {
     "type": "git",
@@ -81,6 +81,17 @@
           "type": "string",
           "default": "ml_runner",
           "description": "Python module to run for training"
+        },
+        "runforge.modelFamily": {
+          "type": "string",
+          "default": "logistic_regression",
+          "enum": ["logistic_regression", "random_forest", "linear_svc"],
+          "enumDescriptions": [
+            "Logistic Regression (default, fast, interpretable)",
+            "Random Forest (ensemble, handles non-linear patterns)",
+            "Linear SVC (support vector classifier, margin-based)"
+          ],
+          "description": "Model family to use for training (Phase 3.1)"
         }
       }
     }

@@ -116,6 +116,9 @@ export interface RunIdComponents {
   rand: string;      // 4 hex chars
 }
 
+/** Model family type (Phase 3.1) */
+export type ModelFamily = 'logistic_regression' | 'random_forest' | 'linear_svc';
+
 /** Python runner spawn options */
 export interface RunnerOptions {
   preset_id: PresetId;
@@ -125,6 +128,8 @@ export interface RunnerOptions {
   cwd: string;
   /** Path to dataset CSV file (passed via RUNFORGE_DATASET env var) */
   dataset_path?: string;
+  /** Model family to use (Phase 3.1, default: logistic_regression) */
+  model_family?: ModelFamily;
 }
 
 /** Workspace paths */
