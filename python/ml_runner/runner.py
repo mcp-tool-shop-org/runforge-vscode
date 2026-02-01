@@ -12,6 +12,11 @@ Phase 2.2.1: Observability layer (no training changes)
 - Run metadata export (run.json)
 - Dataset fingerprinting
 - Provenance tracking
+
+Phase 3.1: Model selection
+- Explicit model family choice via --model flag
+- Supported: logistic_regression, random_forest, linear_svc
+- Default: logistic_regression (unchanged from Phase 2)
 """
 
 import json
@@ -66,18 +71,23 @@ def run_training(
     out_dir: str,
     seed: Optional[int] = None,
     device: str = "cpu",
+    model_family: str = "logistic_regression",
 ) -> None:
     """
     Execute a training run on CSV data.
 
-    Trains a Logistic Regression classifier on the dataset specified
-    by RUNFORGE_DATASET environment variable.
+    Trains a classifier on the dataset specified by RUNFORGE_DATASET
+    environment variable.
 
     Args:
         preset_id: The preset ID to use (std-train or hq-train)
         out_dir: Output directory for artifacts
         seed: Random seed (optional)
         device: Device to use (cpu for Phase 2)
+        model_family: Model family to use (Phase 3.1)
+            - logistic_regression (default)
+            - random_forest
+            - linear_svc
     """
     # Get preset configuration
     preset = get_preset(preset_id)

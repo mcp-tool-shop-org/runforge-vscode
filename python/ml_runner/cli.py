@@ -7,6 +7,9 @@ Phase 2.2.1 adds:
 
 Phase 2.2.2 adds:
 - inspect-artifact: Read-only pipeline inspection
+
+Phase 3.1 adds:
+- --model: Explicit model selection for training
 """
 
 import argparse
@@ -57,6 +60,13 @@ def main() -> int:
         required=True,
         choices=["cuda", "cpu"],
         help="Device to use for training (extension decides, runner must respect)",
+    )
+    # Phase 3.1: Model selection
+    train_parser.add_argument(
+        "--model",
+        choices=["logistic_regression", "random_forest", "linear_svc"],
+        default="logistic_regression",
+        help="Model family to use (default: logistic_regression)",
     )
 
     # inspect command (Phase 2.2.1)
@@ -121,6 +131,7 @@ def main() -> int:
                 out_dir=args.out,
                 seed=args.seed,
                 device=args.device,
+                model_family=args.model,
             )
             return 0
         except Exception as e:
