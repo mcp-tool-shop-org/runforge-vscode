@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/feature_importance.schema.v1.json",
+  "title": "RunForge Feature Importance v1",
+  "description": "Feature importance artifact for RunForge Phase 3.4+. Read-only extraction from trained models.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "feature_importance.v1",
+      "description": "Schema version identifier"
+    },
+    "model_family": {
+      "type": "string",
+      "enum": ["random_forest"],
+      "description": "Model family that produced this importance (RandomForest only in v1)"
+    },
+    "importance_type": {
+      "type": "string",
+      "enum": ["gini_importance"],
+      "description": "Type of importance metric used"
+    },
+    "num_features": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of features"
+    },
+    "features_by_importance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Feature column name"
+          },
+          "importance": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Importance score (non-negative)"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Rank by importance (1 = most important)"
+          }
+        },
+        "required": ["name", "importance", "rank"],
+        "additionalProperties": false
+      },
+      "description": "Features sorted by importance (descending), with stable tie-breaking by name"
+    },
+    "features_by_original_order": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Feature column name"
+          },
+          "importance": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Importance score (non-negative)"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Original feature index in dataset"
+          }
+        },
+        "required": ["name", "importance", "index"],
+        "additionalProperties": false
+      },
+      "description": "Features in original dataset column order"
+    },
+    "top_k": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 10,
+      "description": "Top-k feature names by importance (convenience field, max 10)"
+    }
+  },
+  "required": [
+    "schema_version",
+    "model_family",
+    "importance_type",
+    "num_features",
+    "features_by_importance",
+    "features_by_original_order",
+    "top_k"
+  ],
+  "additionalProperties": false
+}
