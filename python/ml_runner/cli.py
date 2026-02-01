@@ -158,8 +158,8 @@ def main() -> int:
                 seed=args.seed,
                 device=args.device,
                 model_family=args.model,
-                # Phase 3.2: Pass parsed params and profile (not yet used by run_training)
-                # These will be wired in later commits
+                cli_params=params if params else None,
+                profile_name=args.profile,
             )
             return 0
         except Exception as e:

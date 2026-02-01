@@ -17,6 +17,11 @@ Phase 3.1: Model selection
 - Explicit model family choice via --model flag
 - Supported: logistic_regression, random_forest, linear_svc
 - Default: logistic_regression (unchanged from Phase 2)
+
+Phase 3.2: Hyperparameters and profiles
+- CLI --param overrides (highest priority)
+- Named training profiles with expansion
+- Type validation and range checking
 """
 
 import json
@@ -24,7 +29,7 @@ import os
 import pickle
 import random
 from pathlib import Path
-from typing import Optional, Tuple, List, NamedTuple
+from typing import Any, Dict, Optional, Tuple, List, NamedTuple
 
 import numpy as np
 
@@ -33,6 +38,8 @@ from .inspect import compute_dataset_fingerprint
 from .metadata import generate_run_id, create_run_metadata, write_run_metadata, RUNFORGE_VERSION
 from .provenance import append_run_to_index
 from .model_factory import create_estimator, get_model_display_name
+from .resolver import resolve_config, ResolvedConfig
+from .hyperparams import validate_and_convert, HyperparamError
 
 
 class LoadResult(NamedTuple):
@@ -73,6 +80,8 @@ def run_training(
     seed: Optional[int] = None,
     device: str = "cpu",
     model_family: str = "logistic_regression",
+    cli_params: Optional[Dict[str, str]] = None,
+    profile_name: Optional[str] = None,
 ) -> None:
     """
     Execute a training run on CSV data.
@@ -89,10 +98,42 @@ def run_training(
             - logistic_regression (default)
             - random_forest
             - linear_svc
+        cli_params: Hyperparameters from --param CLI args (Phase 3.2)
+        profile_name: Training profile name (Phase 3.2)
     """
     # Get preset configuration
     preset = get_preset(preset_id)
     defaults = preset["defaults"]
+
+    # Phase 3.2: Resolve hyperparameters from profile + CLI
+    resolved = resolve_config(
+        model_family=model_family,
+        cli_params=cli_params,
+        profile_name=profile_name,
+    )
+
+    # Profile can override model_family
+    actual_model_family = resolved.model_family
+
+    # Validate and convert hyperparameters to proper types
+    typed_hyperparams: Dict[str, Any] = {}
+    if resolved.hyperparameters:
+        # Separate string params (from CLI) from already-typed params (from profile)
+        string_params = {
+            k: v for k, v in resolved.hyperparameters.items()
+            if isinstance(v, str)
+        }
+        typed_params = {
+            k: v for k, v in resolved.hyperparameters.items()
+            if not isinstance(v, str)
+        }
+
+        # Validate and convert string params
+        if string_params:
+            typed_hyperparams.update(validate_and_convert(actual_model_family, string_params))
+
+        # Add already-typed params directly
+        typed_hyperparams.update(typed_params)
 
     # Set seed for reproducibility
     actual_seed = seed if seed is not None else defaults["seed"]
@@ -122,12 +163,16 @@ def run_training(
     print(f"RunForge Training Runner v{RUNFORGE_VERSION}")
     print(f"=" * 50)
     print(f"Preset:         {preset['name']} ({preset_id})")
-    print(f"Model:          {get_model_display_name(model_family)} ({model_family})")
+    print(f"Model:          {get_model_display_name(actual_model_family)} ({actual_model_family})")
+    if resolved.has_profile():
+        print(f"Profile:        {resolved.profile_name} (v{resolved.profile_version})")
     print(f"Epochs:         {defaults['epochs']}")
     print(f"Learning Rate:  {defaults['learning_rate']}")
     print(f"Regularization: {defaults['regularization']}")
     print(f"Solver:         {defaults['solver']}")
     print(f"Max Iter:       {defaults['max_iter']}")
+    if typed_hyperparams:
+        print(f"Hyperparams:    {typed_hyperparams}")
     print(f"Seed:           {actual_seed}")
     print(f"Device:         {device}")
     print(f"Dataset:        {dataset_path}")
@@ -153,17 +198,18 @@ def run_training(
     print()
 
     # Train model with 80/20 split
-    model_name = get_model_display_name(model_family)
+    model_name = get_model_display_name(actual_model_family)
     print(f"Training {model_name} (80/20 split)...")
     pipeline, accuracy = train_model(
         X=X,
         y=y,
-        model_family=model_family,
+        model_family=actual_model_family,
         regularization=defaults["regularization"],
         solver=defaults["solver"],
         max_iter=defaults["max_iter"],
         epochs=defaults["epochs"],
         seed=actual_seed,
+        hyperparams=typed_hyperparams,
     )
 
     # Save pipeline artifact
@@ -195,7 +241,7 @@ def run_training(
         dropped_rows=rows_dropped,
         accuracy=round(accuracy, 4),
         model_pkl_path="artifacts/model.pkl",
-        model_family=model_family,
+        model_family=actual_model_family,
     )
 
     # Write run.json to output directory
@@ -424,11 +470,13 @@ def train_model(
     max_iter: int,
     epochs: int,
     seed: int,
+    hyperparams: Optional[Dict[str, Any]] = None,
 ) -> Tuple[object, float]:
     """
     Train a classifier using sklearn Pipeline with model selection.
 
     Phase 3.1: Supports multiple model families via model_factory.
+    Phase 3.2: Accepts hyperparameter overrides from profiles/CLI.
     Uses deterministic 80/20 train/val split.
     Accuracy is computed on validation set only.
 
@@ -441,6 +489,7 @@ def train_model(
         max_iter: Maximum iterations
         epochs: Number of training epochs (for progress output)
         seed: Random seed
+        hyperparams: Optional dict of hyperparameter overrides (Phase 3.2)
 
     Returns:
         pipeline: Trained sklearn Pipeline (scaler + classifier)
@@ -464,32 +513,39 @@ def train_model(
 
     print(f"  Train samples: {len(X_train)}, Val samples: {len(X_val)}")
 
+    # Phase 3.2: Merge hyperparams with defaults
+    # Precedence: hyperparams > preset defaults
+    hp = hyperparams or {}
+
     # C is inverse of regularization strength (for applicable models)
-    C = 1.0 / regularization if regularization > 0 else 1e6
+    # Can be overridden by hyperparams
+    C = hp.get("C", 1.0 / regularization if regularization > 0 else 1e6)
 
     # Create estimator using model factory
     # Build model-specific kwargs based on what each model accepts
+    # Phase 3.2: hyperparams override preset defaults
     if model_family == "logistic_regression":
         estimator = create_estimator(
             model_family,
             random_state=seed,
             C=C,
-            solver=solver,
-            max_iter=max_iter,
-            warm_start=True,
+            solver=hp.get("solver", solver),
+            max_iter=hp.get("max_iter", max_iter),
+            warm_start=hp.get("warm_start", True),
         )
     elif model_family == "random_forest":
         estimator = create_estimator(
             model_family,
             random_state=seed,
-            n_estimators=100,
+            n_estimators=hp.get("n_estimators", 100),
+            max_depth=hp.get("max_depth", None),
         )
     elif model_family == "linear_svc":
         estimator = create_estimator(
             model_family,
             random_state=seed,
             C=C,
-            max_iter=max_iter,
+            max_iter=hp.get("max_iter", max_iter),
         )
     else:
         # Fallback (should not reach here due to CLI validation)
@@ -507,12 +563,14 @@ def train_model(
     # For other models, we train once but show progress
     if model_family == "logistic_regression":
         # Use epochs with warm_start for Logistic Regression
+        # Use hyperparam max_iter if provided, else preset default
+        effective_max_iter = hp.get("max_iter", max_iter)
         for epoch in range(1, epochs + 1):
             clf = pipeline.named_steps['clf']
             if epoch == epochs:
-                clf.max_iter = max_iter
+                clf.max_iter = effective_max_iter
             else:
-                clf.max_iter = max(1, max_iter // epochs)
+                clf.max_iter = max(1, effective_max_iter // epochs)
 
             pipeline.fit(X_train, y_train)
             val_accuracy = pipeline.score(X_val, y_val)
