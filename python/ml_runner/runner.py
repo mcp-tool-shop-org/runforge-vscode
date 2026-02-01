@@ -47,6 +47,11 @@ from .feature_importance import (
     supports_feature_importance,
     get_feature_names_from_csv_header,
 )
+from .linear_coefficients import (
+    extract_linear_coefficients,
+    write_linear_coefficients,
+    supports_linear_coefficients,
+)
 
 
 class LoadResult(NamedTuple):
@@ -281,6 +286,33 @@ def run_training(
             if fi_result.diagnostic_message:
                 print(f"  {fi_result.diagnostic_message}")
 
+    # Phase 3.5: Extract and write linear coefficients (if supported)
+    linear_coefficients_artifact_path: Optional[str] = None
+    linear_coefficients_schema_version: Optional[str] = None
+
+    lc_result = extract_linear_coefficients(
+        pipeline=pipeline,
+        model_family=actual_model_family,
+        feature_names=feature_names,
+    )
+
+    if lc_result.success and lc_result.artifact:
+        lc_path = write_linear_coefficients(lc_result.artifact, out_path)
+        linear_coefficients_artifact_path = "artifacts/linear_coefficients.v1.json"
+        linear_coefficients_schema_version = lc_result.artifact["schema_version"]
+        print(f"Linear coefficients saved: {lc_path}")
+        # Show top features for first class
+        if lc_result.artifact["top_k_by_class"]:
+            top_entry = lc_result.artifact["top_k_by_class"][0]
+            top_features = top_entry["top_features"][:5]
+            print(f"  Top features (class {top_entry['class']}): {', '.join(top_features)}")
+    else:
+        # Emit diagnostic (not an error - just means coefficients unavailable)
+        if lc_result.diagnostic:
+            print(f"Linear coefficients: {lc_result.diagnostic.value}")
+            if lc_result.diagnostic_message:
+                print(f"  {lc_result.diagnostic_message}")
+
     # Phase 2.2.1: Generate run metadata
     run_id = generate_run_id(dataset_fingerprint, "label")
 
@@ -310,6 +342,9 @@ def run_training(
         # Phase 3.4: Feature importance (only if available)
         feature_importance_schema_version=feature_importance_schema_version,
         feature_importance_artifact_path=feature_importance_artifact_path,
+        # Phase 3.5: Linear coefficients (only if available)
+        linear_coefficients_schema_version=linear_coefficients_schema_version,
+        linear_coefficients_artifact_path=linear_coefficients_artifact_path,
     )
 
     # Write run.json to output directory

@@ -24,10 +24,10 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.3.4.0"
+RUNFORGE_VERSION = "0.3.5.0"
 
 # Run schema version
-RUN_SCHEMA_VERSION = "run.v0.3.4"
+RUN_SCHEMA_VERSION = "run.v0.3.5"
 
 
 def generate_run_id(
@@ -88,6 +88,8 @@ def create_run_metadata(
     metrics_v1_artifact_path: Optional[str] = None,
     feature_importance_schema_version: Optional[str] = None,
     feature_importance_artifact_path: Optional[str] = None,
+    linear_coefficients_schema_version: Optional[str] = None,
+    linear_coefficients_artifact_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create run metadata dict.
@@ -119,6 +121,8 @@ def create_run_metadata(
         metrics_v1_artifact_path: Relative path to metrics.v1.json (Phase 3.3)
         feature_importance_schema_version: Schema version from feature_importance.v1.json (Phase 3.4)
         feature_importance_artifact_path: Relative path to feature_importance.v1.json (Phase 3.4)
+        linear_coefficients_schema_version: Schema version from linear_coefficients.v1.json (Phase 3.5)
+        linear_coefficients_artifact_path: Relative path to linear_coefficients.v1.json (Phase 3.5)
 
     Returns:
         Metadata dict conforming to schema
@@ -168,6 +172,12 @@ def create_run_metadata(
         metadata["feature_importance_schema_version"] = feature_importance_schema_version
         metadata["feature_importance_artifact"] = feature_importance_artifact_path
         metadata["artifacts"]["feature_importance_json"] = feature_importance_artifact_path
+
+    # Phase 3.5: Add linear coefficients pointer if available
+    if linear_coefficients_schema_version and linear_coefficients_artifact_path:
+        metadata["linear_coefficients_schema_version"] = linear_coefficients_schema_version
+        metadata["linear_coefficients_artifact"] = linear_coefficients_artifact_path
+        metadata["artifacts"]["linear_coefficients_json"] = linear_coefficients_artifact_path
 
     # Phase 3.2: Only include profile fields if profile was used
     # IMPORTANT: Fields are OMITTED when no profile is used, not set to null
