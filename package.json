@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge",
   "description": "Push-button ML training with presets and indexed outputs",
-  "version": "0.2.2.1",
+  "version": "0.2.2.2",
   "publisher": "mcp-tool-shop",
   "repository": {
     "type": "git",

@@ -17,7 +17,7 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.2.2.1"
+RUNFORGE_VERSION = "0.2.2.2"
 
 
 def generate_run_id(
