@@ -8,8 +8,10 @@ Profiles are named aliases that expand to:
 Profiles are versioned and inspectable.
 """
 
+import hashlib
+import json
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -125,3 +127,103 @@ def get_profile_info(name: str) -> Dict[str, Any]:
         "params": dict(profile.params),
         "description": profile.description,
     }
+
+
+@dataclass(frozen=True)
+class ExpandedProfile:
+    """
+    Result of expanding a profile.
+
+    Contains all fields needed for metadata recording.
+    """
+    profile_name: str
+    profile_version: str
+    model_family: str
+    params: Dict[str, Any]
+    expanded_parameters_hash: str
+
+
+def _compute_expansion_hash(
+    profile_name: str,
+    profile_version: str,
+    model_family: str,
+    params: Dict[str, Any],
+) -> str:
+    """
+    Compute SHA-256 hash of expanded profile parameters.
+
+    Uses canonical JSON for determinism:
+    - sorted keys
+    - no whitespace
+    - consistent separators
+
+    Args:
+        profile_name: Name of the profile
+        profile_version: Version of the profile
+        model_family: Model family from the profile
+        params: Expanded parameters
+
+    Returns:
+        SHA-256 hex digest
+    """
+    # Build canonical dict with sorted keys
+    canonical = {
+        "model_family": model_family,
+        "params": dict(sorted(params.items())) if params else {},
+        "profile_name": profile_name,
+        "profile_version": profile_version,
+    }
+
+    # Canonical JSON: sorted keys, no whitespace, consistent separators
+    json_bytes = json.dumps(
+        canonical,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+    return hashlib.sha256(json_bytes).hexdigest()
+
+
+def expand_profile(name: str) -> ExpandedProfile:
+    """
+    Expand a profile to its full specification.
+
+    Returns an ExpandedProfile with:
+    - profile_name
+    - profile_version
+    - model_family
+    - params
+    - expanded_parameters_hash (SHA-256)
+
+    The hash is computed from the canonical JSON of
+    {profile_name, profile_version, model_family, params}.
+
+    Args:
+        name: Profile name
+
+    Returns:
+        ExpandedProfile instance
+
+    Raises:
+        UnknownProfileError: If profile name not found
+    """
+    profile = get_profile(name)
+
+    # Make a copy of params to avoid mutation
+    params = dict(profile.params)
+
+    # Compute integrity hash
+    hash_value = _compute_expansion_hash(
+        profile_name=profile.name,
+        profile_version=profile.version,
+        model_family=profile.model_family,
+        params=params,
+    )
+
+    return ExpandedProfile(
+        profile_name=profile.name,
+        profile_version=profile.version,
+        model_family=profile.model_family,
+        params=params,
+        expanded_parameters_hash=hash_value,
+    )

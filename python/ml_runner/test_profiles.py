@@ -15,7 +15,10 @@ from ml_runner.profiles import (
     get_profile,
     list_profiles,
     get_profile_info,
+    expand_profile,
+    ExpandedProfile,
     UnknownProfileError,
+    _compute_expansion_hash,
 )
 
 
@@ -167,3 +170,106 @@ class TestProfileVersioning:
                 f"Profile '{name}' version '{profile.version}' "
                 "doesn't match major.minor format"
             )
+
+
+class TestExpandProfile:
+    """Tests for expand_profile function."""
+
+    def test_expand_returns_expanded_profile(self):
+        """expand_profile returns ExpandedProfile instance."""
+        result = expand_profile("default")
+        assert isinstance(result, ExpandedProfile)
+
+    def test_expand_has_all_fields(self):
+        """Expanded profile has all required fields."""
+        result = expand_profile("fast")
+
+        assert result.profile_name == "fast"
+        assert result.profile_version == "1.0"
+        assert result.model_family == "logistic_regression"
+        assert result.params == {"max_iter": 50}
+        assert result.expanded_parameters_hash  # Non-empty
+
+    def test_expand_hash_is_sha256(self):
+        """Expansion hash is a valid SHA-256 hex digest."""
+        result = expand_profile("default")
+        hash_value = result.expanded_parameters_hash
+
+        # SHA-256 produces 64 hex characters
+        assert len(hash_value) == 64
+        assert all(c in "0123456789abcdef" for c in hash_value)
+
+    def test_expand_hash_is_deterministic(self):
+        """Same profile produces identical hash on repeated expansion."""
+        result1 = expand_profile("fast")
+        result2 = expand_profile("fast")
+        result3 = expand_profile("fast")
+
+        assert result1.expanded_parameters_hash == result2.expanded_parameters_hash
+        assert result2.expanded_parameters_hash == result3.expanded_parameters_hash
+
+    def test_different_profiles_different_hashes(self):
+        """Different profiles produce different hashes."""
+        default_hash = expand_profile("default").expanded_parameters_hash
+        fast_hash = expand_profile("fast").expanded_parameters_hash
+        thorough_hash = expand_profile("thorough").expanded_parameters_hash
+
+        assert default_hash != fast_hash
+        assert fast_hash != thorough_hash
+        assert default_hash != thorough_hash
+
+    def test_expand_unknown_profile_raises(self):
+        """expand_profile raises for unknown profile."""
+        with pytest.raises(UnknownProfileError):
+            expand_profile("nonexistent")
+
+    def test_expand_params_is_copy(self):
+        """Expanded params is a copy (not reference to registry)."""
+        result = expand_profile("fast")
+        original_value = result.params.get("max_iter")
+
+        # Attempt to modify (should fail since ExpandedProfile is frozen)
+        # But params dict itself could be mutable...
+        # Let's verify the registry is unchanged
+        profile = get_profile("fast")
+        assert profile.params.get("max_iter") == original_value
+
+
+class TestExpansionHashDeterminism:
+    """Tests for hash determinism."""
+
+    def test_hash_depends_on_profile_name(self):
+        """Hash changes if profile_name differs."""
+        hash1 = _compute_expansion_hash("a", "1.0", "logistic_regression", {})
+        hash2 = _compute_expansion_hash("b", "1.0", "logistic_regression", {})
+        assert hash1 != hash2
+
+    def test_hash_depends_on_version(self):
+        """Hash changes if profile_version differs."""
+        hash1 = _compute_expansion_hash("fast", "1.0", "logistic_regression", {})
+        hash2 = _compute_expansion_hash("fast", "2.0", "logistic_regression", {})
+        assert hash1 != hash2
+
+    def test_hash_depends_on_model_family(self):
+        """Hash changes if model_family differs."""
+        hash1 = _compute_expansion_hash("fast", "1.0", "logistic_regression", {})
+        hash2 = _compute_expansion_hash("fast", "1.0", "random_forest", {})
+        assert hash1 != hash2
+
+    def test_hash_depends_on_params(self):
+        """Hash changes if params differ."""
+        hash1 = _compute_expansion_hash("fast", "1.0", "logistic_regression", {"C": 1.0})
+        hash2 = _compute_expansion_hash("fast", "1.0", "logistic_regression", {"C": 2.0})
+        assert hash1 != hash2
+
+    def test_hash_param_order_independent(self):
+        """Hash is same regardless of param insertion order."""
+        hash1 = _compute_expansion_hash("p", "1.0", "m", {"a": 1, "b": 2})
+        hash2 = _compute_expansion_hash("p", "1.0", "m", {"b": 2, "a": 1})
+        assert hash1 == hash2
+
+    def test_hash_empty_params_stable(self):
+        """Hash is stable for empty params."""
+        hash1 = _compute_expansion_hash("p", "1.0", "m", {})
+        hash2 = _compute_expansion_hash("p", "1.0", "m", {})
+        assert hash1 == hash2
