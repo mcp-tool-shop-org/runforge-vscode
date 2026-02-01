@@ -96,8 +96,8 @@ No external preprocessing steps are required.
 
 RunForge does not currently attempt to:
 
-- Auto-select models
-- Tune hyperparameters
+- Auto-select models (user must choose explicitly)
+- Tune hyperparameters (defaults are fixed per preset)
 - Perform online or incremental training
 - Hide training behavior behind heuristics
 
@@ -221,6 +221,58 @@ Full structured diagnostics emission is planned for future phases.
 
 ---
 
+## Model Selection (v0.3.1+)
+
+Phase 3.1 adds explicit model selection while preserving all Phase 2 guarantees.
+
+### Supported Models
+
+| Model | CLI Value | Description |
+|-------|-----------|-------------|
+| Logistic Regression | `logistic_regression` | Default, fast, interpretable |
+| Random Forest | `random_forest` | Ensemble, handles non-linear patterns |
+| Linear SVC | `linear_svc` | Support vector classifier, margin-based |
+
+### Configuration
+
+Set the model family in VS Code settings:
+
+```json
+{
+  "runforge.modelFamily": "random_forest"
+}
+```
+
+Or use the Settings UI: Search for "RunForge Model Family" and select from the dropdown.
+
+### CLI Usage
+
+```bash
+python -m ml_runner train --preset std-train --out ./run --device cpu --model random_forest
+```
+
+The `--model` argument is optional. Default: `logistic_regression`.
+
+### Provenance
+
+The selected model family is recorded in `run.json`:
+
+```json
+{
+  "model_family": "random_forest",
+  "runforge_version": "0.3.1.0"
+}
+```
+
+### Backward Compatibility
+
+- All Phase 2 runs remain readable
+- Default behavior unchanged (logistic regression)
+- No migration required
+- Preprocessing remains fixed (StandardScaler for all models)
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
@@ -231,9 +283,13 @@ See [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) for introsp
 
 See [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) for UX polish requirements.
 
+See [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) for Phase 3 capability expansion rules.
+
+See [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) for model selection requirements.
+
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
-**Phase 2.1 is complete and frozen. All future phases must preserve the guarantees defined in CONTRACT.md.**
+**Phase 2 is complete and frozen. Phase 3 extends Phase 2 without breaking any existing guarantees. See CONTRACT-PHASE-3.md for rules.**
 
 ## License
 
