@@ -22,6 +22,7 @@ npm run compile
 | `RunForge: Browse Runs` | Browse all runs with actions (summary, diagnostics, artifact) (v0.2.3+) |
 | `RunForge: View Latest Metrics` | View detailed metrics from metrics.v1.json (v0.3.3+) |
 | `RunForge: View Latest Feature Importance` | View feature importance for RandomForest models (v0.3.4+) |
+| `RunForge: View Latest Linear Coefficients` | View coefficients for linear models (v0.3.5+) |
 
 ## Usage
 
@@ -500,6 +501,120 @@ The following are explicitly out of scope for v1:
 
 ---
 
+## Linear Coefficients (v0.3.5+)
+
+Phase 3.5 adds read-only coefficient extraction for linear classifiers.
+
+### Supported Models
+
+Linear coefficients are available for models with native `coef_` attribute:
+
+| Model | Supported | Coefficient Type |
+|-------|-----------|------------------|
+| LogisticRegression | ✅ | Log-odds coefficients |
+| LinearSVC | ✅ | SVM coefficients |
+| RandomForest | ❌ | Use Feature Importance instead |
+
+**No approximations**: If the model doesn't support native coefficients, no artifact is emitted.
+
+### Coefficient Space (IMPORTANT)
+
+**All coefficients are in STANDARDIZED feature space.**
+
+This means:
+- Coefficients correspond to features AFTER StandardScaler
+- Values represent influence per 1 standard deviation increase
+- No attempt is made to "invert" scaling back to raw feature units
+- Comparing coefficients across features is meaningful (same scale)
+- Comparing coefficients to raw feature values is NOT meaningful
+
+### Linear Coefficients Artifact
+
+Linear model runs produce `artifacts/linear_coefficients.v1.json`:
+
+```json
+{
+  "schema_version": "linear_coefficients.v1",
+  "model_family": "logistic_regression",
+  "coefficient_space": "standardized",
+  "num_features": 10,
+  "num_classes": 2,
+  "classes": [0, 1],
+  "intercepts": [
+    {"class": 1, "intercept": 0.5}
+  ],
+  "coefficients_by_class": [
+    {
+      "class": 1,
+      "features": [
+        {"name": "feature_a", "coefficient": 2.35, "abs_coefficient": 2.35, "rank": 1},
+        {"name": "feature_b", "coefficient": -1.25, "abs_coefficient": 1.25, "rank": 2}
+      ]
+    }
+  ],
+  "top_k_by_class": [
+    {"class": 1, "top_features": ["feature_a", "feature_b"]}
+  ]
+}
+```
+
+### Multiclass Support
+
+For multiclass classification (3+ classes), coefficients are grouped per class:
+
+- Each class has its own set of coefficients
+- Class labels are sorted deterministically
+- No aggregation across classes in v1
+
+### Run Metadata
+
+`run.json` includes linear coefficients reference when available:
+
+```json
+{
+  "linear_coefficients_schema_version": "linear_coefficients.v1",
+  "linear_coefficients_artifact": "artifacts/linear_coefficients.v1.json",
+  "artifacts": {
+    "model_pkl": "artifacts/model.pkl",
+    "linear_coefficients_json": "artifacts/linear_coefficients.v1.json"
+  }
+}
+```
+
+When coefficients are not available, these fields are omitted entirely (not null).
+
+### Diagnostics
+
+Unsupported models emit structured diagnostics:
+
+| Code | Description |
+|------|-------------|
+| `LINEAR_COEFFICIENTS_UNSUPPORTED_MODEL` | Model doesn't support coefficient extraction |
+| `COEFFICIENTS_MISSING_ON_ARTIFACT` | Classifier doesn't have coef_ attribute |
+| `FEATURE_NAMES_UNAVAILABLE` | Feature names could not be resolved |
+
+### Feature Importance vs Linear Coefficients
+
+| Artifact | Supported Models | What It Shows |
+|----------|------------------|---------------|
+| Feature Importance (v0.3.4) | RandomForest | Gini importance (tree-based) |
+| Linear Coefficients (v0.3.5) | LogisticRegression, LinearSVC | Model coefficients |
+
+These are complementary:
+- Use Feature Importance for ensemble models
+- Use Linear Coefficients for interpretable linear models
+
+### Interpretation Guide
+
+For LogisticRegression (binary):
+- Positive coefficient: Feature increase → Higher probability of positive class
+- Negative coefficient: Feature increase → Lower probability of positive class
+- Magnitude: Larger absolute value = Stronger influence
+
+Example: `coefficient = 2.0` means +1 std dev in this feature → +2.0 to log-odds
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
@@ -519,6 +634,8 @@ See [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) for hyperparame
 See [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) for model-aware metrics requirements.
 
 See [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) for feature importance requirements.
+
+See [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) for linear coefficients requirements.
 
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
