@@ -2,11 +2,15 @@
  * Metadata Commands (Phase 2.2.1)
  *
  * View and export run metadata.
+ *
+ * Phase 2.3: Updated to use fs-safe for consistent error handling.
  */
 
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
+import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
+import { openJsonDocument } from './open-summary.js';
 
 export interface RunMetadata {
   run_id: string;
@@ -119,9 +123,35 @@ export function formatMetadata(metadata: RunMetadata): string {
  * Open run metadata in a new editor
  */
 export async function openMetadataInEditor(metadata: RunMetadata): Promise<void> {
-  const doc = await vscode.workspace.openTextDocument({
-    content: formatMetadata(metadata),
-    language: 'json',
-  });
-  await vscode.window.showTextDocument(doc);
+  await openJsonDocument(metadata, { viewColumn: vscode.ViewColumn.Active, preview: false });
+}
+
+/**
+ * Phase 2.3: Get latest run metadata with structured error handling
+ *
+ * Returns a result object with actionable error messages.
+ */
+export async function getLatestRunMetadataSafe(
+  workspaceRoot: string
+): Promise<{ ok: true; value: RunMetadata } | { ok: false; message: string }> {
+  const indexResult = await safeReadIndex(workspaceRoot);
+
+  if (!indexResult.ok) {
+    return { ok: false, message: getActionableMessage(indexResult.error) };
+  }
+
+  const index = indexResult.value;
+  if (!index.runs || index.runs.length === 0) {
+    return { ok: false, message: 'No runs found. Run a training first.' };
+  }
+
+  // Get the latest run
+  const latestEntry = index.runs[index.runs.length - 1];
+  const runJsonResult = await safeReadRunJson(workspaceRoot, latestEntry.run_dir);
+
+  if (!runJsonResult.ok) {
+    return { ok: false, message: getActionableMessage(runJsonResult.error) };
+  }
+
+  return { ok: true, value: runJsonResult.value as RunMetadata };
 }

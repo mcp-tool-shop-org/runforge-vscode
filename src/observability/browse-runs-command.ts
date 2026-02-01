@@ -11,6 +11,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
+import { openMarkdownSummary } from './open-summary.js';
 
 /**
  * QuickPick item for a run
@@ -130,16 +131,7 @@ async function openRunSummary(entry: IndexEntry, workspaceRoot: string): Promise
   const { renderRunSummary } = await import('./render/run-summary.js');
   const markdown = renderRunSummary(runJson, entry.run_id);
 
-  // Open as untitled markdown document
-  const doc = await vscode.workspace.openTextDocument({
-    content: markdown,
-    language: 'markdown',
-  });
-
-  await vscode.window.showTextDocument(doc, {
-    preview: true,
-    viewColumn: vscode.ViewColumn.Beside,
-  });
+  await openMarkdownSummary(markdown);
 }
 
 /**
@@ -169,15 +161,7 @@ async function viewDiagnostics(
   channel.appendLine(markdown);
 
   // Also open as markdown doc for better reading
-  const doc = await vscode.workspace.openTextDocument({
-    content: markdown,
-    language: 'markdown',
-  });
-
-  await vscode.window.showTextDocument(doc, {
-    preview: true,
-    viewColumn: vscode.ViewColumn.Beside,
-  });
+  await openMarkdownSummary(markdown);
 }
 
 /**

@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import { executeRun, getOutputChannel, disposeOutputChannel, isRunning, setExtensionPath } from './runner/run-manager.js';
 import { showRunsPicker } from './views/runs-picker.js';
 import { inspectDataset, formatInspectResult } from './observability/inspect-command.js';
-import { getLatestRunMetadata, openMetadataInEditor } from './observability/metadata-command.js';
+import { getLatestRunMetadataSafe, openMetadataInEditor } from './observability/metadata-command.js';
 import { inspectArtifact, formatArtifactInspectResult, openInspectionInEditor } from './observability/artifact-inspect-command.js';
 import { browseRuns } from './observability/browse-runs-command.js';
 import type { PresetId } from './types.js';
@@ -202,6 +202,8 @@ async function runInspectDataset(): Promise<void> {
 
 /**
  * Phase 2.2.1: Open latest run metadata command
+ *
+ * Phase 2.3: Updated to use fs-safe for consistent error handling.
  */
 async function runOpenLatestMetadata(): Promise<void> {
   const workspaceRoot = getWorkspaceRoot();
@@ -210,19 +212,14 @@ async function runOpenLatestMetadata(): Promise<void> {
     return;
   }
 
-  try {
-    const metadata = await getLatestRunMetadata(workspaceRoot);
+  const result = await getLatestRunMetadataSafe(workspaceRoot);
 
-    if (!metadata) {
-      vscode.window.showInformationMessage('No runs found. Run a training first.');
-      return;
-    }
-
-    await openMetadataInEditor(metadata);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    vscode.window.showErrorMessage(`Failed to load metadata: ${message}`);
+  if (!result.ok) {
+    vscode.window.showInformationMessage(result.message);
+    return;
   }
+
+  await openMetadataInEditor(result.value);
 }
 
 /**
