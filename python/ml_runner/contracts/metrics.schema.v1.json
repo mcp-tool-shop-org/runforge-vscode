@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/metrics.schema.v1.json",
+  "title": "RunForge Metrics v1",
+  "description": "Model-aware metrics artifact for RunForge Phase 3.3+. Separate from run.json.metrics (Phase 2 summary).",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "metrics.v1",
+      "description": "Schema version identifier"
+    },
+    "metrics_profile": {
+      "type": "string",
+      "enum": ["classification.base.v1", "classification.proba.v1", "classification.multiclass.v1"],
+      "description": "Metrics profile based on model capabilities and class count"
+    },
+    "num_classes": {
+      "type": "integer",
+      "minimum": 2,
+      "description": "Number of unique classes in the dataset"
+    },
+    "accuracy": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Classification accuracy"
+    },
+    "precision_macro": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Macro-averaged precision"
+    },
+    "recall_macro": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Macro-averaged recall"
+    },
+    "f1_macro": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Macro-averaged F1 score"
+    },
+    "confusion_matrix": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Confusion matrix as 2D array [true_label][predicted_label]"
+    },
+    "roc_auc": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "ROC-AUC score (binary only, requires predict_proba or decision_function)"
+    },
+    "log_loss": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Log loss (binary only, requires predict_proba)"
+    },
+    "per_class_precision": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "description": "Precision per class (multiclass only)"
+    },
+    "per_class_recall": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "description": "Recall per class (multiclass only)"
+    },
+    "per_class_f1": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "description": "F1 score per class (multiclass only)"
+    },
+    "class_labels": {
+      "type": "array",
+      "items": {
+        "type": ["string", "integer"]
+      },
+      "description": "Ordered list of class labels matching per_class arrays"
+    }
+  },
+  "required": [
+    "schema_version",
+    "metrics_profile",
+    "num_classes",
+    "accuracy",
+    "precision_macro",
+    "recall_macro",
+    "f1_macro",
+    "confusion_matrix"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "metrics_profile": { "const": "classification.proba.v1" }
+        }
+      },
+      "then": {
+        "required": ["roc_auc", "log_loss"],
+        "properties": {
+          "num_classes": { "const": 2 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metrics_profile": { "const": "classification.multiclass.v1" }
+        }
+      },
+      "then": {
+        "required": ["per_class_precision", "per_class_recall", "per_class_f1", "class_labels"]
+      }
+    }
+  ],
+  "additionalProperties": false
+}
