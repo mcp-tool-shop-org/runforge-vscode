@@ -273,6 +273,82 @@ The selected model family is recorded in `run.json`:
 
 ---
 
+## Hyperparameters & Training Profiles (v0.3.2+)
+
+Phase 3.2 adds explicit hyperparameter control and training profiles.
+
+### Training Profiles
+
+Named profiles provide pre-configured hyperparameters:
+
+| Profile | Description | Model Family |
+|---------|-------------|--------------|
+| `default` | No hyperparameter overrides | (uses setting) |
+| `fast` | Reduced iterations for quick runs | logistic_regression |
+| `thorough` | More trees/iterations for better quality | random_forest |
+
+Configure in VS Code settings:
+```json
+{
+  "runforge.profile": "fast"
+}
+```
+
+### CLI Hyperparameters
+
+Override individual hyperparameters via CLI:
+
+```bash
+python -m ml_runner train --preset std-train --out ./run --device cpu --param C=0.5 --param max_iter=200
+```
+
+### Precedence Rules
+
+When both profile and CLI params are set:
+
+1. **CLI `--param`** (highest priority)
+2. **Profile-expanded parameters**
+3. **Model defaults** (lowest priority)
+
+### Provenance
+
+Hyperparameters and profiles are recorded in `run.json`:
+
+```json
+{
+  "model_family": "random_forest",
+  "profile_name": "thorough",
+  "profile_version": "1.0",
+  "expanded_parameters_hash": "abc123...",
+  "hyperparameters": [
+    {"name": "n_estimators", "value": 200, "source": "profile"},
+    {"name": "max_depth", "value": 5, "source": "cli"}
+  ]
+}
+```
+
+When no profile is used, profile fields are omitted entirely (not null).
+
+### Supported Hyperparameters
+
+**Logistic Regression:**
+- `C` (float, > 0): Regularization strength
+- `max_iter` (int, > 0): Maximum iterations
+- `solver` (str): Optimization solver
+- `warm_start` (bool): Reuse previous solution
+
+**Random Forest:**
+- `n_estimators` (int, > 0): Number of trees
+- `max_depth` (int or None): Maximum tree depth
+- `min_samples_split` (int, >= 2): Min samples to split
+- `min_samples_leaf` (int, > 0): Min samples per leaf
+
+**Linear SVC:**
+- `C` (float, > 0): Regularization strength
+- `max_iter` (int, > 0): Maximum iterations
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
@@ -286,6 +362,8 @@ See [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) for UX polish r
 See [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) for Phase 3 capability expansion rules.
 
 See [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) for model selection requirements.
+
+See [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) for hyperparameter and profile requirements.
 
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
