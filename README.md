@@ -2,6 +2,52 @@
 
 Push-button ML training with deterministic, contract-driven behavior.
 
+> **Phase 3 (Capabilities & Interpretability) is complete as of v0.3.6.0.**
+> Future work proceeds under Phase 4 contracts.
+
+---
+
+## How RunForge Thinks
+
+RunForge is built on three principles:
+
+1. **Determinism** - Same inputs produce same outputs, always
+2. **Provenance** - Every run is traceable to its exact inputs
+3. **Honesty** - Artifacts say what they mean, failures are visible
+
+For the full trust model, see [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
+
+### Lifecycle of a Run
+
+```
+dataset.csv
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Training (run_training)                                    │
+│                                                             │
+│  1. Validate dataset (label column, numeric values)         │
+│  2. Compute dataset fingerprint (SHA-256)                   │
+│  3. Split 80/20 train/val (deterministic, stratified)       │
+│  4. Fit pipeline (StandardScaler + Classifier)              │
+│  5. Compute metrics                                         │
+│  6. Extract interpretability (if supported)                 │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+.runforge/runs/<run-id>/
+    ├── run.json                              ← Metadata + pointers
+    ├── metrics.json                          ← Phase 2 metrics (3 keys)
+    ├── metrics.v1.json                       ← Detailed metrics by profile
+    └── artifacts/
+        ├── model.pkl                         ← Trained pipeline
+        ├── feature_importance.v1.json        ← (RandomForest only)
+        ├── linear_coefficients.v1.json       ← (Linear models only)
+        └── interpretability.index.v1.json    ← Unified index
+```
+
+---
+
 ## Installation
 
 ```bash
