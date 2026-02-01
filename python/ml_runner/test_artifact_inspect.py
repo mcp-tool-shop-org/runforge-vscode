@@ -300,6 +300,76 @@ class TestWriteInspectionJson:
         assert set(parsed.keys()) == set(required)
 
 
+class TestGoldenArtifact:
+    """Golden test: same artifact always produces byte-identical JSON."""
+
+    @pytest.fixture
+    def golden_artifact_path(self) -> Path:
+        """Path to the golden pipeline artifact."""
+        return Path(__file__).parent / "fixtures" / "golden_pipeline.pkl"
+
+    @pytest.fixture
+    def golden_json_path(self) -> Path:
+        """Path to the expected golden JSON output."""
+        return Path(__file__).parent / "fixtures" / "golden_inspection.json"
+
+    def test_golden_artifact_exists(self, golden_artifact_path: Path):
+        """Golden artifact fixture must exist."""
+        assert golden_artifact_path.exists(), (
+            f"Golden artifact not found: {golden_artifact_path}. "
+            "Run: python -m ml_runner.fixtures.create_golden_artifact"
+        )
+
+    def test_golden_json_exists(self, golden_json_path: Path):
+        """Golden JSON fixture must exist."""
+        assert golden_json_path.exists(), f"Golden JSON not found: {golden_json_path}"
+
+    def test_byte_identical_output(
+        self, golden_artifact_path: Path, golden_json_path: Path
+    ):
+        """Inspection output must be byte-identical to golden file."""
+        # Skip if fixtures don't exist
+        if not golden_artifact_path.exists() or not golden_json_path.exists():
+            pytest.skip("Golden fixtures not available")
+
+        # Inspect the artifact
+        result = inspect_artifact(golden_artifact_path)
+        actual_json = write_inspection_json(result)
+
+        # Read expected
+        expected_json = golden_json_path.read_text(encoding="utf-8")
+
+        # Must be byte-identical
+        assert actual_json == expected_json, (
+            "Inspection output differs from golden file.\n"
+            f"Expected:\n{expected_json}\n"
+            f"Actual:\n{actual_json}"
+        )
+
+    def test_golden_validates_schema(self, golden_json_path: Path):
+        """Golden JSON must have all required schema fields."""
+        if not golden_json_path.exists():
+            pytest.skip("Golden JSON not available")
+
+        content = golden_json_path.read_text(encoding="utf-8")
+        parsed = json.loads(content)
+
+        # Required fields per schema
+        required = [
+            "schema_version",
+            "artifact_path",
+            "pipeline_steps",
+            "has_preprocessing",
+            "step_count",
+        ]
+
+        for field in required:
+            assert field in parsed, f"Golden file missing required field: {field}"
+
+        # Schema version must match
+        assert parsed["schema_version"] == SCHEMA_VERSION
+
+
 class TestReadOnlyBehavior:
     """Test that inspection is truly read-only."""
 

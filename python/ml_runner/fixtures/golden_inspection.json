@@ -1,0 +1,18 @@
+{
+  "artifact_path": "golden_pipeline.pkl", 
+  "has_preprocessing": true, 
+  "pipeline_steps": [
+    {
+      "module": "sklearn.preprocessing._data", 
+      "name": "scaler", 
+      "type": "StandardScaler"
+    }, 
+    {
+      "module": "sklearn.linear_model._logistic", 
+      "name": "clf", 
+      "type": "LogisticRegression"
+    }
+  ], 
+  "schema_version": "0.2.2.2", 
+  "step_count": 2
+}
