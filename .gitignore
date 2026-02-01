@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.vsix
+.vscode-test/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
