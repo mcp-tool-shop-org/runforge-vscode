@@ -372,3 +372,73 @@ class TestTrainModel:
             )
 
             assert acc1 == acc2, f"{model_family} not deterministic"
+
+
+class TestMetadataModelFamily:
+    """Tests for model_family field in run metadata."""
+
+    def test_create_run_metadata_includes_model_family(self):
+        """create_run_metadata includes model_family field."""
+        from ml_runner.metadata import create_run_metadata
+
+        metadata = create_run_metadata(
+            run_id="test-run",
+            dataset_path="/path/to/data.csv",
+            dataset_fingerprint="abc123",
+            label_column="label",
+            num_samples=100,
+            num_features=10,
+            dropped_rows=0,
+            accuracy=0.95,
+            model_pkl_path="artifacts/model.pkl",
+            model_family="random_forest",
+        )
+
+        assert "model_family" in metadata
+        assert metadata["model_family"] == "random_forest"
+
+    def test_create_run_metadata_default_model_family(self):
+        """create_run_metadata defaults model_family to logistic_regression."""
+        from ml_runner.metadata import create_run_metadata
+
+        metadata = create_run_metadata(
+            run_id="test-run",
+            dataset_path="/path/to/data.csv",
+            dataset_fingerprint="abc123",
+            label_column="label",
+            num_samples=100,
+            num_features=10,
+            dropped_rows=0,
+            accuracy=0.95,
+            model_pkl_path="artifacts/model.pkl",
+            # No model_family specified
+        )
+
+        assert metadata["model_family"] == "logistic_regression"
+
+    def test_model_family_for_each_supported_model(self):
+        """model_family is correctly recorded for each model type."""
+        from ml_runner.metadata import create_run_metadata
+
+        for model in ["logistic_regression", "random_forest", "linear_svc"]:
+            metadata = create_run_metadata(
+                run_id="test-run",
+                dataset_path="/path/to/data.csv",
+                dataset_fingerprint="abc123",
+                label_column="label",
+                num_samples=100,
+                num_features=10,
+                dropped_rows=0,
+                accuracy=0.95,
+                model_pkl_path="artifacts/model.pkl",
+                model_family=model,
+            )
+
+            assert metadata["model_family"] == model
+
+    def test_version_updated_for_phase_31(self):
+        """RUNFORGE_VERSION is updated for Phase 3.1."""
+        from ml_runner.metadata import RUNFORGE_VERSION
+
+        # Should be 0.3.1.0 for Phase 3.1
+        assert RUNFORGE_VERSION.startswith("0.3.1")

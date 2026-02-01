@@ -195,6 +195,7 @@ def run_training(
         dropped_rows=rows_dropped,
         accuracy=round(accuracy, 4),
         model_pkl_path="artifacts/model.pkl",
+        model_family=model_family,
     )
 
     # Write run.json to output directory

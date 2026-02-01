@@ -1,10 +1,13 @@
 """
-Run metadata handling for RunForge Phase 2.2.1
+Run metadata handling for RunForge
 
-Provides:
+Phase 2.2.1:
 - Metadata generation during training runs
 - Metadata viewing/export via CLI
 - Canonical JSON serialization for determinism
+
+Phase 3.1:
+- model_family field for model selection tracking
 """
 
 import json
@@ -17,7 +20,7 @@ from typing import Dict, Any, Optional, List
 from .provenance import get_latest_run, get_run_by_id, load_index
 
 # RunForge version - must match package version
-RUNFORGE_VERSION = "0.2.2.2"
+RUNFORGE_VERSION = "0.3.1.0"
 
 
 def generate_run_id(
@@ -67,10 +70,14 @@ def create_run_metadata(
     dropped_rows: int,
     accuracy: float,
     model_pkl_path: str,
+    model_family: str = "logistic_regression",
     created_at: Optional[datetime] = None,
 ) -> Dict[str, Any]:
     """
-    Create run metadata dict matching run.schema.v0.2.2.1.
+    Create run metadata dict.
+
+    Phase 2.2.1 fields: run.schema.v0.2.2.1
+    Phase 3.1 addition: model_family
 
     Args:
         run_id: Unique run identifier
@@ -82,6 +89,7 @@ def create_run_metadata(
         dropped_rows: Rows dropped due to missing values
         accuracy: Validation accuracy
         model_pkl_path: Relative path to model.pkl
+        model_family: Model family used (Phase 3.1)
         created_at: Optional fixed timestamp (for determinism)
 
     Returns:
@@ -103,6 +111,7 @@ def create_run_metadata(
             "fingerprint_sha256": dataset_fingerprint,
         },
         "label_column": label_column,
+        "model_family": model_family,  # Phase 3.1 addition
         "num_samples": num_samples,
         "num_features": num_features,
         "dropped_rows_missing_values": dropped_rows,
