@@ -32,6 +32,7 @@ from .presets import get_preset
 from .inspect import compute_dataset_fingerprint
 from .metadata import generate_run_id, create_run_metadata, write_run_metadata, RUNFORGE_VERSION
 from .provenance import append_run_to_index
+from .model_factory import create_estimator, get_model_display_name
 
 
 class LoadResult(NamedTuple):
@@ -121,6 +122,7 @@ def run_training(
     print(f"RunForge Training Runner v{RUNFORGE_VERSION}")
     print(f"=" * 50)
     print(f"Preset:         {preset['name']} ({preset_id})")
+    print(f"Model:          {get_model_display_name(model_family)} ({model_family})")
     print(f"Epochs:         {defaults['epochs']}")
     print(f"Learning Rate:  {defaults['learning_rate']}")
     print(f"Regularization: {defaults['regularization']}")
@@ -151,10 +153,12 @@ def run_training(
     print()
 
     # Train model with 80/20 split
-    print("Training Logistic Regression (80/20 split)...")
-    pipeline, accuracy = train_logistic_regression(
+    model_name = get_model_display_name(model_family)
+    print(f"Training {model_name} (80/20 split)...")
+    pipeline, accuracy = train_model(
         X=X,
         y=y,
+        model_family=model_family,
         regularization=defaults["regularization"],
         solver=defaults["solver"],
         max_iter=defaults["max_iter"],
@@ -403,6 +407,120 @@ def train_logistic_regression(
         # Compute validation accuracy for progress
         val_accuracy = pipeline.score(X_val, y_val)
         print(f"  Epoch {epoch}/{epochs} - val_accuracy: {val_accuracy:.4f}")
+
+    # Final validation accuracy
+    accuracy = pipeline.score(X_val, y_val)
+
+    return pipeline, accuracy
+
+
+def train_model(
+    X: np.ndarray,
+    y: np.ndarray,
+    model_family: str,
+    regularization: float,
+    solver: str,
+    max_iter: int,
+    epochs: int,
+    seed: int,
+) -> Tuple[object, float]:
+    """
+    Train a classifier using sklearn Pipeline with model selection.
+
+    Phase 3.1: Supports multiple model families via model_factory.
+    Uses deterministic 80/20 train/val split.
+    Accuracy is computed on validation set only.
+
+    Args:
+        X: Feature matrix
+        y: Labels
+        model_family: Model identifier (logistic_regression, random_forest, linear_svc)
+        regularization: Regularization strength (C = 1/regularization for applicable models)
+        solver: Solver to use (for logistic_regression)
+        max_iter: Maximum iterations
+        epochs: Number of training epochs (for progress output)
+        seed: Random seed
+
+    Returns:
+        pipeline: Trained sklearn Pipeline (scaler + classifier)
+        accuracy: Validation accuracy
+    """
+    from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    # Deterministic 80/20 train/val split
+    try:
+        # Try stratified split first
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.2, random_state=seed, stratify=y
+        )
+    except ValueError:
+        # Fall back to non-stratified if stratify fails (e.g., too few samples per class)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.2, random_state=seed
+        )
+
+    print(f"  Train samples: {len(X_train)}, Val samples: {len(X_val)}")
+
+    # C is inverse of regularization strength (for applicable models)
+    C = 1.0 / regularization if regularization > 0 else 1e6
+
+    # Create estimator using model factory
+    # Build model-specific kwargs based on what each model accepts
+    if model_family == "logistic_regression":
+        estimator = create_estimator(
+            model_family,
+            random_state=seed,
+            C=C,
+            solver=solver,
+            max_iter=max_iter,
+            warm_start=True,
+        )
+    elif model_family == "random_forest":
+        estimator = create_estimator(
+            model_family,
+            random_state=seed,
+            n_estimators=100,
+        )
+    elif model_family == "linear_svc":
+        estimator = create_estimator(
+            model_family,
+            random_state=seed,
+            C=C,
+            max_iter=max_iter,
+        )
+    else:
+        # Fallback (should not reach here due to CLI validation)
+        estimator = create_estimator(model_family, random_state=seed)
+
+    # Create pipeline with scaler and classifier
+    # Note: Step name is 'clf' for backward compatibility with artifact inspection
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', estimator)
+    ])
+
+    # Training loop
+    # Note: epochs are only meaningful for models with warm_start (LogisticRegression)
+    # For other models, we train once but show progress
+    if model_family == "logistic_regression":
+        # Use epochs with warm_start for Logistic Regression
+        for epoch in range(1, epochs + 1):
+            clf = pipeline.named_steps['clf']
+            if epoch == epochs:
+                clf.max_iter = max_iter
+            else:
+                clf.max_iter = max(1, max_iter // epochs)
+
+            pipeline.fit(X_train, y_train)
+            val_accuracy = pipeline.score(X_val, y_val)
+            print(f"  Epoch {epoch}/{epochs} - val_accuracy: {val_accuracy:.4f}")
+    else:
+        # Single training pass for other models
+        pipeline.fit(X_train, y_train)
+        val_accuracy = pipeline.score(X_val, y_val)
+        print(f"  Training complete - val_accuracy: {val_accuracy:.4f}")
 
     # Final validation accuracy
     accuracy = pipeline.score(X_val, y_val)

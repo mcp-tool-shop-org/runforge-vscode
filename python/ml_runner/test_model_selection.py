@@ -251,3 +251,124 @@ class TestModelFactory:
         assert get_model_display_name("random_forest") == "Random Forest"
         assert get_model_display_name("linear_svc") == "Linear SVC"
         assert get_model_display_name("unknown") == "unknown"
+
+
+class TestTrainModel:
+    """Tests for train_model function with different model families."""
+
+    def test_train_logistic_regression_produces_pipeline(self, tmp_path):
+        """train_model with logistic_regression produces valid pipeline."""
+        import numpy as np
+        from sklearn.pipeline import Pipeline
+        from ml_runner.runner import train_model
+
+        # Simple test data
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, accuracy = train_model(
+            X=X,
+            y=y,
+            model_family="logistic_regression",
+            regularization=1.0,
+            solver="lbfgs",
+            max_iter=100,
+            epochs=1,
+            seed=42,
+        )
+
+        assert isinstance(pipeline, Pipeline)
+        assert 0.0 <= accuracy <= 1.0
+        assert hasattr(pipeline, "predict")
+
+    def test_train_random_forest_produces_pipeline(self, tmp_path):
+        """train_model with random_forest produces valid pipeline."""
+        import numpy as np
+        from sklearn.pipeline import Pipeline
+        from ml_runner.runner import train_model
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, accuracy = train_model(
+            X=X,
+            y=y,
+            model_family="random_forest",
+            regularization=1.0,
+            solver="lbfgs",
+            max_iter=100,
+            epochs=1,
+            seed=42,
+        )
+
+        assert isinstance(pipeline, Pipeline)
+        assert 0.0 <= accuracy <= 1.0
+        assert hasattr(pipeline, "predict")
+
+    def test_train_linear_svc_produces_pipeline(self, tmp_path):
+        """train_model with linear_svc produces valid pipeline."""
+        import numpy as np
+        from sklearn.pipeline import Pipeline
+        from ml_runner.runner import train_model
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        pipeline, accuracy = train_model(
+            X=X,
+            y=y,
+            model_family="linear_svc",
+            regularization=1.0,
+            solver="lbfgs",
+            max_iter=100,
+            epochs=1,
+            seed=42,
+        )
+
+        assert isinstance(pipeline, Pipeline)
+        assert 0.0 <= accuracy <= 1.0
+        assert hasattr(pipeline, "predict")
+
+    def test_pipeline_has_scaler_and_clf_steps(self):
+        """All pipelines have scaler and clf steps (stable naming)."""
+        import numpy as np
+        from ml_runner.runner import train_model
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
+            pipeline, _ = train_model(
+                X=X,
+                y=y,
+                model_family=model_family,
+                regularization=1.0,
+                solver="lbfgs",
+                max_iter=100,
+                epochs=1,
+                seed=42,
+            )
+
+            step_names = [name for name, _ in pipeline.steps]
+            assert "scaler" in step_names, f"{model_family} missing scaler step"
+            assert "clf" in step_names, f"{model_family} missing clf step"
+
+    def test_training_is_deterministic(self):
+        """Training produces identical results with same seed."""
+        import numpy as np
+        from ml_runner.runner import train_model
+
+        X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12]])
+        y = np.array([0, 0, 0, 1, 1, 1])
+
+        for model_family in ["logistic_regression", "random_forest", "linear_svc"]:
+            _, acc1 = train_model(
+                X=X, y=y, model_family=model_family,
+                regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+            )
+            _, acc2 = train_model(
+                X=X, y=y, model_family=model_family,
+                regularization=1.0, solver="lbfgs", max_iter=100, epochs=1, seed=42,
+            )
+
+            assert acc1 == acc2, f"{model_family} not deterministic"
