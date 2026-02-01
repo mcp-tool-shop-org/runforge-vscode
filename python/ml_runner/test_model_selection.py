@@ -5,11 +5,16 @@ Tests for:
 - CLI argument parsing (--model flag)
 - Default model behavior
 - Invalid model identifier handling
+- Model factory
 """
 
 import pytest
 import sys
 from unittest.mock import patch, MagicMock
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import LinearSVC
 
 
 class TestCLIModelArgument:
@@ -155,3 +160,94 @@ class TestRunTrainingSignature:
         model_param = sig.parameters["model_family"]
 
         assert model_param.default == "logistic_regression"
+
+
+class TestModelFactory:
+    """Tests for model_factory.py."""
+
+    def test_create_logistic_regression(self):
+        """create_estimator returns LogisticRegression for logistic_regression."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator("logistic_regression", random_state=42)
+        assert isinstance(estimator, LogisticRegression)
+        assert estimator.random_state == 42
+
+    def test_create_random_forest(self):
+        """create_estimator returns RandomForestClassifier for random_forest."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator("random_forest", random_state=42)
+        assert isinstance(estimator, RandomForestClassifier)
+        assert estimator.random_state == 42
+
+    def test_create_linear_svc(self):
+        """create_estimator returns LinearSVC for linear_svc."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator("linear_svc", random_state=42)
+        assert isinstance(estimator, LinearSVC)
+        assert estimator.random_state == 42
+
+    def test_unsupported_model_raises(self):
+        """create_estimator raises UnsupportedModelError for unknown models."""
+        from ml_runner.model_factory import create_estimator, UnsupportedModelError
+
+        with pytest.raises(UnsupportedModelError) as exc_info:
+            create_estimator("unknown_model", random_state=42)
+
+        assert "unknown_model" in str(exc_info.value)
+        assert "logistic_regression" in str(exc_info.value)
+        assert "random_forest" in str(exc_info.value)
+        assert "linear_svc" in str(exc_info.value)
+
+    def test_supported_models_list(self):
+        """SUPPORTED_MODELS contains exactly the Phase 3.1 models."""
+        from ml_runner.model_factory import SUPPORTED_MODELS
+
+        assert set(SUPPORTED_MODELS) == {
+            "logistic_regression",
+            "random_forest",
+            "linear_svc",
+        }
+
+    def test_logistic_regression_default_params(self):
+        """LogisticRegression uses explicit defaults."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator("logistic_regression", random_state=42)
+
+        assert estimator.C == 1.0
+        assert estimator.solver == "lbfgs"
+        assert estimator.max_iter == 100
+
+    def test_random_forest_single_threaded(self):
+        """RandomForest uses n_jobs=1 for determinism."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator("random_forest", random_state=42)
+
+        assert estimator.n_jobs == 1
+
+    def test_custom_params_passed_through(self):
+        """Custom parameters are passed to estimator."""
+        from ml_runner.model_factory import create_estimator
+
+        estimator = create_estimator(
+            "logistic_regression",
+            random_state=42,
+            C=0.5,
+            max_iter=200,
+        )
+
+        assert estimator.C == 0.5
+        assert estimator.max_iter == 200
+
+    def test_get_model_display_name(self):
+        """get_model_display_name returns human-readable names."""
+        from ml_runner.model_factory import get_model_display_name
+
+        assert get_model_display_name("logistic_regression") == "Logistic Regression"
+        assert get_model_display_name("random_forest") == "Random Forest"
+        assert get_model_display_name("linear_svc") == "Linear SVC"
+        assert get_model_display_name("unknown") == "unknown"
