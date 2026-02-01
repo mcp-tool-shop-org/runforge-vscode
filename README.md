@@ -23,6 +23,7 @@ npm run compile
 | `RunForge: View Latest Metrics` | View detailed metrics from metrics.v1.json (v0.3.3+) |
 | `RunForge: View Latest Feature Importance` | View feature importance for RandomForest models (v0.3.4+) |
 | `RunForge: View Latest Linear Coefficients` | View coefficients for linear models (v0.3.5+) |
+| `RunForge: View Latest Interpretability Index` | View unified index of all interpretability artifacts (v0.3.6+) |
 
 ## Usage
 
@@ -615,6 +616,79 @@ Example: `coefficient = 2.0` means +1 std dev in this feature → +2.0 to log-od
 
 ---
 
+## Interpretability Index (v0.3.6+)
+
+Phase 3.6 adds a unified index artifact that links all interpretability outputs for a run.
+
+### Purpose
+
+The interpretability index answers: "What interpretability outputs exist for this run, what versions are they, and where are they?"
+
+No new computation - just linking and summarizing existing artifacts.
+
+### Index Artifact
+
+Each run produces `artifacts/interpretability.index.v1.json`:
+
+```json
+{
+  "schema_version": "interpretability.index.v1",
+  "run_id": "20240101-120000-abc12345",
+  "runforge_version": "0.3.6.0",
+  "created_at": "2024-01-01T12:00:00+00:00",
+  "available_artifacts": {
+    "metrics_v1": {
+      "schema_version": "metrics.v1",
+      "path": "metrics.v1.json",
+      "summary": {
+        "metrics_profile": "classification.proba.v1",
+        "accuracy": 0.95
+      }
+    },
+    "feature_importance_v1": {
+      "schema_version": "feature_importance.v1",
+      "path": "artifacts/feature_importance.v1.json",
+      "summary": {
+        "model_family": "random_forest",
+        "top_k": ["feature_a", "feature_b", "feature_c"]
+      }
+    },
+    "linear_coefficients_v1": {
+      "schema_version": "linear_coefficients.v1",
+      "path": "artifacts/linear_coefficients.v1.json",
+      "summary": {
+        "model_family": "logistic_regression",
+        "num_classes": 2,
+        "top_k_by_class": [{"class": 1, "top_features": ["feat_a", "feat_b"]}]
+      }
+    }
+  }
+}
+```
+
+### Availability Rules
+
+- Absent artifacts are **omitted** from `available_artifacts` (not set to null or false)
+- The index only claims availability if the file actually exists
+- A minimal run (LogisticRegression) will have `metrics_v1` and `linear_coefficients_v1`
+- A RandomForest run will have `metrics_v1` and `feature_importance_v1`
+
+### Summary Content
+
+Summaries include only reference data (no numeric values duplicated):
+
+| Artifact | Summary Contains |
+|----------|------------------|
+| metrics_v1 | `metrics_profile`, `accuracy` (from run.json) |
+| feature_importance_v1 | `model_family`, `top_k` (names only, max 5) |
+| linear_coefficients_v1 | `model_family`, `num_classes`, `top_k_by_class` (names only) |
+
+### VS Code Command
+
+Use `RunForge: View Latest Interpretability Index` to see a formatted summary with quick links to open individual artifacts.
+
+---
+
 ## Contract
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
@@ -636,6 +710,8 @@ See [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) for model-aware
 See [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) for feature importance requirements.
 
 See [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) for linear coefficients requirements.
+
+See [docs/PHASE-3.6-ACCEPTANCE.md](docs/PHASE-3.6-ACCEPTANCE.md) for interpretability index requirements.
 
 See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for planned future improvements.
 
