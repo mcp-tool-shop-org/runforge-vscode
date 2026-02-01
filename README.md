@@ -105,6 +105,8 @@ Correctness and transparency take priority over automation.
 
 See [CONTRACT.md](CONTRACT.md) for the full behavioral contract.
 
+**Phase 2.1 is complete and frozen. All future phases must preserve the guarantees defined in CONTRACT.md.**
+
 ## License
 
 MIT
