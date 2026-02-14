@@ -1,12 +1,21 @@
 {
   "name": "runforge",
-  "displayName": "RunForge",
-  "description": "Push-button ML training with presets and indexed outputs",
+  "displayName": "RunForge — ML Training from VS Code",
+  "description": "Push-button ML training with presets, indexed runs, and artifact inspection — all without leaving your editor.",
   "version": "0.3.6",
   "publisher": "mcp-tool-shop",
+  "author": {
+    "name": "mcp-tool-shop",
+    "email": "64996768+mcp-tool-shop@users.noreply.github.com"
+  },
+  "icon": "assets/icon.png",
+  "homepage": "https://github.com/mcp-tool-shop-org/runforge-vscode#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mcp-tool-shop/runforge"
+    "url": "https://github.com/mcp-tool-shop-org/runforge-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/mcp-tool-shop-org/runforge-vscode/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -16,10 +25,16 @@
     "Other"
   ],
   "keywords": [
-    "ml",
-    "training",
-    "machine-learning",
-    "presets"
+    "machine learning",
+    "ml training",
+    "scikit-learn",
+    "model training",
+    "presets",
+    "random forest",
+    "logistic regression",
+    "python",
+    "data science",
+    "artifacts"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
