@@ -1,4 +1,11 @@
+<div align="center">
+  <img src="resources/runforge-logo.png" alt="RunForge Logo" width="128" />
+</div>
+
 # RunForge VS Code
+
+[![Python CI](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-python.yml/badge.svg)](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-python.yml)
+[![Extension CI](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-extension.yml/badge.svg)](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-extension.yml)
 
 Push-button ML training with deterministic, contract-driven behavior.
 
@@ -7,13 +14,18 @@ Push-button ML training with deterministic, contract-driven behavior.
 
 ---
 
-## How RunForge Thinks
+## 🛡️ The RunForge Guarantee
 
-RunForge is built on three principles:
+RunForge is opinionated software designed to replace "it works on my machine" with forensic certainty.
 
-1. **Determinism** - Same inputs produce same outputs, always
-2. **Provenance** - Every run is traceable to its exact inputs
-3. **Honesty** - Artifacts say what they mean, failures are visible
+### What We Guarantee
+1.  **Determinism**: Every run is seeded. Re-running the same preset with the same seed on the same data yields the exact same model.
+2.  **Provenance**: Every `run.json` record includes the Git Commit SHA, Python Interpreter path, and Extension Version used. You can trace any model back to the code that built it.
+3.  **Auditability**: Artifacts (models, metrics, logs) are saved to disk in standard formats (JSON, joblib). No hidden databases, no cloud dependencies.
+
+### What This Is Not
+-   **Not a Magic AutoML Tool**: We don't guess what you want. We run specific, tunable presets.
+-   **Not a Cloud Platform**: We don't ship your data anywhere. Everything happens locally in your VS Code workspace.
 
 For the full trust model, see [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
 
