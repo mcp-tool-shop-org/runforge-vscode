@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge — ML Training from VS Code",
   "description": "Push-button ML training with presets, indexed runs, and artifact inspection — all without leaving your editor.",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "mcp-tool-shop",
   "author": {
     "name": "mcp-tool-shop",
@@ -130,7 +130,11 @@
         "runforge.modelFamily": {
           "type": "string",
           "default": "logistic_regression",
-          "enum": ["logistic_regression", "random_forest", "linear_svc"],
+          "enum": [
+            "logistic_regression",
+            "random_forest",
+            "linear_svc"
+          ],
           "enumDescriptions": [
             "Logistic Regression (default, fast, interpretable)",
             "Random Forest (ensemble, handles non-linear patterns)",
@@ -141,7 +145,12 @@
         "runforge.profile": {
           "type": "string",
           "default": "",
-          "enum": ["", "default", "fast", "thorough"],
+          "enum": [
+            "",
+            "default",
+            "fast",
+            "thorough"
+          ],
           "enumDescriptions": [
             "No profile (use preset defaults)",
             "Default profile (no hyperparameter overrides)",
