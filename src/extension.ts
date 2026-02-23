@@ -18,6 +18,7 @@ import { viewLatestMetricsV1 } from './observability/metrics-v1-command.js';
 import { viewLatestFeatureImportance } from './observability/feature-importance-command.js';
 import { viewLatestLinearCoefficients } from './observability/linear-coefficients-command.js';
 import { viewLatestInterpretabilityIndex } from './observability/interpretability-index-command.js';
+import { exportLatestRunAsMarkdown } from './observability/export-markdown-command.js';
 import type { PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -52,7 +53,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Phase 3.5: View linear coefficients
     vscode.commands.registerCommand('runforge.viewLinearCoefficients', () => viewLatestLinearCoefficients()),
     // Phase 3.6: View interpretability index
-    vscode.commands.registerCommand('runforge.viewInterpretabilityIndex', () => viewLatestInterpretabilityIndex())
+    vscode.commands.registerCommand('runforge.viewInterpretabilityIndex', () => viewLatestInterpretabilityIndex()),
+    // Export run summary as markdown
+    vscode.commands.registerCommand('runforge.exportRunMarkdown', () => exportLatestRunAsMarkdown())
   );
 }
 

@@ -106,6 +106,12 @@
         "title": "View Latest Interpretability Index",
         "category": "RunForge",
         "icon": "$(list-tree)"
+      },
+      {
+        "command": "runforge.exportRunMarkdown",
+        "title": "Export Latest Run as Markdown",
+        "category": "RunForge",
+        "icon": "$(markdown)"
       }
     ],
     "configuration": {

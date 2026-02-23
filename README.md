@@ -81,6 +81,7 @@ npm run compile
 | `RunForge: View Latest Feature Importance` | View feature importance for RandomForest models (v0.3.4+) |
 | `RunForge: View Latest Linear Coefficients` | View coefficients for linear models (v0.3.5+) |
 | `RunForge: View Latest Interpretability Index` | View unified index of all interpretability artifacts (v0.3.6+) |
+| `RunForge: Export Latest Run as Markdown` | Save a formatted markdown summary of the latest run (v0.4.3+) |
 
 ## Usage
 
