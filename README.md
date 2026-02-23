@@ -4,8 +4,7 @@
 
 # RunForge VS Code
 
-[![Python CI](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-python.yml/badge.svg)](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-python.yml)
-[![Extension CI](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-extension.yml/badge.svg)](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci-extension.yml)
+[![CI](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml)
 
 Push-button ML training with deterministic, contract-driven behavior.
 
