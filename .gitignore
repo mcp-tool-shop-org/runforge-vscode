@@ -12,3 +12,4 @@ runs/
 test_datasets/
 generate_test_runs.py
 .benchmarks/
+site/.astro/
