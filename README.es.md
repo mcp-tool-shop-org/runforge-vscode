@@ -3,7 +3,9 @@
 </p>
 
 <p align="center">
-  <img src="assets/logo.png" alt="RunForge Logo" width="400" />
+  
+            <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/runforge-vscode/readme.png"
+           alt="RunForge Logo" width="400" />
 </p>
 
 <p align="center">
@@ -16,7 +18,7 @@
 Entrenamiento de modelos de aprendizaje automático con un solo clic, que ofrece un comportamiento determinista y basado en contratos.
 
 La fase 3 (capacidades e interpretabilidad) se ha completado con la versión 0.3.6.0.
-Los trabajos futuros se llevarán a cabo bajo los contratos de la fase 4.
+Los trabajos futuros se llevarán a cabo en el marco de los contratos de la fase 4.
 
 ---
 
@@ -30,8 +32,8 @@ RunForge es un software diseñado para eliminar la frase "funciona en mi máquin
 3.  **Auditoría:** Los artefactos (modelos, métricas, registros) se guardan en el disco en formatos estándar (JSON, joblib). No hay bases de datos ocultas, ni dependencias de la nube.
 
 ### Lo que esto no es
--   **No es una herramienta mágica de AutoML**: No intentamos adivinar lo que necesita. Ejecutamos configuraciones específicas y personalizables.
--   **No es una plataforma en la nube**: No enviamos sus datos a ningún lugar. Todo el proceso se realiza localmente, en su espacio de trabajo de VS Code.
+-   **No es una herramienta de AutoML mágica**: No adivinamos lo que necesita. Ejecutamos configuraciones específicas y personalizables.
+-   **No es una plataforma en la nube**: No enviamos sus datos a ningún lugar. Todo se ejecuta localmente en su espacio de trabajo de VS Code.
 
 Para obtener información completa sobre el modelo de confianza, consulte el documento [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
 
@@ -76,17 +78,17 @@ npm run compile
 ## Comandos
 
 | Comando. | Descripción. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. |
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
 | `RunForge: Train (Standard)` | Ejecutar el entrenamiento utilizando la configuración predefinida "std-train". |
 | `RunForge: Train (High Quality)` | Ejecutar el entrenamiento utilizando la configuración predefinida "hq-train". |
 | `RunForge: Open Runs` | Ver las sesiones de entrenamiento completadas. |
 | `RunForge: Inspect Dataset` | Validar el conjunto de datos antes del entrenamiento (versión 0.2.2.1 o superior). |
-| `RunForge: Open Latest Run Metadata` | Ver los metadatos de la última ejecución (versión 0.2.2.1 o superior). |
+| `RunForge: Open Latest Run Metadata` | Ver los metadatos de la última ejecución (versión v0.2.2.1 o superior). |
 | `RunForge: Inspect Model Artifact` | Ver la estructura de la tubería (pipeline) del modelo "model.pkl" (versión 0.2.2.2 o superior). |
-| `RunForge: Browse Runs` | Ver todas las ejecuciones con sus acciones (resumen, diagnósticos, artefactos) (versión 0.2.3 o superior). |
+| `RunForge: Browse Runs` | Ver todas las ejecuciones con acciones (resumen, diagnósticos, artefactos) (versión 0.2.3 o superior). |
 | `RunForge: View Latest Metrics` | Consulte las métricas detalladas en el archivo metrics.v1.json (versión 0.3.3 o superior). |
 | `RunForge: View Latest Feature Importance` | Visualice la importancia de las características para los modelos de Random Forest (versión 0.3.4 y posteriores). |
-| `RunForge: View Latest Linear Coefficients` | Ver los coeficientes de los modelos lineales (versión 0.3.5 o superior). |
+| `RunForge: View Latest Linear Coefficients` | Ver los coeficientes de los modelos lineales (versión 0.3.5 y posteriores). |
 | `RunForge: View Latest Interpretability Index` | Ver el índice unificado de todos los elementos relacionados con la interpretabilidad (versión 0.3.6 o superior). |
 | `RunForge: Export Latest Run as Markdown` | Guardar un resumen formateado en Markdown de la última ejecución (versión 0.4.3 o superior). |
 
@@ -116,9 +118,9 @@ No existe aleatoriedad fuera de los comportamientos que se definen explícitamen
 
 - La columna que contiene las etiquetas se especifica explícitamente.
 - La etiqueta nunca se deduce de la posición de la columna.
-- Las etiquetas mal configuradas o ausentes generan errores de forma temprana.
+- Las etiquetas mal configuradas o faltantes generan errores de forma temprana.
 
-### Contrato de medición
+### Contrato de indicadores
 
 El entrenamiento produce exactamente tres métricas:
 
@@ -151,7 +153,7 @@ No se requieren pasos de preprocesamiento externos.
 
 - Toda la lógica de ejecución de Python se encuentra en el directorio `python/ml_runner/`.
 - No existen implementaciones duplicadas ni alternativas.
-- Las pruebas garantizan la coherencia entre el comportamiento de TypeScript y el de Python.
+- Las pruebas garantizan la coherencia entre el comportamiento de TypeScript y Python.
 
 ### Política de estabilidad
 
@@ -170,7 +172,7 @@ Actualmente, RunForge no intenta:
 - Realización de entrenamiento en línea o incremental.
 - Ocultamiento del comportamiento del entrenamiento mediante heurísticas.
 
-La precisión y la transparencia son prioritarias, incluso por encima de la automatización.
+La precisión y la transparencia son prioritarias sobre la automatización.
 
 ---
 
@@ -178,7 +180,7 @@ La precisión y la transparencia son prioritarias, incluso por encima de la auto
 
 ## Observabilidad (versión 0.2.2.1 o superior)
 
-La fase 2.2.1 proporciona información detallada sobre las ejecuciones de entrenamiento sin modificar el comportamiento del proceso de entrenamiento.
+La fase 2.2.1 proporciona mayor información sobre las ejecuciones de entrenamiento sin modificar el comportamiento del entrenamiento.
 
 ### Ejecutar metadatos
 
@@ -188,7 +190,7 @@ Cada ejecución de entrenamiento genera un archivo `run.json` que contiene:
 - Huella digital del conjunto de datos (SHA-256).
 - Columna de etiquetas y número de características.
 - Número de filas eliminadas.
-- Captura de métricas.
+- Resumen de las métricas.
 - Rutas de los archivos generados.
 
 ### Inspección del conjunto de datos
@@ -201,21 +203,19 @@ python -m ml_runner inspect --dataset data.csv --label label
 
 Devuelve los nombres de las columnas, el número de filas, el número de características y la validación de las etiquetas.
 
-### Seguimiento del origen.
-Rastreabilidad del origen.
-Control de la procedencia
+### Seguimiento del origen
 
 Todas las ejecuciones están indexadas en el archivo `.runforge/index.json` para facilitar el seguimiento:
 
 - A partir de un archivo `model.pkl`, rastrear hasta los metadatos de la ejecución.
-- Encontrar todas las ejecuciones correspondientes a una huella digital específica de un conjunto de datos.
+- Encontrar todas las ejecuciones correspondientes a una huella digital específica del conjunto de datos.
 - Índice de solo escritura (nunca se reordena ni se eliminan elementos).
 
 ---
 
 ## Introspección de artefactos (versión 0.2.2.2 o superior)
 
-La fase 2.2.2 introduce la posibilidad de inspeccionar los elementos generados durante el entrenamiento, pero solo en modo de lectura.
+La fase 2.2.2 introduce la posibilidad de inspeccionar los elementos generados durante el entrenamiento, pero de forma de solo lectura.
 
 La función de inspección es de solo lectura y no permite volver a entrenar ni modificar los elementos.
 
@@ -248,12 +248,12 @@ Okay, I understand. Please provide the English text you would like me to transla
 }
 ```
 
-### Diagnósticos
+### Diagnóstico
 
 Los diagnósticos estructurados explican por qué una ejecución se comportó de la manera en que lo hizo:
 
 | Code | Descripción. |
-| Por favor, proporciona el texto en inglés que deseas que traduzca al español. | Por favor, proporcione el texto que desea que traduzca. |
+| Por favor, proporciona el texto que deseas que traduzca. | Por favor, proporciona el texto que deseas que traduzca. |
 | `MISSING_VALUES_DROPPED` | Filas eliminadas debido a valores faltantes. |
 | `LABEL_NOT_FOUND` | La columna "etiqueta" no está presente en el conjunto de datos. |
 | `LABEL_TYPE_INVALID` | La columna "Etiqueta" tiene un tipo de dato inválido. |
@@ -267,9 +267,9 @@ Todos los diagnósticos están en formato JSON, que es legible por máquina (no 
 
 ## Explorar rutas (versión 0.2.3 o superior)
 
-La fase 2.3 introduce un navegador de ejecuciones unificado con funciones de acceso rápido.
+La fase 2.3 introduce un navegador de ejecuciones unificado con acciones rápidas.
 
-### Utilizando las funciones de exploración
+### Utilizando las ejecuciones de exploración
 
 1. Abra el panel de comandos (`Ctrl+Shift+P`).
 2. Ejecute `RunForge: Explorar ejecuciones`.
@@ -277,7 +277,7 @@ La fase 2.3 introduce un navegador de ejecuciones unificado con funciones de acc
 4. Elija una acción:
 - **Abrir resumen de la ejecución** — Ver los metadatos de la ejecución en formato Markdown legible.
 - **Ver diagnósticos** — Consultar los eventos que ocurrieron durante la ejecución.
-- **Inspeccionar el artefacto del modelo** — Ver la estructura del flujo de trabajo.
+- **Inspeccionar el artefacto del modelo** — Ver la estructura de la canalización.
 - **Copiar la huella digital del conjunto de datos** — Copiar el valor SHA-256 al portapapeles.
 
 ### Diagnósticos integrados
@@ -285,9 +285,7 @@ La fase 2.3 introduce un navegador de ejecuciones unificado con funciones de acc
 Los diagnósticos se obtienen a partir de los campos del archivo "run.json":
 
 | Condición. | Diagnóstico. |
-| Por favor, proporciona el texto que deseas que traduzca. | Sure, here is the Spanish translation of the English text:
-
-"Please provide the text you would like me to translate." |
+| Por favor, proporciona el texto que deseas que traduzca. | Por favor, proporciona el texto que deseas que traduzca. |
 | `dropped_rows_missing_values > 0` | `MISSING_VALUES_DROPPED` |
 
 Se prevé que en futuras fases se implementen diagnósticos de emisiones más completos y estructurados.
@@ -296,7 +294,7 @@ Se prevé que en futuras fases se implementen diagnósticos de emisiones más co
 
 ## Selección de modelo (versión 0.3.1 o superior)
 
-La fase 3.1 introduce la selección explícita del modelo, al tiempo que mantiene todas las garantías de la fase 2.
+La fase 3.1 introduce la selección explícita del modelo, manteniendo al mismo tiempo todas las garantías de la fase 2.
 
 ### Modelos compatibles
 
@@ -316,7 +314,7 @@ Configure la familia de modelos en la configuración de VS Code:
 }
 ```
 
-O bien, utilice la interfaz de configuración: busque "Familia de modelos RunForge" y selecciónela en el menú desplegable.
+O bien, utilice la interfaz de configuración: busque "Familia de modelos RunForge" y seleccione la opción deseada en el menú desplegable.
 
 ### Uso de la línea de comandos
 
@@ -326,14 +324,7 @@ python -m ml_runner train --preset std-train --out ./run --device cpu --model ra
 
 El argumento `--model` es opcional. El valor predeterminado es: `logistic_regression`.
 
-### Origen.
-Procedencia.
-Antecedentes.
-Historia.
-Procedimiento.
-Fuente.
-Orígenes.
-Procedencia (de una obra de arte, por ejemplo)
+### Origen
 
 El modelo específico utilizado se registra en el archivo `run.json`:
 
@@ -353,7 +344,7 @@ El modelo específico utilizado se registra en el archivo `run.json`:
 
 ---
 
-## Hiperparámetros y perfiles de entrenamiento (versión 0.3.2 y posteriores)
+## Hiperparámetros y perfiles de entrenamiento (versión 0.3.2 o superior)
 
 La fase 3.2 introduce un control explícito de los hiperparámetros y perfiles de entrenamiento.
 
@@ -381,9 +372,9 @@ Los perfiles predefinidos ofrecen hiperparámetros configurados previamente.
 
 "Por favor, envíe su solicitud antes de que finalice la semana."
 
-"Ofrecemos un salario competitivo y un paquete de beneficios." | Por favor, proporcione el texto que desea que traduzca. |
+"Ofrecemos un salario competitivo y un paquete de beneficios." | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
 | `default` | No existen opciones para anular los hiperparámetros. | (utiliza la configuración) |
-| `fast` | Menos iteraciones para ejecuciones rápidas. | regresión_logística |
+| `fast` | Menos iteraciones para ejecuciones rápidas. | regresión logística |
 | `thorough` | Más árboles/iteraciones para una mejor calidad. | bosque aleatorio |
 
 Configure en la configuración de VS Code:
@@ -395,7 +386,7 @@ Configure en la configuración de VS Code:
 
 ### Hiperparámetros de la interfaz de línea de comandos
 
-Sobreescribir los hiperparámetros individuales a través de la línea de comandos:
+Se pueden modificar los hiperparámetros individuales a través de la línea de comandos.
 
 ```bash
 python -m ml_runner train --preset std-train --out ./run --device cpu --param C=0.5 --param max_iter=200
@@ -409,12 +400,7 @@ Cuando tanto los parámetros del perfil como los parámetros de la línea de com
 2. **Parámetros expandidos a partir del perfil**
 3. **Valores predeterminados del modelo** (menor prioridad)
 
-### Origen.
-Procedencia.
-Antecedentes.
-Historia.
-Procedimiento.
-(Dependiendo del contexto, también podría traducirse como: Linaje, Herencia, Origen geográfico, etc.)
+### Origen
 
 Los hiperparámetros y los perfiles se registran en el archivo `run.json`:
 
@@ -445,8 +431,8 @@ Los perfiles de métricas se seleccionan automáticamente en función de las cap
 
 | Perfil. | Descripción. | Métricas. |
 | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| `classification.base.v1` | Todos los clasificadores. | precisión, exactitud, exhaustividad, F1, matriz de confusión. |
-| `classification.proba.v1` | Binario + probabilidad de predicción. | base + ROC-AUC, pérdida de logaritmo. |
+| `classification.base.v1` | Todos los clasificadores. | precisión, exactitud, exhaustividad, métrica F1, matriz de confusión. |
+| `classification.proba.v1` | Binario + predecir probabilidad. | base + ROC-AUC, pérdida logarítmica. |
 | `classification.multiclass.v1` | 3 clases o más. | base + precisión/exhaustividad/f1 por clase. |
 
 ### Lógica de selección de perfiles
@@ -458,23 +444,24 @@ Los perfiles de métricas se seleccionan automáticamente en función de las cap
 ### Capacidades del modelo
 
 | Model | predict_proba | función de decisión. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the English text you would like me to translate." | Sure, here is the translation:
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "The company is committed to providing high-quality products and services."
 
-**English:**
+"We are looking for a motivated and experienced professional to join our team."
 
-You are a professional English (en) to Spanish (es) translator. Your goal is to accurately convey the meaning and nuances of the original English text while adhering to Spanish grammar, vocabulary, and cultural sensitivities.
-Produce only the Spanish translation, without any additional explanations or commentary. Please translate the following English text into Spanish:
+"Please contact us if you have any questions."
 
--------------------
+"Thank you for your interest."
+---------------
 
-**over**
+"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
 
-**Spanish:**
+"Estamos buscando a un profesional motivado y con experiencia para que se una a nuestro equipo."
 
-Usted es un traductor profesional de inglés (en) a español (es). Su objetivo es transmitir con precisión el significado y los matices del texto original en inglés, respetando la gramática, el vocabulario y las sensibilidades culturales del español.
-Por favor, produzca únicamente la traducción al español, sin explicaciones ni comentarios adicionales. Traduzca el siguiente texto en inglés al español:
+"Por favor, contáctenos si tiene alguna pregunta."
 
-------------------- |
+"Gracias por su interés." | Sure, here is the Spanish translation of the English text:
+
+"Please provide the English text you would like me to translate." |
 | RegresiónLogística | ✅ | ✅ |
 | Bosque Aleatorio. | ✅ | ❌ |
 | LinearSVC | ❌ | ✅ (Solo para la métrica ROC-AUC) |
@@ -527,39 +514,35 @@ El archivo `run.json` ahora incluye un puntero a `metrics_v1`:
 
 ## Importancia de las características (versión 0.3.4 y posteriores)
 
-La fase 3.4 introduce una función de extracción de la importancia de las características que solo permite la lectura, y que está disponible para los modelos compatibles.
+La fase 3.4 introduce una función de extracción de la importancia de las características en modo de solo lectura, compatible con determinados modelos.
 
 ### Modelos compatibles
 
 La importancia de las características solo está disponible para los modelos que tienen señales de importancia integradas.
 
 | Model | Soportado. | Tipo de importancia. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the text you would like me to translate." | "The company is committed to providing high-quality products and services."
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. | "The company is committed to providing high-quality products and services."
 
-"We are looking for a motivated and experienced candidate."
+"We are looking for a motivated and experienced professional to join our team."
 
-"The meeting will be held on Tuesday at 10:00 AM."
+"The deadline for submitting applications is October 31st."
 
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
+"Please contact us if you have any questions."
 -----------------
 "La empresa está comprometida a ofrecer productos y servicios de alta calidad."
 
-"Estamos buscando un candidato motivado y con experiencia."
+"Estamos buscando a un profesional motivado y con experiencia para que se una a nuestro equipo."
 
-"La reunión se llevará a cabo el martes a las 10:00 AM."
+"La fecha límite para presentar las solicitudes es el 31 de octubre."
 
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
+"Por favor, contáctenos si tiene alguna pregunta." |
 | Bosque Aleatorio. | ✅ | Importancia del coeficiente de Gini. |
 | RegresiónLogística | ❌ | No disponible en la versión 1. |
 | LinearSVC | ❌ | No disponible en la versión 1. |
 
 **Sin aproximaciones:** Si el modelo no admite la importancia nativa, no se genera ningún resultado.
 
-### Importancia de las características
+### Importancia de las características. Artifacto
 
 Las ejecuciones de RandomForest generan el archivo `artifacts/feature_importance.v1.json`:
 
@@ -603,10 +586,7 @@ Cuando la importancia de las características no está disponible, estos campos 
 Los modelos no soportados emiten diagnósticos estructurados:
 
 | Code | Descripción. |
-| Translate the following English text into Spanish:
-
-"The company is committed to providing high-quality products and services. We strive to meet and exceed customer expectations. Our team is dedicated to innovation and continuous improvement. We value integrity, transparency, and respect in all our interactions."
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad. Nos esforzamos por satisfacer y superar las expectativas de nuestros clientes. Nuestro equipo está dedicado a la innovación y la mejora continua. Valoramos la integridad, la transparencia y el respeto en todas nuestras interacciones." | Por favor, proporciona el texto que deseas que traduzca. |
+|------|-------------|
 | `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | El modelo no admite la función nativa de cálculo de la importancia de las variables. |
 | `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características. |
 
@@ -616,7 +596,7 @@ A continuación, se enumeran explícitamente los elementos que no están incluid
 
 - Importancia basada en coeficientes para modelos lineales.
 - Explicaciones mediante SHAP/LIME.
-- Importancia por permutación.
+- Importancia basada en permutaciones.
 - Gráficos de dependencia parcial.
 
 ### Hiperparámetros soportados
@@ -647,17 +627,8 @@ La fase 3.5 introduce la extracción de coeficientes de solo lectura para clasif
 
 Los coeficientes lineales están disponibles para los modelos que tienen un atributo nativo llamado `coef_`:
 
-| Model | Soportado.
-Apoyado.
-Respaldado.
-Asistido.
-Validado.
-Habilitado.
-Permitido.
-Autorizado.
-Contenido.
-Sostenido. | Tipo de coeficiente. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. | Sure, here is the Spanish translation of the English text:
+| Model | Soportado. | Tipo de coeficiente. |
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporcione el texto que desea que traduzca. | Sure, here is the Spanish translation of the English text:
 
 "Please provide the English text you would like me to translate." |
 | RegresiónLogística | ✅ | Coeficientes de log-odds. |
@@ -674,7 +645,7 @@ Esto significa:
 - Los coeficientes corresponden a las características DESPUÉS de la aplicación de StandardScaler.
 - Los valores representan la influencia por cada aumento de una desviación estándar.
 - No se intenta "invertir" la escala para volver a las unidades originales de las características.
-- La comparación de coeficientes entre diferentes características es significativa (mismo rango).
+- La comparación de coeficientes entre diferentes características es significativa (misma escala).
 - La comparación de coeficientes con los valores originales de las características NO es significativa.
 
 ### Artefacto debido a los coeficientes lineales
@@ -732,57 +703,29 @@ El archivo `run.json` incluye los coeficientes lineales de referencia, cuando es
 
 Cuando los coeficientes no están disponibles, estos campos se omiten por completo (no se dejan en blanco).
 
-### Diagnósticos
+### Diagnóstico
 
 Los modelos no soportados emiten diagnósticos estructurados:
 
 | Code | Descripción. |
-| Por favor, proporciona el texto que deseas que traduzca. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
+| Translate the following English text into Spanish:
+
+"The company is committed to providing high-quality products and services. We strive to meet and exceed customer expectations. Our team is dedicated to innovation and continuous improvement. We value integrity, transparency, and respect in all our interactions."
+"La empresa está comprometida a ofrecer productos y servicios de alta calidad. Nos esforzamos por satisfacer y superar las expectativas de nuestros clientes. Nuestro equipo está dedicado a la innovación y la mejora continua. Valoramos la integridad, la transparencia y el respeto en todas nuestras interacciones." | Por favor, proporciona el texto que deseas que traduzca. |
 | `LINEAR_COEFFICIENTS_UNSUPPORTED_MODEL` | El modelo no admite la extracción de coeficientes. |
 | `COEFFICIENTS_MISSING_ON_ARTIFACT` | El clasificador no tiene el atributo "coef_". |
 | `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características. |
 
 ### Importancia de las características frente a los coeficientes lineales
 
-| Objeto antiguo. | Modelos compatibles. | Qué muestra. |
-| "Please provide the English text you would like me to translate into Spanish." | Sure, here is the translation:
+| Objeto antiguo. | Modelos compatibles. | Lo que muestra. |
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Sure, here is the Spanish translation of the English text:
 
-**English:**
-
-You are a professional English (en) to Spanish (es) translator. Your goal is to accurately convey the meaning and nuances of the original English text while adhering to Spanish grammar, vocabulary, and cultural sensitivities.
-Produce only the Spanish translation, without any additional explanations or commentary. Please translate the following English text into Spanish:
-
-------------------
-
-**Spanish:**
-
-Eres un traductor profesional de inglés (en) a español (es). Tu objetivo es transmitir con precisión el significado y los matices del texto original en inglés, respetando la gramática, el vocabulario y las sensibilidades culturales del español.
-Por favor, proporciona únicamente la traducción al español, sin explicaciones ni comentarios adicionales. Traduce el siguiente texto en inglés al español:
-
------------------- | "The company is committed to providing high-quality products and services."
-
-"We are looking for a motivated and experienced candidate."
-
-"The meeting will be held on Tuesday at 10:00 AM."
-
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
----------------
-
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
-| Importancia de las características (versión 0.3.4). | Bosque Aleatorio. | Importancia de Gini (basada en árboles). |
+"Please provide the English text you would like me to translate." | "Please provide the text you would like me to translate." |
+| Importancia de las características (versión 0.3.4) | Bosque Aleatorio. | Importancia de la medida Gini (basada en árboles). |
 | Coeficientes lineales (versión 0.3.5). | LogisticRegression, LinearSVC. | Coeficientes del modelo. |
 
-Estos son métodos complementarios:
+Estas son opciones complementarias:
 - Utilice la importancia de las características para modelos de conjunto.
 - Utilice los coeficientes lineales para modelos lineales interpretables.
 
@@ -793,7 +736,7 @@ Para la regresión logística (binaria):
 - Coeficiente negativo: Un aumento en la característica implica una menor probabilidad de pertenecer a la clase positiva.
 - Magnitud: Un valor absoluto mayor indica una mayor influencia.
 
-Ejemplo: `coeficiente = 2.0` significa +1 desviación estándar en esta característica → +2.0 en la escala log-odds.
+Ejemplo: `coeficiente = 2.0` significa +1 desviación estándar en esta característica → +2.0 en la escala de logaritmo de probabilidades.
 
 ---
 
@@ -851,40 +794,24 @@ Cada ejecución genera el archivo `artifacts/interpretability.index.v1.json`:
 
 - Los artefactos que no están disponibles se **omiten** de la lista `available_artifacts` (no se establecen como nulos o falsos).
 - El índice solo indica la disponibilidad si el archivo realmente existe.
-- Una ejecución básica (LogisticRegression) tendrá `metrics_v1` y `linear_coefficients_v1`.
-- Una ejecución de RandomForest tendrá `metrics_v1` y `feature_importance_v1`.
+- Una ejecución básica (LogisticRegression) tendrá los campos `metrics_v1` y `linear_coefficients_v1`.
+- Una ejecución de RandomForest tendrá los campos `metrics_v1` y `feature_importance_v1`.
 
 ### Resumen del contenido
 
 Los resúmenes incluyen únicamente datos de referencia (sin valores numéricos repetidos).
 
 | Objeto antiguo. | Resumen. Contiene. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "The company is committed to providing high-quality products and services."
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Sure, here is the Spanish translation of the English text:
 
-"We are looking for a motivated and experienced candidate."
-
-"The meeting will be held on Tuesday at 10:00 AM."
-
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
-------------------
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
-| métricas_v1 | `metrics_profile`, `accuracy` (obtenidos del archivo run.json) |
+"Please provide the English text you would like me to translate." |
+| métricas_v1 | `metrics_profile`, `accuracy` (extraídos de run.json) |
 | importancia_de_las_características_v1 | `model_family`, `top_k` (solo los nombres, máximo 5). |
 | coeficientes_lineales_v1 | `model_family`, `num_classes`, `top_k_by_class` (solo los nombres) |
 
 ### Comando de VS Code
 
-Utilice la opción "RunForge: Ver el índice de interpretabilidad más reciente" para ver un resumen formateado con enlaces directos para abrir cada elemento individualmente.
+Utilice la opción "RunForge: Ver el índice de interpretabilidad más reciente" para ver un resumen con formato y enlaces directos para abrir cada elemento individualmente.
 
 ---
 
@@ -911,7 +838,7 @@ Para una guía paso a paso, consulte [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md).
 | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
 | [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) | Observabilidad. |
 | [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) | Introspección. |
-| [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) | Mejoras en la experiencia de usuario. |
+| [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) | Optimización de la experiencia de usuario. |
 
 ### Fase 3 (congelada a partir de la versión 0.3.6.0)
 
@@ -933,12 +860,14 @@ Consulte el documento [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANC
 ## Estado de la fase
 
 | Phase | Focus | Estado. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the English text you would like me to translate." |
+| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "The company is committed to providing high-quality products and services."
+
+"La empresa está comprometida a ofrecer productos y servicios de alta calidad." |
 | **Phase 2** | Formación fundamental, capacidad de monitorización. | Congelado. |
 | **Phase 3** | Selección de modelos, interpretabilidad. | **Frozen (v0.3.6.0)** |
 | **Phase 4** | TBD | Requiere un nuevo contrato. |
 
-Todas las garantías correspondientes a las fases 2 y 3 están fijadas. Los trabajos futuros requerirán contratos de la fase 4.
+Todas las garantías correspondientes a las fases 2 y 3 están fijadas. Para futuros trabajos, se requieren contratos de la fase 4.
 
 ---
 

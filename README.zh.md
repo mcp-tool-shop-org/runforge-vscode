@@ -3,7 +3,9 @@
 </p>
 
 <p align="center">
-  <img src="assets/logo.png" alt="RunForge Logo" width="400" />
+  
+            <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/runforge-vscode/readme.png"
+           alt="RunForge Logo" width="400" />
 </p>
 
 <p align="center">
