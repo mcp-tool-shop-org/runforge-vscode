@@ -2,6 +2,26 @@
 
 All notable changes to the RunForge VS Code extension will be documented in this file.
 
+## [Unreleased]
+
+## [1.0.0] - 2026-02-27
+
+### Added
+- SECURITY.md with vulnerability reporting policy and data scope
+- Threat model section in README (data touched, data NOT touched, permissions)
+- Codecov badge in README
+- MCP Tool Shop footer in README
+- `verify` script — test + compile + VSIX package in one command
+- Coverage reporting with @vitest/coverage-v8 and Codecov in CI
+- Dependency audit job in CI
+- Node 18 + 20 matrix in CI
+- VSIX packaging verification in CI
+- SHIP_GATE.md and SCORECARD.md for product standards tracking
+
+### Changed
+- SafeError now includes `retryable` field (Shipcheck Tier 1 compliance)
+- Promoted to v1.0.0 — all Shipcheck hard gates pass
+
 ## [0.4.5] - 2026-02-27
 
 ### Added

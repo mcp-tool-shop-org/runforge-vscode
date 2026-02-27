@@ -23,6 +23,7 @@ export interface SafeError {
   message: string;
   path: string;
   recoveryHint?: string;
+  retryable?: boolean;
   originalError?: Error;
 }
 
@@ -76,6 +77,7 @@ export async function readJsonFile<T>(filePath: string): Promise<SafeResult<T>> 
           message: `Invalid JSON in file`,
           path: filePath,
           recoveryHint: 'Check the file for syntax errors or restore from backup.',
+          retryable: false,
           originalError: parseError instanceof Error ? parseError : undefined,
         },
       };
@@ -89,6 +91,7 @@ export async function readJsonFile<T>(filePath: string): Promise<SafeResult<T>> 
           message: `File not found`,
           path: filePath,
           recoveryHint: 'Run a training first to generate this file.',
+          retryable: false,
         },
       };
     }
@@ -98,6 +101,7 @@ export async function readJsonFile<T>(filePath: string): Promise<SafeResult<T>> 
         code: 'READ_ERROR',
         message: `Failed to read file`,
         path: filePath,
+        retryable: true,
         originalError: readError instanceof Error ? readError : undefined,
       },
     };
@@ -125,6 +129,7 @@ export async function safeReadIndex(workspaceRoot: string): Promise<SafeResult<R
         message: 'No .runforge directory found',
         path: runforgeDir,
         recoveryHint: 'Run a training first to generate runs.',
+        retryable: false,
       },
     };
   }
@@ -138,6 +143,7 @@ export async function safeReadIndex(workspaceRoot: string): Promise<SafeResult<R
         message: 'No index.json found',
         path: indexPath,
         recoveryHint: 'Run a training first to generate runs.',
+        retryable: false,
       },
     };
   }

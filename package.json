@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge — ML Training from VS Code",
   "description": "Push-button ML training with presets, indexed runs, and artifact inspection — all without leaving your editor.",
-  "version": "0.4.7",
+  "version": "1.0.0",
   "publisher": "mcp-tool-shop",
   "author": {
     "name": "mcp-tool-shop",
@@ -168,7 +168,9 @@
     "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
     "lint": "eslint src --ext ts",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
+    "verify": "npm test && npm run compile && npx vsce package --no-dependencies",
     "package": "vsce package"
   },
   "devDependencies": {
@@ -177,6 +179,7 @@
     "@vscode/vsce": "^2.22.0",
     "esbuild": "^0.19.11",
     "typescript": "^5.3.3",
+    "@vitest/coverage-v8": "^1.6.1",
     "vitest": "^1.2.0"
   }
 }

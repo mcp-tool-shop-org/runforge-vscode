@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode"><img src="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode/branch/main/graph/badge.svg" alt="Coverage"></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/visual-studio-marketplace/v/mcp-tool-shop.runforge.svg" alt="Marketplace"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/runforge-vscode/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -34,6 +35,10 @@ RunForge is opinionated software designed to replace "it works on my machine" wi
 -   **Not a Cloud Platform**: We don't ship your data anywhere. Everything happens locally in your VS Code workspace.
 
 For the full trust model, see [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
+
+### Security & Data Scope
+
+**Data touched:** workspace CSV files (read-only for training), `.runforge/` directory (run metadata, model artifacts, metrics JSON), Python subprocess stdout/stderr. **Data NOT touched:** no files outside the open workspace, no browser data, no OS credentials. **Permissions required:** filesystem read/write within workspace only, Python subprocess execution. **No network egress** — all operations are local. **No telemetry** is collected or sent.
 
 ### Lifecycle of a Run
 
@@ -811,3 +816,7 @@ See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for pla
 ## License
 
 MIT
+
+---
+
+Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
