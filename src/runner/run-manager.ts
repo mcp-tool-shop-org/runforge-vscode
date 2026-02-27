@@ -325,7 +325,7 @@ function killRunOnOom(runToken: symbol, channel: vscode.OutputChannel): void {
  * Check if stderr line indicates OOM or memory-related GPU error
  * Case-insensitive matching with broad patterns for reliability
  */
-function isOomError(line: string): boolean {
+export function isOomError(line: string): boolean {
   const lower = line.toLowerCase();
 
   // Broad patterns that indicate GPU memory issues
@@ -430,7 +430,7 @@ async function handleRunComplete(
 /**
  * Format duration in human-readable format
  */
-function formatDuration(ms: number): string {
+export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
   const minutes = Math.floor(ms / 60000);
