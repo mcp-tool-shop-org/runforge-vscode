@@ -2,6 +2,17 @@
 
 All notable changes to the RunForge VS Code extension will be documented in this file.
 
+## [0.4.5] - 2026-02-27
+
+### Added
+- 82 new tests covering formatters, run-manager helpers, and metadata (187 total).
+- Exported `isOomError` and `formatDuration` from run-manager for testability.
+
+## [0.4.4] - 2026-02-27
+
+### Changed
+- Patch version bump.
+
 ## [0.4.3] - 2026-02-23
 
 ### Added
