@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge — ML Training from VS Code",
   "description": "Push-button ML training with presets, indexed runs, and artifact inspection — all without leaving your editor.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "mcp-tool-shop",
   "author": {
     "name": "mcp-tool-shop",
