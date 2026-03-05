@@ -14,7 +14,7 @@ export const config: SiteConfig = {
     headlineAccent: 'forensic certainty.',
     description: 'Push-button ML training with deterministic, contract-driven behavior. Same dataset, same seed, same version — identical model, every time. No surprises.',
     primaryCta: { href: 'https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge', label: 'Install from Marketplace' },
-    secondaryCta: { href: '#features', label: 'The guarantee' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       { label: 'Install', code: 'ext install mcp-tool-shop.runforge' },
       { label: 'Set dataset', code: 'RUNFORGE_DATASET=data.csv\n# CSV must have a "label" column' },
