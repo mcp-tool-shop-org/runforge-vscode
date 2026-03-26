@@ -4,6 +4,11 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-03-25
+
+### Added
+- 5 version consistency tests (semver, CHANGELOG, engine constraint, publisher)
+
 ## [1.0.0] - 2026-02-27
 
 ### Added
