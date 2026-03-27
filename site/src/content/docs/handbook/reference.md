@@ -1,27 +1,75 @@
 ---
 title: Reference
-description: Presets, run lifecycle, interpretability, commands, settings, and security model.
+description: Commands, settings, models, training profiles, artifacts, interpretability, and security model.
 sidebar:
   order: 2
 ---
 
-## Presets
+## Commands
 
-RunForge ships with deterministic training presets. Each preset defines a scikit-learn pipeline with fixed hyperparameters.
+All commands are available via the VS Code Command Palette (`Ctrl+Shift+P`).
 
-| Preset | Task | Algorithm | Key parameters |
-|--------|------|-----------|----------------|
-| `RandomForest` | Classification | RandomForestClassifier | 100 trees, seeded |
-| `GradientBoosting` | Classification | GradientBoostingClassifier | 100 estimators, lr=0.1 |
-| `LogisticRegression` | Classification | LogisticRegression | L2 penalty, max 1000 iter |
-| `LinearRegression` | Regression | LinearRegression | OLS, no regularization |
-| `Ridge` | Regression | Ridge | L2, alpha=1.0 |
-| `Lasso` | Regression | Lasso | L1, alpha=1.0 |
-| `SVM` | Classification | SVC | RBF kernel, seeded |
+| Command | Description |
+|---------|-------------|
+| `RunForge: Train (Standard)` | Run training with the std-train preset |
+| `RunForge: Train (High Quality)` | Run training with the hq-train preset |
+| `RunForge: Open Runs` | View completed training runs |
+| `RunForge: Inspect Dataset` | Validate a dataset before training |
+| `RunForge: Open Latest Run Metadata` | View metadata for the most recent run |
+| `RunForge: Inspect Model Artifact` | View pipeline structure of a trained model.pkl |
+| `RunForge: Browse Runs` | Browse all runs with quick actions (summary, diagnostics, artifact inspection) |
+| `RunForge: View Latest Metrics` | View detailed metrics from metrics.v1.json |
+| `RunForge: View Latest Feature Importance` | View feature importance for RandomForest models |
+| `RunForge: View Latest Linear Coefficients` | View coefficients for linear models |
+| `RunForge: View Latest Interpretability Index` | View unified index of all interpretability artifacts |
+| `RunForge: Export Latest Run as Markdown` | Save a formatted markdown summary of the latest run |
 
-All presets include `StandardScaler` as the first pipeline step.
+## Settings
 
-## Run lifecycle
+Configure RunForge through VS Code settings (`Ctrl+,`).
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `runforge.pythonPath` | `python` | Path to the Python executable |
+| `runforge.mlRunnerModule` | `ml_runner` | Python module to run for training |
+| `runforge.modelFamily` | `logistic_regression` | Model family: `logistic_regression`, `random_forest`, or `linear_svc` |
+| `runforge.profile` | (empty) | Training profile: `default`, `fast`, or `thorough` |
+
+## Supported Models
+
+| Model | CLI Value | Description | Interpretability |
+|-------|-----------|-------------|------------------|
+| Logistic Regression | `logistic_regression` | Default, fast, interpretable | Linear coefficients |
+| Random Forest | `random_forest` | Ensemble, handles non-linear patterns | Feature importance (Gini) |
+| Linear SVC | `linear_svc` | Support vector classifier, margin-based | Linear coefficients |
+
+All models use `StandardScaler` as the first pipeline step. Preprocessing is embedded in the trained artifact.
+
+## Training Profiles
+
+Profiles provide pre-configured hyperparameter overrides.
+
+| Profile | Description | Model Family |
+|---------|-------------|--------------|
+| `default` | No hyperparameter overrides | (uses setting) |
+| `fast` | Reduced iterations for quick runs | logistic_regression |
+| `thorough` | More trees/iterations for better quality | random_forest |
+
+### Hyperparameter Precedence
+
+1. **CLI `--param`** (highest priority)
+2. **Profile-expanded parameters**
+3. **Model defaults** (lowest priority)
+
+### Supported Hyperparameters
+
+**Logistic Regression:** `C` (float), `max_iter` (int), `solver` (string), `warm_start` (bool)
+
+**Random Forest:** `n_estimators` (int), `max_depth` (int or None), `min_samples_split` (int, >= 2), `min_samples_leaf` (int)
+
+**Linear SVC:** `C` (float), `max_iter` (int)
+
+## Run Lifecycle
 
 ```
 dataset.csv
@@ -48,43 +96,66 @@ dataset.csv
   .runforge/runs/<run-id>/
 ```
 
-Every step is deterministic given the same seed. The seed defaults to 42 and can be changed in settings.
+Every step is deterministic given the same seed, dataset, and configuration.
+
+## Artifacts
+
+All run artifacts are saved under `.runforge/runs/<run-id>/`:
+
+| File | Contents |
+|------|----------|
+| `run.json` | Metadata: run ID, timestamp, dataset fingerprint, label column, model family, profile, git SHA, Python path, extension version |
+| `metrics.json` | Phase 2 metrics: accuracy, num_samples, num_features |
+| `metrics.v1.json` | Detailed metrics by profile (accuracy, precision, recall, F1, confusion matrix, ROC-AUC, log loss) |
+| `artifacts/model.pkl` | Trained scikit-learn pipeline (StandardScaler + classifier) |
+| `artifacts/feature_importance.v1.json` | Gini importance scores (RandomForest only) |
+| `artifacts/linear_coefficients.v1.json` | Model coefficients in standardized feature space (LogisticRegression, LinearSVC) |
+| `artifacts/interpretability.index.v1.json` | Unified index linking all interpretability outputs |
+
+### Metrics Profiles
+
+Metrics profile is auto-selected based on model capabilities:
+
+| Profile | Trigger | Metrics |
+|---------|---------|---------|
+| `classification.base.v1` | All classifiers | accuracy, precision, recall, F1, confusion matrix |
+| `classification.proba.v1` | Binary + predict_proba | base + ROC-AUC, log loss |
+| `classification.multiclass.v1` | 3+ classes | base + per-class precision/recall/F1 |
 
 ## Interpretability
 
-RunForge extracts interpretability artifacts automatically after training.
+### Feature Importance (Tree Models)
 
-### Feature importance (tree models)
+RandomForest runs extract Gini importance scores and save them as `feature_importance.v1.json`. Features are ranked by importance and listed in both importance order and original column order.
 
-For `RandomForest` and `GradientBoosting`, the extension extracts Gini importance scores for each feature and saves them as `feature_importance.v1.json`.
+No approximations — if the model doesn't support native importance, no artifact is emitted.
 
-### Linear coefficients
+### Linear Coefficients
 
-For `LogisticRegression`, `LinearRegression`, `Ridge`, and `Lasso`, the extension extracts model coefficients and saves them as `linear_coefficients.v1.json`.
+LogisticRegression and LinearSVC runs extract model coefficients into `linear_coefficients.v1.json`. All coefficients are in **standardized feature space** (after StandardScaler), so comparing coefficients across features is meaningful.
 
-### Unified index
+For multiclass classification (3+ classes), coefficients are grouped per class with deterministic ordering.
 
-All interpretability artifacts are indexed in `interpretability.index.v1.json`, which lists what was extracted, for which model type, and where each artifact is stored.
+### Unified Index
 
-## Commands
+Every run produces `interpretability.index.v1.json`, which lists all available interpretability artifacts, their schema versions, and paths. Absent artifacts are omitted (not set to null).
 
-| Command | Description |
-|---------|-------------|
-| `RunForge: Train Model` | Start a new training run |
-| `RunForge: Show Runs` | List all runs in the current workspace |
-| `RunForge: Show Run Details` | View metrics and artifacts for a specific run |
-| `RunForge: Compare Runs` | Side-by-side comparison of two runs |
-| `RunForge: Export Model` | Export a trained model for deployment |
+## Diagnostics
 
-## Settings
+Structured diagnostics explain run behavior as machine-readable codes:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `runforge.pythonPath` | Auto-detect | Path to the Python interpreter |
-| `runforge.seed` | `42` | Random seed for deterministic runs |
-| `runforge.autoOpen` | `true` | Auto-open results after training |
+| Code | Description |
+|------|-------------|
+| `MISSING_VALUES_DROPPED` | Rows dropped due to missing values |
+| `LABEL_NOT_FOUND` | Label column not present in dataset |
+| `LABEL_TYPE_INVALID` | Label column has invalid type |
+| `ZERO_ROWS` | Dataset has zero rows after processing |
+| `ZERO_FEATURES` | Dataset has no feature columns |
+| `LABEL_ONLY_DATASET` | Dataset contains only the label column |
+| `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | Model doesn't support native feature importance |
+| `LINEAR_COEFFICIENTS_UNSUPPORTED_MODEL` | Model doesn't support coefficient extraction |
 
-## Security and data scope
+## Security and Data Scope
 
 **Data touched:** workspace CSV files (read-only for training), `.runforge/` directory (run metadata, model artifacts, metrics). Python subprocess stdout/stderr.
 
