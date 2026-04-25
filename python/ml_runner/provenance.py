@@ -1,5 +1,5 @@
 """
-Provenance tracking for RunForge Phase 2.2.1
+Provenance tracking for RunForge
 
 Provides append-only provenance index that links:
 - Dataset fingerprint → Run metadata → Artifacts
@@ -8,6 +8,21 @@ All operations are:
 - Local-only (no network)
 - Deterministic
 - Human-auditable
+
+ARCHITECTURAL CONSOLIDATION (iter #5a):
+Python is the SINGLE WRITER of `<workspace>/.ml/outputs/index.json`. The TS
+extension only reads. The on-disk shape (canonical 10-field IndexEntry +
+RunIndex container with `schema_version`) matches `src/types.ts:IndexEntry`
+/ `RunIndex` exactly.
+
+Migration shim (`load_index`) tolerates two legacy on-disk shapes that may
+appear in the wild from earlier iterations:
+- legacy bare-array (`[entry, entry, ...]`) — written by the TS extension
+  before iter #5a deleted that writer
+- legacy 6-field entries inside a `{schema_version, runs}` envelope — the
+  pre-iter-#5a Python writer
+Both are normalized to the canonical `{schema_version, runs}` shape on read.
+New writes always emit the canonical 10-field entries.
 """
 
 import json
@@ -16,25 +31,38 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# Schema version for the index format
-INDEX_SCHEMA_VERSION = "0.2.2.1"
+# Schema version for the index format.
+# Bumped 0.2.2.1 -> 1.0.0 in iter #5a — first version with the canonical
+# 10-field IndexEntry shape (run_id, created_at, name, preset_id, status,
+# summary, run_dir, dataset_fingerprint_sha256, label_column, model_pkl).
+INDEX_SCHEMA_VERSION = "1.0.0"
 
 
-def get_index_path(runforge_dir: Path) -> Path:
-    """Get path to the provenance index file."""
-    return runforge_dir / "index.json"
+def get_index_path(workspace_outputs_dir: Path) -> Path:
+    """Get path to the provenance index file (`.ml/outputs/index.json`)."""
+    return workspace_outputs_dir / "index.json"
 
 
-def load_index(runforge_dir: Path) -> Dict[str, Any]:
+def load_index(workspace_outputs_dir: Path) -> Dict[str, Any]:
     """
     Load the provenance index, creating empty index if not exists.
 
-    If index is corrupt, backs up the corrupt file and starts fresh.
+    Migration shim: two legacy on-disk shapes are normalized into the
+    canonical `{schema_version, runs}` envelope on read:
+      1. Bare array `[entry, entry, ...]` — written by the TS extension
+         before iter #5a deleted that writer.
+      2. Pre-iter-#5a `{schema_version, runs}` with 6-field entries that
+         lack `name` / `preset_id` / `status` / `summary`. These are passed
+         through unchanged; consumers must tolerate missing fields on old
+         entries (callers already do).
+
+    If the file is structurally corrupt (not JSON, or not list/dict), it is
+    backed up and a fresh empty index is returned.
 
     Returns:
-        Index dict with schema_version and runs list
+        Index dict with `schema_version` and `runs` list.
     """
-    index_path = get_index_path(runforge_dir)
+    index_path = get_index_path(workspace_outputs_dir)
 
     if not index_path.exists():
         return {
@@ -45,11 +73,23 @@ def load_index(runforge_dir: Path) -> Dict[str, Any]:
     try:
         with open(index_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-            # Validate basic structure
-            if not isinstance(data, dict) or "runs" not in data:
-                raise ValueError("Invalid index structure")
+
+        # Migration #1: bare-array legacy shape (TS pre-iter-#5a writer).
+        if isinstance(data, list):
+            return {
+                "schema_version": INDEX_SCHEMA_VERSION,
+                "runs": data,
+            }
+
+        # Canonical / pre-iter-#5a-Python shape: dict with `runs`.
+        if isinstance(data, dict) and "runs" in data and isinstance(data["runs"], list):
+            # Pass through. Old 6-field entries coexist with new 10-field
+            # entries; consumers tolerate missing fields.
             return data
-    except (json.JSONDecodeError, ValueError) as e:
+
+        # Anything else is structurally invalid.
+        raise ValueError("Invalid index structure")
+    except (json.JSONDecodeError, ValueError):
         # Backup corrupt file and start fresh
         backup_path = index_path.with_suffix(f".json.corrupt.{int(datetime.now(timezone.utc).timestamp())}")
         index_path.rename(backup_path)
@@ -60,15 +100,15 @@ def load_index(runforge_dir: Path) -> Dict[str, Any]:
         }
 
 
-def save_index(runforge_dir: Path, index: Dict[str, Any]) -> None:
+def save_index(workspace_outputs_dir: Path, index: Dict[str, Any]) -> None:
     """
     Save the provenance index atomically.
 
     Uses temp file + rename pattern for crash safety.
     Uses canonical JSON (sorted keys, consistent whitespace).
     """
-    runforge_dir.mkdir(parents=True, exist_ok=True)
-    index_path = get_index_path(runforge_dir)
+    workspace_outputs_dir.mkdir(parents=True, exist_ok=True)
+    index_path = get_index_path(workspace_outputs_dir)
     temp_path = index_path.with_suffix(".json.tmp")
 
     # Write to temp file first
@@ -81,74 +121,119 @@ def save_index(runforge_dir: Path, index: Dict[str, Any]) -> None:
 
 
 def append_run_to_index(
-    runforge_dir: Path,
+    workspace_outputs_dir: Path,
     run_id: str,
     created_at: str,
-    dataset_fingerprint: str,
-    label_column: str,
+    name: str,
+    preset_id: str,
+    status: str,
+    summary: Dict[str, Any],
     run_dir: str,
+    dataset_fingerprint_sha256: str,
+    label_column: str,
     model_pkl: str,
 ) -> None:
     """
-    Append a run entry to the provenance index.
+    Append a canonical 10-field run entry to the provenance index.
 
-    This is append-only: entries are never removed or reordered.
-    Newest entries go last.
+    This is the single writer of `<workspace>/.ml/outputs/index.json`
+    (iter #5a). The entry shape matches `src/types.ts:IndexEntry` exactly:
+
+      Identity (passed via CLI from TS):
+        run_id, created_at, name, preset_id
+
+      Outcome (computed by Python after training):
+        status, summary
+          summary = {duration_ms, final_metrics, device}
+
+      Provenance:
+        run_dir, dataset_fingerprint_sha256, label_column, model_pkl
+
+    Append-only: entries are never removed or reordered. Newest last.
+
+    Args:
+        workspace_outputs_dir: Path to `<workspace>/.ml/outputs/` — the
+            directory that contains `index.json`.
+        run_id: Unique run identifier.
+        created_at: ISO-8601 timestamp.
+        name: User-facing run name (passed via `--name` CLI arg). May be
+            empty; callers pass `run_id` as a fallback in that case.
+        preset_id: 'std-train' | 'hq-train'.
+        status: 'succeeded' | 'failed' (this code path only runs after
+            training success, so always 'succeeded').
+        summary: Dict with `duration_ms` (int), `final_metrics` (dict, e.g.
+            accuracy), and `device` (`cpu` | `cuda`).
+        run_dir: Workspace-relative path to the run directory (forward
+            slashes).
+        dataset_fingerprint_sha256: SHA-256 of dataset bytes (lowercase
+            64-char hex).
+        label_column: Name of the label column.
+        model_pkl: Workspace-relative path to the serialized model.
     """
-    index = load_index(runforge_dir)
+    index = load_index(workspace_outputs_dir)
 
     entry = {
+        # Identity
         "run_id": run_id,
         "created_at": created_at,
-        "dataset_fingerprint_sha256": dataset_fingerprint,
-        "label_column": label_column,
+        "name": name,
+        "preset_id": preset_id,
+        # Outcome
+        "status": status,
+        "summary": summary,
+        # Provenance
         "run_dir": run_dir,
+        "dataset_fingerprint_sha256": dataset_fingerprint_sha256,
+        "label_column": label_column,
         "model_pkl": model_pkl,
     }
 
     index["runs"].append(entry)
-    save_index(runforge_dir, index)
+    # Always stamp the canonical version on write — even when migrating
+    # from a legacy shape, the file is now canonical.
+    index["schema_version"] = INDEX_SCHEMA_VERSION
+    save_index(workspace_outputs_dir, index)
 
 
-def get_latest_run(runforge_dir: Path) -> Optional[Dict[str, Any]]:
+def get_latest_run(workspace_outputs_dir: Path) -> Optional[Dict[str, Any]]:
     """
     Get the most recent run entry from the index.
 
     Returns:
         Run entry dict, or None if no runs exist
     """
-    index = load_index(runforge_dir)
+    index = load_index(workspace_outputs_dir)
     runs = index.get("runs", [])
     return runs[-1] if runs else None
 
 
-def get_run_by_id(runforge_dir: Path, run_id: str) -> Optional[Dict[str, Any]]:
+def get_run_by_id(workspace_outputs_dir: Path, run_id: str) -> Optional[Dict[str, Any]]:
     """
     Find a run by its ID.
 
     Returns:
         Run entry dict, or None if not found
     """
-    index = load_index(runforge_dir)
+    index = load_index(workspace_outputs_dir)
     for run in index.get("runs", []):
         if run.get("run_id") == run_id:
             return run
     return None
 
 
-def list_runs(runforge_dir: Path) -> List[Dict[str, Any]]:
+def list_runs(workspace_outputs_dir: Path) -> List[Dict[str, Any]]:
     """
     List all runs in the index.
 
     Returns:
         List of run entries (oldest first, newest last)
     """
-    index = load_index(runforge_dir)
+    index = load_index(workspace_outputs_dir)
     return index.get("runs", [])
 
 
 def find_runs_by_fingerprint(
-    runforge_dir: Path,
+    workspace_outputs_dir: Path,
     fingerprint: str
 ) -> List[Dict[str, Any]]:
     """
@@ -157,7 +242,7 @@ def find_runs_by_fingerprint(
     Returns:
         List of matching run entries
     """
-    index = load_index(runforge_dir)
+    index = load_index(workspace_outputs_dir)
     return [
         run for run in index.get("runs", [])
         if run.get("dataset_fingerprint_sha256") == fingerprint

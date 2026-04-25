@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mcp-tool-shop-org/runforge-vscode/contracts/index.schema.v1.0.0.json",
+  "title": "RunForge Provenance Index (canonical)",
+  "description": "Schema for `<workspace>/.ml/outputs/index.json`. Iter #5a consolidation: Python is the single writer; the canonical 10-field IndexEntry shape matches `src/types.ts:IndexEntry`. Bumped from v0.2.2.1 (six fields, written under `.runforge/`) to v1.0.0 (ten fields, written under `.ml/outputs/`).",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version for this index format"
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "description": "Unique run identifier"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp with timezone"
+          },
+          "name": {
+            "type": "string",
+            "description": "User-facing run name (passed via --name CLI arg from TS; falls back to run_id when empty)"
+          },
+          "preset_id": {
+            "type": "string",
+            "enum": ["std-train", "hq-train"],
+            "description": "Preset used for the run"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["succeeded", "failed"],
+            "description": "Run outcome (the Python writer only runs after success, so always 'succeeded' from this code path)"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "duration_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total training duration in milliseconds"
+              },
+              "final_metrics": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "description": "Final metrics (accuracy, etc.). May be empty."
+              },
+              "device": {
+                "type": "string",
+                "enum": ["cpu", "cuda"],
+                "description": "Device used for training"
+              }
+            },
+            "required": ["duration_ms", "final_metrics", "device"],
+            "additionalProperties": false
+          },
+          "run_dir": {
+            "type": "string",
+            "description": "Workspace-relative path to the run directory (forward slashes)"
+          },
+          "dataset_fingerprint_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "SHA-256 of dataset bytes (lowercase hex, 64 chars)"
+          },
+          "label_column": {
+            "type": "string",
+            "description": "Name of the label column"
+          },
+          "model_pkl": {
+            "type": "string",
+            "description": "Workspace-relative path to the serialized model artifact"
+          }
+        },
+        "required": [
+          "run_id",
+          "created_at",
+          "name",
+          "preset_id",
+          "status",
+          "summary",
+          "run_dir",
+          "dataset_fingerprint_sha256",
+          "label_column",
+          "model_pkl"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Append-only list of runs, newest last"
+    }
+  },
+  "required": ["schema_version", "runs"],
+  "additionalProperties": false
+}

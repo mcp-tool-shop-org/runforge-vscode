@@ -87,6 +87,16 @@ def main() -> int:
         default=None,
         help="Named training profile (e.g., default, fast, thorough)",
     )
+    # iter #5a: User-facing run name, passed via spawnRunner from TS.
+    # Threaded into the canonical IndexEntry written to
+    # `.ml/outputs/index.json`. Empty -> falls back to run_id.
+    train_parser.add_argument(
+        "--name",
+        required=False,
+        type=str,
+        default="",
+        help="User-facing run name (lands in index.json; defaults to run_id when empty)",
+    )
 
     # inspect command (Phase 2.2.1)
     inspect_parser = subparsers.add_parser(
@@ -160,6 +170,7 @@ def main() -> int:
                 model_family=args.model,
                 cli_params=params if params else None,
                 profile_name=args.profile,
+                name=args.name,
             )
             return 0
         except Exception as e:

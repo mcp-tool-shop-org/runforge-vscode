@@ -28,6 +28,7 @@ import json
 import os
 import pickle
 import random
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional, List, NamedTuple
 
@@ -75,27 +76,49 @@ class TrainResult(NamedTuple):
     y_val: np.ndarray
 
 
-def _find_runforge_dir(start_path: Path) -> Optional[Path]:
+def _find_workspace_outputs_dir(start_path: Path) -> Optional[Path]:
     """
-    Find the .runforge directory by walking up from start_path.
+    Find the workspace `.ml/outputs/` directory by walking up from start_path.
 
-    Returns the .runforge directory if found, None otherwise.
-    Handles the case where start_path is already inside .runforge.
+    The TS extension uses `<workspace>/.ml/` as the workspace dir and writes
+    runs into `<workspace>/.ml/runs/<run-id>/`. The provenance index lives
+    at `<workspace>/.ml/outputs/index.json` (matching
+    `WORKSPACE_PATHS.INDEX_FILE` in `src/types.ts`).
+
+    Strategy: walk up from `start_path` (the run output directory) looking
+    for an ancestor named `.ml`. Returns `<found>/outputs/`, ensuring it
+    exists.
+
+    Pre-iter-#5a, this looked for `.runforge/` and silently returned None
+    in production because TS uses `.ml/`, not `.runforge/`. As a result the
+    `index.json` was never written by Python. iter #5a fixes that and
+    consolidates Python as the single writer.
+
+    Returns:
+        Path to `<workspace>/.ml/outputs/`, or None if no `.ml` ancestor
+        was found.
     """
     current = start_path.resolve()
 
-    # Check if we're already inside a .runforge directory
-    for parent in [current] + list(current.parents):
-        if parent.name == ".runforge":
-            return parent
-
-    # Otherwise look for .runforge as a sibling or in parent directories
-    for parent in current.parents:
-        runforge = parent / ".runforge"
-        if runforge.exists() and runforge.is_dir():
-            return runforge
+    # Walk current + parents looking for `.ml`
+    for ancestor in [current] + list(current.parents):
+        if ancestor.name == ".ml":
+            outputs = ancestor / "outputs"
+            outputs.mkdir(parents=True, exist_ok=True)
+            return outputs
+        # Also accept `.ml` as a sibling-dir at this level
+        candidate = ancestor / ".ml"
+        if candidate.exists() and candidate.is_dir():
+            outputs = candidate / "outputs"
+            outputs.mkdir(parents=True, exist_ok=True)
+            return outputs
 
     return None
+
+
+# Backward-compat alias for any in-repo callers we may have missed.
+# Production code uses `_find_workspace_outputs_dir` directly.
+_find_runforge_dir = _find_workspace_outputs_dir
 
 
 def run_training(
@@ -106,6 +129,7 @@ def run_training(
     model_family: str = "logistic_regression",
     cli_params: Optional[Dict[str, str]] = None,
     profile_name: Optional[str] = None,
+    name: str = "",
 ) -> None:
     """
     Execute a training run on CSV data.
@@ -124,7 +148,13 @@ def run_training(
             - linear_svc
         cli_params: Hyperparameters from --param CLI args (Phase 3.2)
         profile_name: Training profile name (Phase 3.2)
+        name: User-facing run name (iter #5a) — passed via `--name` CLI
+            arg from the TS extension, threaded through to the index entry.
+            Empty string falls back to `run_id` at index-write time.
     """
+    # Capture training start for `summary.duration_ms` (iter #5a).
+    training_start_ms = int(time.monotonic() * 1000)
+
     # Get preset configuration
     preset = get_preset(preset_id)
     defaults = preset["defaults"]
@@ -365,28 +395,44 @@ def run_training(
     available_count = len(interp_index.get("available_artifacts", {}))
     print(f"  Available artifacts: {available_count}")
 
-    # Phase 2.2.1: Update provenance index
-    # Find the .runforge directory by walking up from output directory
-    runforge_dir = _find_runforge_dir(out_path)
-    if runforge_dir:
+    # iter #5a: Update provenance index (Python is the single writer of
+    # `<workspace>/.ml/outputs/index.json`).
+    workspace_outputs_dir = _find_workspace_outputs_dir(out_path)
+    if workspace_outputs_dir:
         try:
-            # Calculate relative path from .runforge to the run
-            run_rel_path = out_path.relative_to(runforge_dir)
+            # Workspace root is the parent of `.ml/`. All paths in the
+            # index entry are workspace-relative with forward slashes.
+            workspace_root = workspace_outputs_dir.parent.parent
+            run_rel_path = out_path.resolve().relative_to(workspace_root.resolve())
+
+            duration_ms = int(time.monotonic() * 1000) - training_start_ms
+            run_summary = {
+                "duration_ms": duration_ms,
+                "final_metrics": {
+                    "accuracy": round(accuracy, 4),
+                },
+                "device": device,
+            }
+
             append_run_to_index(
-                runforge_dir=runforge_dir,
+                workspace_outputs_dir=workspace_outputs_dir,
                 run_id=run_id,
                 created_at=metadata["created_at"],
-                dataset_fingerprint=dataset_fingerprint,
+                name=name or run_id,
+                preset_id=preset_id,
+                status="succeeded",
+                summary=run_summary,
+                run_dir=str(run_rel_path).replace("\\", "/"),
+                dataset_fingerprint_sha256=dataset_fingerprint,
                 label_column="label",
-                run_dir=str(run_rel_path / "run.json").replace("\\", "/"),
                 model_pkl=str(run_rel_path / "artifacts" / "model.pkl").replace("\\", "/"),
             )
-            print(f"Provenance index updated: {runforge_dir / 'index.json'}")
+            print(f"Provenance index updated: {workspace_outputs_dir / 'index.json'}")
         except Exception as e:
             # Don't fail training if provenance update fails
             print(f"Warning: Could not update provenance index: {e}")
     else:
-        print("Note: Not in a .runforge workspace, skipping provenance index")
+        print("Note: Not in a .ml workspace, skipping provenance index")
 
     print()
     print(f"=" * 50)

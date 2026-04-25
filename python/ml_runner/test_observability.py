@@ -298,7 +298,14 @@ class TestStructuredDiagnostics:
 
 
 class TestProvenanceLinkage:
-    """Test provenance tracking and linkage."""
+    """Test provenance tracking and linkage.
+
+    iter #5a: workspace dir is `<workspace>/.ml/`, the index lives at
+    `<workspace>/.ml/outputs/index.json`, and `append_run_to_index` takes
+    the full canonical 10-field shape. The previous suite passed
+    `runforge_dir=<tmp>/.runforge` and the legacy 6-field signature; both
+    have been updated.
+    """
 
     def test_index_created_on_first_run(
         self, sample_csv: Path, tmp_path: Path, monkeypatch
@@ -306,11 +313,12 @@ class TestProvenanceLinkage:
         """Provenance index must be created on first run."""
         monkeypatch.setenv("RUNFORGE_DATASET", str(sample_csv))
 
-        # Create workspace structure
+        # iter #5a: workspace uses `.ml/`, run dir lives under `.ml/runs/`,
+        # and the index lands at `.ml/outputs/index.json`.
         workspace = tmp_path / "workspace"
         workspace.mkdir()
-        runforge_dir = workspace / ".runforge"
-        runs_dir = runforge_dir / "runs"
+        ml_dir = workspace / ".ml"
+        runs_dir = ml_dir / "runs"
         runs_dir.mkdir(parents=True)
 
         run_dir = runs_dir / "test-run"
@@ -323,39 +331,47 @@ class TestProvenanceLinkage:
             device="cpu",
         )
 
-        assert (runforge_dir / "index.json").exists()
+        assert (ml_dir / "outputs" / "index.json").exists()
 
     def test_provenance_append_only(self, tmp_path: Path):
         """Index must be append-only."""
-        runforge_dir = tmp_path / ".runforge"
-        runforge_dir.mkdir()
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
 
         # Add first run
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="run-1",
             created_at="2026-01-31T00:00:00+00:00",
-            dataset_fingerprint="a" * 64,
+            name="Run 1",
+            preset_id="std-train",
+            status="succeeded",
+            summary={"duration_ms": 1000, "final_metrics": {"accuracy": 0.9}, "device": "cpu"},
+            run_dir=".ml/runs/run-1",
+            dataset_fingerprint_sha256="a" * 64,
             label_column="label",
-            run_dir="runs/run-1/run.json",
-            model_pkl="runs/run-1/artifacts/model.pkl",
+            model_pkl=".ml/runs/run-1/artifacts/model.pkl",
         )
 
-        index1 = load_index(runforge_dir)
+        index1 = load_index(outputs_dir)
         assert len(index1["runs"]) == 1
 
         # Add second run
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="run-2",
             created_at="2026-01-31T01:00:00+00:00",
-            dataset_fingerprint="b" * 64,
+            name="Run 2",
+            preset_id="hq-train",
+            status="succeeded",
+            summary={"duration_ms": 2000, "final_metrics": {"accuracy": 0.95}, "device": "cpu"},
+            run_dir=".ml/runs/run-2",
+            dataset_fingerprint_sha256="b" * 64,
             label_column="label",
-            run_dir="runs/run-2/run.json",
-            model_pkl="runs/run-2/artifacts/model.pkl",
+            model_pkl=".ml/runs/run-2/artifacts/model.pkl",
         )
 
-        index2 = load_index(runforge_dir)
+        index2 = load_index(outputs_dir)
         assert len(index2["runs"]) == 2
         # First run still present
         assert index2["runs"][0]["run_id"] == "run-1"
@@ -364,60 +380,77 @@ class TestProvenanceLinkage:
 
     def test_can_find_run_by_id(self, tmp_path: Path):
         """Must be able to find a run by its ID."""
-        runforge_dir = tmp_path / ".runforge"
-        runforge_dir.mkdir()
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
 
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="target-run",
             created_at="2026-01-31T00:00:00+00:00",
-            dataset_fingerprint="c" * 64,
+            name="Target",
+            preset_id="std-train",
+            status="succeeded",
+            summary={"duration_ms": 1000, "final_metrics": {}, "device": "cpu"},
+            run_dir=".ml/runs/target-run",
+            dataset_fingerprint_sha256="c" * 64,
             label_column="label",
-            run_dir="runs/target-run/run.json",
-            model_pkl="runs/target-run/artifacts/model.pkl",
+            model_pkl=".ml/runs/target-run/artifacts/model.pkl",
         )
 
-        found = get_run_by_id(runforge_dir, "target-run")
+        found = get_run_by_id(outputs_dir, "target-run")
         assert found is not None
         assert found["run_id"] == "target-run"
 
     def test_can_find_runs_by_fingerprint(self, tmp_path: Path):
         """Must be able to find runs by dataset fingerprint."""
-        runforge_dir = tmp_path / ".runforge"
-        runforge_dir.mkdir()
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
 
         target_fp = "d" * 64
+        cpu_summary = {"duration_ms": 1000, "final_metrics": {}, "device": "cpu"}
 
         # Add runs with different fingerprints
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="run-1",
             created_at="2026-01-31T00:00:00+00:00",
-            dataset_fingerprint=target_fp,
+            name="Run 1",
+            preset_id="std-train",
+            status="succeeded",
+            summary=cpu_summary,
+            run_dir=".ml/runs/run-1",
+            dataset_fingerprint_sha256=target_fp,
             label_column="label",
-            run_dir="runs/run-1/run.json",
-            model_pkl="runs/run-1/artifacts/model.pkl",
+            model_pkl=".ml/runs/run-1/artifacts/model.pkl",
         )
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="run-2",
             created_at="2026-01-31T01:00:00+00:00",
-            dataset_fingerprint="e" * 64,  # Different fingerprint
+            name="Run 2",
+            preset_id="std-train",
+            status="succeeded",
+            summary=cpu_summary,
+            run_dir=".ml/runs/run-2",
+            dataset_fingerprint_sha256="e" * 64,  # Different fingerprint
             label_column="label",
-            run_dir="runs/run-2/run.json",
-            model_pkl="runs/run-2/artifacts/model.pkl",
+            model_pkl=".ml/runs/run-2/artifacts/model.pkl",
         )
         append_run_to_index(
-            runforge_dir=runforge_dir,
+            workspace_outputs_dir=outputs_dir,
             run_id="run-3",
             created_at="2026-01-31T02:00:00+00:00",
-            dataset_fingerprint=target_fp,  # Same as run-1
+            name="Run 3",
+            preset_id="std-train",
+            status="succeeded",
+            summary=cpu_summary,
+            run_dir=".ml/runs/run-3",
+            dataset_fingerprint_sha256=target_fp,  # Same as run-1
             label_column="label",
-            run_dir="runs/run-3/run.json",
-            model_pkl="runs/run-3/artifacts/model.pkl",
+            model_pkl=".ml/runs/run-3/artifacts/model.pkl",
         )
 
-        found = find_runs_by_fingerprint(runforge_dir, target_fp)
+        found = find_runs_by_fingerprint(outputs_dir, target_fp)
         assert len(found) == 2
         assert found[0]["run_id"] == "run-1"
         assert found[1]["run_id"] == "run-3"
@@ -428,11 +461,11 @@ class TestProvenanceLinkage:
         """Given a run, must be able to locate its artifacts."""
         monkeypatch.setenv("RUNFORGE_DATASET", str(sample_csv))
 
-        # Create workspace structure
+        # iter #5a: `.ml/` workspace dir, runs under `.ml/runs/`.
         workspace = tmp_path / "workspace"
         workspace.mkdir()
-        runforge_dir = workspace / ".runforge"
-        runs_dir = runforge_dir / "runs"
+        ml_dir = workspace / ".ml"
+        runs_dir = ml_dir / "runs"
         runs_dir.mkdir(parents=True)
 
         run_dir = runs_dir / "test-run"
@@ -445,15 +478,165 @@ class TestProvenanceLinkage:
             device="cpu",
         )
 
-        # Get latest run from index
-        latest = get_latest_run(runforge_dir)
+        # Get latest run from outputs/index.json
+        outputs_dir = ml_dir / "outputs"
+        latest = get_latest_run(outputs_dir)
         assert latest is not None
 
         # Verify we can navigate to model.pkl
         model_pkl_rel = latest["model_pkl"]
-        model_pkl_path = runforge_dir / model_pkl_rel
-        # The path in index is relative from .runforge, so we need to check parent
-        assert (run_dir / "artifacts" / "model.pkl").exists()
+        model_pkl_path = workspace / model_pkl_rel
+        assert model_pkl_path.exists()
+
+
+class TestIndexMigration:
+    """iter #5a migration shim — load_index normalizes legacy on-disk shapes
+    into the canonical `{schema_version, runs}` envelope. Two legacy shapes
+    must be handled, plus structurally invalid input must be backed up and
+    replaced with a fresh empty index.
+    """
+
+    def test_legacy_bare_array_is_migrated(self, tmp_path: Path):
+        """Pre-iter-#5a TS writer wrote `[entry, ...]` directly. Migration
+        wraps it in the canonical envelope and stamps the new schema_version.
+        """
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
+        index_path = outputs_dir / "index.json"
+
+        legacy_entries = [
+            {
+                "run_id": "ts-legacy-1",
+                "created_at": "2026-01-30T00:00:00+00:00",
+                "name": "TS Legacy",
+                "preset_id": "std-train",
+                "status": "succeeded",
+                "summary": {"duration_ms": 500, "final_metrics": {"accuracy": 0.9}, "device": "cpu"},
+                "run_dir": ".ml/runs/ts-legacy-1",
+                "dataset_fingerprint_sha256": "f" * 64,
+                "label_column": "label",
+                "model_pkl": ".ml/runs/ts-legacy-1/artifacts/model.pkl",
+            }
+        ]
+        index_path.write_text(json.dumps(legacy_entries), encoding="utf-8")
+
+        loaded = load_index(outputs_dir)
+        assert loaded["schema_version"] == "1.0.0"
+        assert isinstance(loaded["runs"], list)
+        assert len(loaded["runs"]) == 1
+        assert loaded["runs"][0]["run_id"] == "ts-legacy-1"
+
+    def test_legacy_bare_array_then_append_writes_canonical_envelope(
+        self, tmp_path: Path
+    ):
+        """A legacy bare-array file followed by a fresh append must end up
+        as a canonical `{schema_version, runs}` file on disk.
+        """
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
+        index_path = outputs_dir / "index.json"
+
+        # Plant a legacy bare-array file.
+        legacy = [{"run_id": "legacy-1", "dataset_fingerprint_sha256": "1" * 64}]
+        index_path.write_text(json.dumps(legacy), encoding="utf-8")
+
+        append_run_to_index(
+            workspace_outputs_dir=outputs_dir,
+            run_id="new-1",
+            created_at="2026-04-24T00:00:00+00:00",
+            name="New 1",
+            preset_id="std-train",
+            status="succeeded",
+            summary={"duration_ms": 100, "final_metrics": {"accuracy": 0.95}, "device": "cpu"},
+            run_dir=".ml/runs/new-1",
+            dataset_fingerprint_sha256="2" * 64,
+            label_column="label",
+            model_pkl=".ml/runs/new-1/artifacts/model.pkl",
+        )
+
+        # Re-read raw — it must now be a dict with schema_version + runs.
+        raw = json.loads(index_path.read_text(encoding="utf-8"))
+        assert isinstance(raw, dict)
+        assert raw["schema_version"] == "1.0.0"
+        assert len(raw["runs"]) == 2
+        # Legacy entry preserved, new entry appended last.
+        assert raw["runs"][0]["run_id"] == "legacy-1"
+        assert raw["runs"][1]["run_id"] == "new-1"
+        # New entry has the full 10 fields.
+        assert raw["runs"][1]["name"] == "New 1"
+        assert raw["runs"][1]["preset_id"] == "std-train"
+        assert raw["runs"][1]["status"] == "succeeded"
+        assert raw["runs"][1]["summary"]["device"] == "cpu"
+
+    def test_legacy_six_field_entries_coexist_with_new(self, tmp_path: Path):
+        """Pre-iter-#5a Python writer produced 6-field entries inside the
+        `{schema_version, runs}` envelope. They must be readable alongside
+        new 10-field entries without crashing on missing fields.
+        """
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
+        index_path = outputs_dir / "index.json"
+
+        legacy_envelope = {
+            "schema_version": "0.2.2.1",
+            "runs": [
+                {
+                    "run_id": "old-1",
+                    "created_at": "2026-01-01T00:00:00+00:00",
+                    "dataset_fingerprint_sha256": "a" * 64,
+                    "label_column": "label",
+                    "run_dir": "runs/old-1/run.json",
+                    "model_pkl": "runs/old-1/artifacts/model.pkl",
+                }
+            ],
+        }
+        index_path.write_text(json.dumps(legacy_envelope), encoding="utf-8")
+
+        append_run_to_index(
+            workspace_outputs_dir=outputs_dir,
+            run_id="new-1",
+            created_at="2026-04-24T00:00:00+00:00",
+            name="New",
+            preset_id="std-train",
+            status="succeeded",
+            summary={"duration_ms": 50, "final_metrics": {}, "device": "cpu"},
+            run_dir=".ml/runs/new-1",
+            dataset_fingerprint_sha256="b" * 64,
+            label_column="label",
+            model_pkl=".ml/runs/new-1/artifacts/model.pkl",
+        )
+
+        loaded = load_index(outputs_dir)
+        assert loaded["schema_version"] == "1.0.0"
+        assert len(loaded["runs"]) == 2
+
+        # Old entry still has only 6 fields — `name`/`preset_id`/`status`/
+        # `summary` are absent. Consumers must tolerate that.
+        old = loaded["runs"][0]
+        assert old["run_id"] == "old-1"
+        assert "name" not in old
+        assert "summary" not in old
+
+        # New entry has the full canonical shape.
+        new = loaded["runs"][1]
+        assert new["run_id"] == "new-1"
+        assert new["name"] == "New"
+        assert new["status"] == "succeeded"
+        assert new["summary"]["duration_ms"] == 50
+
+    def test_corrupt_json_is_backed_up(self, tmp_path: Path):
+        """A non-JSON file must be backed up and a fresh empty index returned."""
+        outputs_dir = tmp_path / ".ml" / "outputs"
+        outputs_dir.mkdir(parents=True)
+        index_path = outputs_dir / "index.json"
+        index_path.write_text("{ this is not json", encoding="utf-8")
+
+        loaded = load_index(outputs_dir)
+        assert loaded["schema_version"] == "1.0.0"
+        assert loaded["runs"] == []
+        # A backup with `.corrupt.<ts>` suffix must exist.
+        backups = list(outputs_dir.glob("index.json.corrupt.*"))
+        assert len(backups) == 1
 
 
 class TestRunIdGeneration:
