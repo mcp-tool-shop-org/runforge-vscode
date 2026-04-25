@@ -6,6 +6,7 @@
  */
 
 import type { ArtifactInspectResult } from '../artifact-inspect-command.js';
+import { escapeTableCell } from './escape.js';
 
 /**
  * Render artifact inspection result as markdown summary
@@ -21,8 +22,8 @@ export function renderArtifactSummary(result: ArtifactInspectResult): string {
   lines.push('');
   lines.push(`| Property | Value |`);
   lines.push(`|----------|-------|`);
-  lines.push(`| Schema Version | ${result.schema_version} |`);
-  lines.push(`| Artifact | \`${result.artifact_path}\` |`);
+  lines.push(`| Schema Version | ${escapeTableCell(result.schema_version)} |`);
+  lines.push(`| Artifact | \`${escapeTableCell(result.artifact_path)}\` |`);
   lines.push(`| Step Count | ${result.step_count} |`);
   lines.push(`| Has Preprocessing | ${result.has_preprocessing ? 'Yes' : 'No'} |`);
   lines.push('');
@@ -42,7 +43,7 @@ export function renderArtifactSummary(result: ArtifactInspectResult): string {
       const step = result.pipeline_steps[i];
       const isPreprocessing = isPreprocessingStep(step.type);
       const prefix = isPreprocessing ? '🔧 ' : '';
-      lines.push(`| ${i + 1} | ${prefix}${step.name} | \`${step.type}\` | \`${step.module}\` |`);
+      lines.push(`| ${i + 1} | ${prefix}${escapeTableCell(step.name)} | \`${escapeTableCell(step.type)}\` | \`${escapeTableCell(step.module)}\` |`);
     }
     lines.push('');
 

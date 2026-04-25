@@ -5,6 +5,8 @@
  * Pure function: takes parsed JSON, returns markdown string.
  */
 
+import { escapeTableCell } from './escape.js';
+
 /**
  * Render run.json as markdown summary
  */
@@ -30,12 +32,12 @@ export function renderRunSummary(
 
   lines.push(`| Field | Value |`);
   lines.push(`|-------|-------|`);
-  lines.push(`| RunForge Version | ${version} |`);
-  lines.push(`| Created | ${formatDate(createdAt)} |`);
-  lines.push(`| Label Column | \`${labelColumn}\` |`);
-  lines.push(`| Samples | ${numSamples} |`);
-  lines.push(`| Features | ${numFeatures} |`);
-  lines.push(`| Dropped Rows | ${droppedRows} |`);
+  lines.push(`| RunForge Version | ${escapeTableCell(version)} |`);
+  lines.push(`| Created | ${escapeTableCell(formatDate(createdAt))} |`);
+  lines.push(`| Label Column | \`${escapeTableCell(labelColumn)}\` |`);
+  lines.push(`| Samples | ${escapeTableCell(numSamples)} |`);
+  lines.push(`| Features | ${escapeTableCell(numFeatures)} |`);
+  lines.push(`| Dropped Rows | ${escapeTableCell(droppedRows)} |`);
   lines.push('');
 
   // Dataset section
@@ -60,13 +62,13 @@ export function renderRunSummary(
       const accuracy = typeof metrics.accuracy === 'number'
         ? (metrics.accuracy * 100).toFixed(2) + '%'
         : metrics.accuracy;
-      lines.push(`| Accuracy | ${accuracy} |`);
+      lines.push(`| Accuracy | ${escapeTableCell(accuracy)} |`);
     }
     if (metrics.num_samples !== undefined) {
-      lines.push(`| Samples | ${metrics.num_samples} |`);
+      lines.push(`| Samples | ${escapeTableCell(metrics.num_samples)} |`);
     }
     if (metrics.num_features !== undefined) {
-      lines.push(`| Features | ${metrics.num_features} |`);
+      lines.push(`| Features | ${escapeTableCell(metrics.num_features)} |`);
     }
     lines.push('');
   }

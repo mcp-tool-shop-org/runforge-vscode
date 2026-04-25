@@ -6,6 +6,7 @@
  */
 
 import * as fs from 'node:fs/promises';
+import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 
 /**
@@ -44,6 +45,33 @@ export interface IndexEntry {
  */
 export interface RunIndex {
   runs: IndexEntry[];
+}
+
+/**
+ * Get the latest run directory under `<workspaceRoot>/.runforge/runs` by mtime.
+ *
+ * Returns the absolute path to the most recently modified run directory,
+ * or `null` if `.runforge/runs` does not exist or is empty.
+ *
+ * Synchronous: callers in observability commands consume this directly without await.
+ */
+export function getLatestRunDir(workspaceRoot: string): string | null {
+  const runsDir = path.join(workspaceRoot, '.runforge', 'runs');
+  if (!fsSync.existsSync(runsDir)) {
+    return null;
+  }
+
+  const entries = fsSync.readdirSync(runsDir, { withFileTypes: true });
+  const runDirs = entries
+    .filter(e => e.isDirectory())
+    .map(e => ({
+      name: e.name,
+      path: path.join(runsDir, e.name),
+      mtime: fsSync.statSync(path.join(runsDir, e.name)).mtime,
+    }))
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+  return runDirs.length > 0 ? runDirs[0].path : null;
 }
 
 /**

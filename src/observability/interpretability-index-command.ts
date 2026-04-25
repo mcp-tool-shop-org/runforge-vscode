@@ -9,6 +9,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { getLatestRunDir } from './fs-safe.js';
 
 /**
  * Metrics v1 entry summary
@@ -60,35 +61,6 @@ interface InterpretabilityIndex {
     feature_importance_v1?: ArtifactEntry<FeatureImportanceSummary>;
     linear_coefficients_v1?: ArtifactEntry<LinearCoefficientsSummary>;
   };
-}
-
-/**
- * Get the latest run directory from .runforge
- */
-async function getLatestRunDir(workspaceRoot: string): Promise<string | null> {
-  const runforgeDir = path.join(workspaceRoot, '.runforge');
-  const runsDir = path.join(runforgeDir, 'runs');
-
-  if (!fs.existsSync(runsDir)) {
-    return null;
-  }
-
-  // Find most recent run directory
-  const entries = fs.readdirSync(runsDir, { withFileTypes: true });
-  const runDirs = entries
-    .filter(e => e.isDirectory())
-    .map(e => ({
-      name: e.name,
-      path: path.join(runsDir, e.name),
-      mtime: fs.statSync(path.join(runsDir, e.name)).mtime,
-    }))
-    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
-
-  if (runDirs.length === 0) {
-    return null;
-  }
-
-  return runDirs[0].path;
 }
 
 /**
@@ -222,7 +194,7 @@ export async function viewLatestInterpretabilityIndex(): Promise<void> {
   }
 
   const workspaceRoot = workspaceFolders[0].uri.fsPath;
-  const latestRunDir = await getLatestRunDir(workspaceRoot);
+  const latestRunDir = getLatestRunDir(workspaceRoot);
 
   if (!latestRunDir) {
     vscode.window.showInformationMessage('No training runs found. Run training first.');

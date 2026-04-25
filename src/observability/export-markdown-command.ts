@@ -9,47 +9,63 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunMetadataSafe, type RunMetadata } from './metadata-command.js';
+import { getLatestRunDir } from './fs-safe.js';
+import { escapeTableCell } from './render/escape.js';
 
 /**
- * Get the latest run directory from .runforge/runs
+ * Narrow shape of metrics.v1.json — only the fields we read.
+ * Source: contracts/metrics.v1.json (defined in Python; this is the TS view).
  */
-function getLatestRunDir(workspaceRoot: string): string | null {
-  const runsDir = path.join(workspaceRoot, '.runforge', 'runs');
-  if (!fs.existsSync(runsDir)) {
-    return null;
-  }
-
-  const entries = fs.readdirSync(runsDir, { withFileTypes: true });
-  const runDirs = entries
-    .filter(e => e.isDirectory())
-    .map(e => ({
-      name: e.name,
-      path: path.join(runsDir, e.name),
-      mtime: fs.statSync(path.join(runsDir, e.name)).mtime,
-    }))
-    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
-
-  return runDirs.length > 0 ? runDirs[0].path : null;
+interface MetricsV1 {
+  metrics_profile?: string;
+  accuracy?: number;
+  precision_macro?: number;
+  recall_macro?: number;
+  f1_macro?: number;
+  roc_auc?: number;
+  log_loss?: number;
+  confusion_matrix?: number[][];
+  class_labels?: Array<string | number>;
 }
 
 /**
- * Safely read a JSON file, returning null on error
+ * One entry in the interpretability.index.v1.json artifacts array.
  */
-function readJsonSafe(filePath: string): Record<string, unknown> | null {
+interface InterpIndexArtifact {
+  name?: string;
+  type?: string;
+  present?: boolean;
+}
+
+/**
+ * Narrow shape of interpretability.index.v1.json — only the fields we read.
+ */
+interface InterpIndex {
+  artifacts?: InterpIndexArtifact[];
+}
+
+/**
+ * Safely read and parse a JSON file as type T, returning null on any error.
+ */
+function readJsonSafe<T>(filePath: string): T | null {
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T;
   } catch {
     return null;
   }
 }
 
 /**
- * Build the markdown content from run data
+ * Build the markdown content from run data.
+ *
+ * All user-controlled strings (class labels, artifact names, filenames) are
+ * passed through {@link escapeTableCell} so that an embedded `|` cannot break
+ * markdown table column alignment.
  */
 function buildMarkdown(
   metadata: RunMetadata,
-  metricsV1: Record<string, unknown> | null,
-  interpIndex: Record<string, unknown> | null,
+  metricsV1: MetricsV1 | null,
+  interpIndex: InterpIndex | null,
   runDir: string
 ): string {
   const lines: string[] = [];
@@ -63,10 +79,10 @@ function buildMarkdown(
   lines.push('');
   lines.push(`| Field | Value |`);
   lines.push(`|-------|-------|`);
-  lines.push(`| Run ID | \`${metadata.run_id}\` |`);
-  lines.push(`| RunForge Version | ${metadata.runforge_version} |`);
-  lines.push(`| Created | ${metadata.created_at} |`);
-  lines.push(`| Label Column | \`${metadata.label_column}\` |`);
+  lines.push(`| Run ID | \`${escapeTableCell(metadata.run_id)}\` |`);
+  lines.push(`| RunForge Version | ${escapeTableCell(metadata.runforge_version)} |`);
+  lines.push(`| Created | ${escapeTableCell(metadata.created_at)} |`);
+  lines.push(`| Label Column | \`${escapeTableCell(metadata.label_column)}\` |`);
   lines.push(`| Samples | ${metadata.num_samples} |`);
   lines.push(`| Features | ${metadata.num_features} |`);
   if (metadata.dropped_rows_missing_values > 0) {
@@ -79,8 +95,8 @@ function buildMarkdown(
   lines.push('');
   lines.push(`| Field | Value |`);
   lines.push(`|-------|-------|`);
-  lines.push(`| Path | \`${metadata.dataset.path}\` |`);
-  lines.push(`| SHA-256 | \`${metadata.dataset.fingerprint_sha256.slice(0, 16)}...\` |`);
+  lines.push(`| Path | \`${escapeTableCell(metadata.dataset.path)}\` |`);
+  lines.push(`| SHA-256 | \`${escapeTableCell(metadata.dataset.fingerprint_sha256.slice(0, 16))}...\` |`);
   lines.push('');
 
   // Base metrics from run.json
@@ -97,42 +113,42 @@ function buildMarkdown(
   if (metricsV1) {
     lines.push('### Detailed Metrics (v1)');
     lines.push('');
-    const profile = metricsV1['metrics_profile'] as string || 'unknown';
+    const profile = metricsV1.metrics_profile ?? 'unknown';
     lines.push(`**Profile:** ${profile}`);
     lines.push('');
     lines.push(`| Metric | Value |`);
     lines.push(`|--------|-------|`);
-    if (metricsV1['accuracy'] !== undefined) {
-      lines.push(`| Accuracy | ${((metricsV1['accuracy'] as number) * 100).toFixed(2)}% |`);
+    if (metricsV1.accuracy !== undefined) {
+      lines.push(`| Accuracy | ${(metricsV1.accuracy * 100).toFixed(2)}% |`);
     }
-    if (metricsV1['precision_macro'] !== undefined) {
-      lines.push(`| Precision (macro) | ${((metricsV1['precision_macro'] as number) * 100).toFixed(2)}% |`);
+    if (metricsV1.precision_macro !== undefined) {
+      lines.push(`| Precision (macro) | ${(metricsV1.precision_macro * 100).toFixed(2)}% |`);
     }
-    if (metricsV1['recall_macro'] !== undefined) {
-      lines.push(`| Recall (macro) | ${((metricsV1['recall_macro'] as number) * 100).toFixed(2)}% |`);
+    if (metricsV1.recall_macro !== undefined) {
+      lines.push(`| Recall (macro) | ${(metricsV1.recall_macro * 100).toFixed(2)}% |`);
     }
-    if (metricsV1['f1_macro'] !== undefined) {
-      lines.push(`| F1 (macro) | ${((metricsV1['f1_macro'] as number) * 100).toFixed(2)}% |`);
+    if (metricsV1.f1_macro !== undefined) {
+      lines.push(`| F1 (macro) | ${(metricsV1.f1_macro * 100).toFixed(2)}% |`);
     }
-    if (metricsV1['roc_auc'] !== undefined) {
-      lines.push(`| ROC-AUC | ${((metricsV1['roc_auc'] as number) * 100).toFixed(2)}% |`);
+    if (metricsV1.roc_auc !== undefined) {
+      lines.push(`| ROC-AUC | ${(metricsV1.roc_auc * 100).toFixed(2)}% |`);
     }
-    if (metricsV1['log_loss'] !== undefined) {
-      lines.push(`| Log Loss | ${(metricsV1['log_loss'] as number).toFixed(4)} |`);
+    if (metricsV1.log_loss !== undefined) {
+      lines.push(`| Log Loss | ${metricsV1.log_loss.toFixed(4)} |`);
     }
     lines.push('');
 
     // Confusion matrix
-    const cm = metricsV1['confusion_matrix'] as number[][] | undefined;
+    const cm = metricsV1.confusion_matrix;
     if (cm) {
       lines.push('### Confusion Matrix');
       lines.push('');
-      const labels = metricsV1['class_labels'] as (string | number)[] | undefined;
+      const labels = metricsV1.class_labels;
       if (labels) {
-        lines.push('| | ' + labels.map(l => `**${l}**`).join(' | ') + ' |');
+        lines.push('| | ' + labels.map(l => `**${escapeTableCell(l)}**`).join(' | ') + ' |');
         lines.push('|' + '---|'.repeat(labels.length + 1));
         for (let i = 0; i < cm.length; i++) {
-          lines.push(`| **${labels[i]}** | ${cm[i].join(' | ')} |`);
+          lines.push(`| **${escapeTableCell(labels[i])}** | ${cm[i].join(' | ')} |`);
         }
       } else {
         for (const row of cm) {
@@ -147,15 +163,15 @@ function buildMarkdown(
   if (interpIndex) {
     lines.push('## Interpretability');
     lines.push('');
-    const artifacts = interpIndex['artifacts'] as Record<string, unknown>[] | undefined;
+    const artifacts = interpIndex.artifacts;
     if (artifacts && artifacts.length > 0) {
       lines.push(`| Artifact | Type | Status |`);
       lines.push(`|----------|------|--------|`);
       for (const artifact of artifacts) {
-        const name = artifact['name'] as string || 'unknown';
-        const type = artifact['type'] as string || 'unknown';
-        const present = artifact['present'] as boolean;
-        lines.push(`| ${name} | ${type} | ${present ? 'Available' : 'Not available'} |`);
+        const name = artifact.name ?? 'unknown';
+        const type = artifact.type ?? 'unknown';
+        const present = artifact.present === true;
+        lines.push(`| ${escapeTableCell(name)} | ${escapeTableCell(type)} | ${present ? 'Available' : 'Not available'} |`);
       }
       lines.push('');
     }
@@ -167,10 +183,12 @@ function buildMarkdown(
   lines.push(`| File | Path |`);
   lines.push(`|------|------|`);
   if (metadata.artifacts?.model_pkl) {
-    lines.push(`| Model | \`${metadata.artifacts.model_pkl}\` |`);
+    lines.push(`| Model | \`${escapeTableCell(metadata.artifacts.model_pkl)}\` |`);
   }
 
-  // List files in the run directory
+  // List files in the run directory.
+  // If listing fails (permission, race, etc.), surface a note in the markdown
+  // and log to the output channel rather than swallowing the error.
   try {
     const files = fs.readdirSync(runDir);
     for (const file of files) {
@@ -179,7 +197,7 @@ function buildMarkdown(
       }
       const stat = fs.statSync(path.join(runDir, file));
       if (stat.isFile()) {
-        lines.push(`| ${file} | \`${path.join(runDir, file)}\` |`);
+        lines.push(`| ${escapeTableCell(file)} | \`${escapeTableCell(path.join(runDir, file))}\` |`);
       }
     }
     // Check artifacts subdirectory
@@ -187,11 +205,15 @@ function buildMarkdown(
     if (fs.existsSync(artifactsDir)) {
       const artifactFiles = fs.readdirSync(artifactsDir);
       for (const file of artifactFiles) {
-        lines.push(`| artifacts/${file} | \`${path.join(artifactsDir, file)}\` |`);
+        lines.push(`| artifacts/${escapeTableCell(file)} | \`${escapeTableCell(path.join(artifactsDir, file))}\` |`);
       }
     }
-  } catch {
-    // Ignore errors listing files
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    lines.push(`| _error_ | \`Could not list run artifacts: ${escapeTableCell(message)}\` |`);
+    // Also surface to the output channel for diagnosability.
+    const channel = vscode.window.createOutputChannel('RunForge Export Markdown');
+    channel.appendLine(`[export-markdown] Failed to list ${runDir}: ${message}`);
   }
   lines.push('');
 
@@ -232,8 +254,8 @@ export async function exportLatestRunAsMarkdown(): Promise<void> {
   }
 
   // Load optional detailed files
-  const metricsV1 = readJsonSafe(path.join(runDir, 'metrics.v1.json'));
-  const interpIndex = readJsonSafe(path.join(runDir, 'artifacts', 'interpretability.index.v1.json'));
+  const metricsV1 = readJsonSafe<MetricsV1>(path.join(runDir, 'metrics.v1.json'));
+  const interpIndex = readJsonSafe<InterpIndex>(path.join(runDir, 'artifacts', 'interpretability.index.v1.json'));
 
   // Build and write
   const markdown = buildMarkdown(metadata, metricsV1, interpIndex, runDir);
