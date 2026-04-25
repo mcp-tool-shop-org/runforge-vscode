@@ -4,6 +4,35 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [Unreleased]
 
+### Architecture
+- Consolidated `.ml/outputs/index.json` to a single writer (Python `provenance.py`).
+  TS `index-manager.ts` write path removed. Same consolidation pattern as
+  iter #2's `spawnRunnerScript` deletion.
+- Canonical types now live exclusively in `src/types.ts` (`IndexEntry`, `RunIndex`,
+  `MetricsV1`, `FeatureImportance`, `LinearCoefficients`, `RunMetadata`). Observability
+  layer no longer defines shadow types.
+- Field-name reconciliation: `dataset_fingerprint` → `dataset_fingerprint_sha256`
+  (matches Python's existing schema field name).
+- `INDEX_SCHEMA_VERSION` bumped `0.2.2.1` → `1.0.0` to mark the canonical 10-field
+  consolidation; legacy on-disk shapes migrated transparently on read.
+- New: [`docs/CONTRACTS.md`](docs/CONTRACTS.md) codifies the 6 doctrine rules
+  surfaced by 5 iterations of architectural debt resolution.
+
+### Fixed
+- `F-COORD-008` (CRITICAL, iter #3): observability hardcoded `.runforge/` paths;
+  replaced with `WORKSPACE_PATHS` constants from `src/types.ts`.
+- `F-COORD-010` (CRITICAL, iter #4): index.json write/read shape drift
+  (bare-array vs `{runs:[]}`); now `{schema_version, runs:[]}` canonical.
+- `F-COORD-011` + `F-FS-001/002/003` + `F-TS-001` (CRITICAL, iter #5a):
+  shadow `IndexEntry` and `RunMetadata` in observability with diverging fields
+  collapsed onto canonical imports from `src/types.ts`.
+- `F-COORD-003` (CRITICAL, iter #2): broken `spawnRunnerScript` directory-form
+  invocation; now uses `python -m ml_runner` via `spawnRunner`.
+
+### Tests
+- Added full-chain regression: production `appendToIndex` → `safeReadIndex`
+  journey, no JSON stub-writes in setup (Rule 5 of `docs/CONTRACTS.md`).
+
 ## [1.0.1] - 2026-03-25
 
 ### Added

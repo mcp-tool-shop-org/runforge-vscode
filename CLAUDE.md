@@ -1,5 +1,11 @@
 # RunForge VS Code — Agent Orientation
 
+## Architectural doctrine
+
+[`docs/CONTRACTS.md`](docs/CONTRACTS.md) — non-negotiable rules for canonical
+types, single writers, shadow-type prevention. Read before any cross-domain
+refactor.
+
 ## Frozen contracts (do not edit without amendment)
 
 - [`CONTRACT.md`](CONTRACT.md) — Phase 2.1 frozen guarantees
