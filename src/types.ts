@@ -386,10 +386,88 @@ export interface RunMetadata {
   }>;
 }
 
+/**
+ * Canonical interpretability.index.v1.json shape — matches
+ * `python/ml_runner/contracts/interpretability.index.schema.v1.json`.
+ *
+ * Phase 3.6+. Read-only linking and summarization of available
+ * interpretability artifacts for a single run. Replaces the local shadow
+ * type previously in `src/observability/interpretability-index-command.ts`.
+ */
+export interface InterpretabilityIndex {
+  /** Schema version identifier (always "interpretability.index.v1") */
+  schema_version: 'interpretability.index.v1';
+  /** Run identifier from run.json */
+  run_id: string;
+  /** RunForge version that produced this index */
+  runforge_version: string;
+  /** ISO 8601 timestamp when index was created */
+  created_at: string;
+  /** Map of available interpretability artifacts. Absent entries mean artifact not available for this run. */
+  available_artifacts: {
+    metrics_v1?: InterpretabilityArtifactEntry<InterpretabilityMetricsV1Summary>;
+    feature_importance_v1?: InterpretabilityArtifactEntry<InterpretabilityFeatureImportanceSummary>;
+    linear_coefficients_v1?: InterpretabilityArtifactEntry<InterpretabilityLinearCoefficientsSummary>;
+  };
+}
+
+/** Generic artifact entry inside `InterpretabilityIndex.available_artifacts` */
+export interface InterpretabilityArtifactEntry<TSummary> {
+  /** Schema version from the underlying artifact */
+  schema_version: string;
+  /** Relative path to artifact */
+  path: string;
+  /** Compact summary suitable for index views */
+  summary: TSummary;
+}
+
+/** Summary block for metrics_v1 inside the interpretability index */
+export interface InterpretabilityMetricsV1Summary {
+  /** Metrics profile used */
+  metrics_profile: string;
+  /** Accuracy from run.json (not duplicated from metrics.v1.json) */
+  accuracy?: number;
+}
+
+/** Summary block for feature_importance_v1 inside the interpretability index */
+export interface InterpretabilityFeatureImportanceSummary {
+  /** Model family that produced importance */
+  model_family: string;
+  /** Top feature names by importance (max 5, no values) */
+  top_k: string[];
+}
+
+/** Summary block for linear_coefficients_v1 inside the interpretability index */
+export interface InterpretabilityLinearCoefficientsSummary {
+  /** Model family that produced coefficients */
+  model_family: string;
+  /** Number of classes */
+  num_classes: number;
+  /** Top features per class (names only, no coefficients) */
+  top_k_by_class: Array<{
+    class: number | string;
+    top_features: string[];
+  }>;
+}
+
 /** Workspace paths */
 export const WORKSPACE_PATHS = {
   ML_ROOT: '.ml',
   OUTPUTS_DIR: '.ml/outputs',
   RUNS_DIR: '.ml/runs',
   INDEX_FILE: '.ml/outputs/index.json',
+} as const;
+
+/** Canonical artifact filenames written under a run directory */
+export const ARTIFACT_FILENAMES = {
+  RUN_JSON: 'run.json',
+  REQUEST_JSON: 'request.json',
+  RESULT_JSON: 'result.json',
+  LOGS_TXT: 'logs.txt',
+  METRICS_JSON: 'metrics.json',
+  METRICS_V1_JSON: 'metrics.v1.json',
+  FEATURE_IMPORTANCE_V1_JSON: 'feature_importance.v1.json',
+  LINEAR_COEFFICIENTS_V1_JSON: 'linear_coefficients.v1.json',
+  INTERPRETABILITY_INDEX_V1_JSON: 'interpretability.index.v1.json',
+  MODEL_PKL: 'model.pkl',
 } as const;

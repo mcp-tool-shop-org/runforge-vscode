@@ -5,7 +5,8 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { RunIdComponents, RunRequest, RunResult, WORKSPACE_PATHS } from '../types.js';
+import type { RunIdComponents, RunRequest, RunResult } from '../types.js';
+import { WORKSPACE_PATHS } from '../types.js';
 
 /**
  * Generate a unique run ID
@@ -94,7 +95,7 @@ function randomHex(length: number): string {
  *          .ml/runs/<run_id>/artifacts/
  */
 export async function createRunFolder(workspaceRoot: string, runId: string): Promise<string> {
-  const runDir = path.join(workspaceRoot, '.ml', 'runs', runId);
+  const runDir = path.join(workspaceRoot, WORKSPACE_PATHS.RUNS_DIR, runId);
   const artifactsDir = path.join(runDir, 'artifacts');
 
   await fs.mkdir(runDir, { recursive: true });

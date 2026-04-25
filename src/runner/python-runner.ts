@@ -16,6 +16,37 @@ export interface PythonCheck {
 }
 
 /**
+ * Build environment for any Python subprocess spawned by the extension.
+ *
+ * Single source of truth for `PYTHONUNBUFFERED` (line-buffered output) and
+ * `PYTHONIOENCODING='utf-8'` (Windows consoles default to cp1252, which
+ * mangles non-ASCII stdout). All Python spawn sites in this extension MUST
+ * use this helper — no ad-hoc env construction at call sites.
+ */
+export function pythonSpawnEnv(opts: {
+  datasetPath?: string;
+  runnerParent?: string;
+} = {}): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    PYTHONUNBUFFERED: '1',
+    PYTHONIOENCODING: 'utf-8',
+  };
+
+  if (opts.datasetPath) {
+    env.RUNFORGE_DATASET = opts.datasetPath;
+  }
+
+  if (opts.runnerParent) {
+    env.PYTHONPATH = process.env.PYTHONPATH
+      ? `${opts.runnerParent}${path.delimiter}${process.env.PYTHONPATH}`
+      : opts.runnerParent;
+  }
+
+  return env;
+}
+
+/**
  * Check if Python is available on PATH
  */
 export async function checkPython(pythonPath: string = 'python'): Promise<PythonCheck> {
@@ -23,6 +54,7 @@ export async function checkPython(pythonPath: string = 'python'): Promise<Python
     const proc = spawn(pythonPath, ['--version'], {
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
+      env: pythonSpawnEnv(),
     });
 
     let stdout = '';
@@ -76,30 +108,6 @@ function runIdFromDir(p: string): string {
 }
 
 /**
- * Build environment with optional dataset path and PYTHONPATH
- */
-function buildEnv(datasetPath?: string, pythonPath?: string): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    PYTHONUNBUFFERED: '1', // Extra insurance for unbuffered output
-  };
-
-  // Pass dataset path via environment variable if provided
-  if (datasetPath) {
-    env.RUNFORGE_DATASET = datasetPath;
-  }
-
-  // Prepend PYTHONPATH so `python -m <moduleName>` resolves bundled package
-  if (pythonPath) {
-    env.PYTHONPATH = process.env.PYTHONPATH
-      ? `${pythonPath}${path.delimiter}${process.env.PYTHONPATH}`
-      : pythonPath;
-  }
-
-  return env;
-}
-
-/**
  * Spawn the Python training runner
  * Runs: python -m <moduleName> train --preset <id> --out <run_dir> --device <device> [--seed <n>]
  *
@@ -145,7 +153,7 @@ export function spawnRunner(
     cwd: options.cwd,
     shell: false,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: buildEnv(options.dataset_path, runnerParent),
+    env: pythonSpawnEnv({ datasetPath: options.dataset_path, runnerParent }),
   });
 
   // One-shot exit guard to prevent double onExit calls

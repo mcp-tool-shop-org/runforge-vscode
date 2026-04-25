@@ -6,6 +6,7 @@
  */
 
 import { spawn } from 'node:child_process';
+import { pythonSpawnEnv } from './python-runner.js';
 
 /** GPU detection result */
 export interface GpuInfo {
@@ -69,10 +70,13 @@ except Exception as e:
 `;
 
   return new Promise((resolve) => {
+    // F-SP-003: drop stderr at the OS level so import warnings cannot
+    // contaminate stdout and break JSON.parse.
     const proc = spawn(pythonPath, ['-c', script], {
       shell: false,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'ignore'],
       timeout,
+      env: pythonSpawnEnv(),
     });
 
     let stdout = '';
@@ -251,9 +255,10 @@ export function getCpuFallbackMessage(selection: DeviceSelection, presetId: stri
   const thresholdStr = formatBytes(threshold);
 
   switch (selection.reason) {
-    case 'insufficient_vram':
+    case 'insufficient_vram': {
       const freeStr = formatBytes(selection.gpu_info.free_vram);
       return `GPU VRAM insufficient for ${presetId} (${freeStr} free, ${thresholdStr} required). Training will run on CPU.`;
+    }
     case 'gpu_unknown':
       return `GPU could not be detected. Training will run on CPU to prevent system instability.`;
     case 'no_cuda':

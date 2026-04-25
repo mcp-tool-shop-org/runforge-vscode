@@ -5,8 +5,10 @@
 
 import * as vscode from 'vscode';
 import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
 import type { ChildProcess } from 'node:child_process';
 import type { PresetId, RunRequest, RunResult, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
+import { ARTIFACT_FILENAMES } from '../types.js';
 import { checkPython, spawnRunner, type RunnerCallbacks } from './python-runner.js';
 import { detectGpu, selectDevice, getCpuFallbackMessage, formatBytes } from './gpu-probe.js';
 import {
@@ -437,6 +439,22 @@ async function handleRunComplete(
   const channel = getOutputChannel();
 
   try {
+    // F-SP-002: even with exit code 0, the Python runner might have crashed
+    // after printing a success line but before writing run.json. Treat a
+    // missing run.json as a failed run so the user sees the truth.
+    if (result.status === 'succeeded') {
+      const runJsonPath = path.join(runDir, ARTIFACT_FILENAMES.RUN_JSON);
+      try {
+        await fs.access(runJsonPath);
+      } catch {
+        result = {
+          ...result,
+          status: 'failed',
+          error: result.error ?? 'training-incomplete: run.json missing despite exit code 0',
+        };
+      }
+    }
+
     // Write result.json
     try {
       await writeResult(runDir, result);
