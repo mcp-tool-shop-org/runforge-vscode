@@ -65,9 +65,46 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [1.0.1] - 2026-03-25
 
-### Note (added 2026-04-25)
+### Note (added 2026-04-25 — please upgrade to v1.0.2)
 
-Marketplace v1.0.1 shipped with 5 production-CRITICAL bugs (subprocess ImportError, encoding, observability path mismatch, index shape, index entry shape) discovered during the Dogfood Swarm. All five are fixed on `swarm/dogfood` and will ship in v1.0.2. Users on v1.0.1 should upgrade to v1.0.2 (or later) for working `Train` and run-browsing features.
+Marketplace v1.0.1 shipped with **5 production-CRITICAL bugs** that break the
+core training and run-browsing flow. All five were discovered during the
+2026-04-24/25 Dogfood Swarm Stage A audit and are fixed on the `swarm/dogfood`
+branch; the fixes ship as part of the next release.
+
+The five issues:
+
+- **`F-COORD-003` (CRITICAL)** — `Train (Standard)` and `Train (High Quality)`
+  fail with `ImportError` because `spawnRunnerScript` invoked the Python
+  package as a directory path instead of `python -m ml_runner`. **Effect:** no
+  training run ever completes on a fresh install.
+- **`F-COORD-004` (CRITICAL)** — Python subprocess output corrupts on Windows
+  hosts whose system locale is not UTF-8 (cp1252, cp936, etc.) because
+  `PYTHONIOENCODING` and `PYTHONUNBUFFERED` were never set on spawn.
+  **Effect:** garbled errors, broken JSON parsing of run output.
+- **`F-COORD-008` (CRITICAL)** — Observability commands (`Open Latest Run
+  Summary`, `Browse Runs`, `View Latest Metrics`, etc.) read from `.runforge/`
+  while the Python writer writes to `.ml/`. **Effect:** every observability
+  command sees zero runs even after a successful train.
+- **`F-COORD-010` (CRITICAL)** — `index.json` shape diverged between writer
+  (bare array `[…]`) and reader (`{ schema_version, runs: [] }`).
+  **Effect:** index reads throw or silently return empty.
+- **`F-COORD-011` (CRITICAL, with `F-FS-001/002/003` + `F-TS-001`)** —
+  `IndexEntry` and `RunMetadata` shapes shadowed in observability with
+  diverging field names (`dataset_fingerprint` vs `dataset_fingerprint_sha256`,
+  etc.). **Effect:** silent field-undefined renders in run summaries.
+
+All five are fixed on `swarm/dogfood` and queued for the next release (v1.0.2),
+which also adds **cancel-in-progress** and **`runforge.recoverIndex`**
+(see [`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) for the full Phase 4
+contract). If you installed v1.0.1 from the Marketplace, please upgrade to
+v1.0.2 as soon as it lands. Until then, training and run browsing will not
+work.
+
+Full context:
+[GitHub Discussion](docs/GITHUB_DISCUSSION_v1.0.1.md) ·
+[Marketplace note](docs/MARKETPLACE_NOTE_v1.0.1.md) ·
+[`SCORECARD.md`](SCORECARD.md) post-Stage-A status.
 
 ### Added
 - 5 version consistency tests (semver, CHANGELOG, engine constraint, publisher)

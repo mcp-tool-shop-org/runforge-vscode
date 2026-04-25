@@ -14,6 +14,14 @@
   <a href="https://mcp-tool-shop-org.github.io/runforge-vscode/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
 
+> **Notice for v1.0.1 Marketplace users (2026-03-25 release):** v1.0.1 shipped with five
+> production-CRITICAL bugs that break the `Train` commands, run browsing, and observability
+> views (root cause: a subprocess invocation regression and a path/shape mismatch between
+> writer and readers). All five are fixed on the `swarm/dogfood` branch and ship in
+> **v1.0.2** (next release). If you installed v1.0.1, please upgrade to v1.0.2 once
+> available. See the [v1.0.1 release note](docs/MARKETPLACE_NOTE_v1.0.1.md) and
+> [`CHANGELOG.md`](CHANGELOG.md#101---2026-03-25) for details.
+
 Push-button ML training with deterministic, contract-driven behavior.
 
 > **Phase 3 (Capabilities & Interpretability) is complete as of v0.3.6.0.**
