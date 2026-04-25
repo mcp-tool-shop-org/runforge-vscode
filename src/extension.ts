@@ -8,7 +8,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-import { executeRun, getOutputChannel, disposeOutputChannel, isRunning, setExtensionPath } from './runner/run-manager.js';
+import { executeRun, getOutputChannel, disposeOutputChannel, isRunning, setExtensionPath, killActiveRun } from './runner/run-manager.js';
 import { showRunsPicker } from './views/runs-picker.js';
 import { inspectDataset, formatInspectResult } from './observability/inspect-command.js';
 import { getLatestRunMetadataSafe, openMetadataInEditor } from './observability/metadata-command.js';
@@ -60,9 +60,13 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 /**
- * Extension deactivation
+ * Extension deactivation.
+ * VS Code expects synchronous deactivate; killActiveRun fires SIGTERM (with
+ * SIGKILL fallback on a timer) and returns immediately. We intentionally do
+ * not await process exit — the OS reaps the child after SIGKILL.
  */
 export function deactivate(): void {
+  killActiveRun('extension deactivated');
   disposeOutputChannel();
 }
 

@@ -20,6 +20,7 @@ import {
 } from '../workspace/run-folder.js';
 import { appendToIndex, createTimestamp } from '../workspace/index-manager.js';
 import { getPreset } from '../presets/registry.js';
+import { formatDuration } from '../utils/format.js';
 
 /** Output channel for training logs */
 let outputChannel: vscode.OutputChannel | undefined;
@@ -82,7 +83,12 @@ export function isRunning(): boolean {
 }
 
 /**
- * Execute a training run with GPU gating
+ * Execute a training run with GPU gating.
+ * @param workspaceRoot Absolute path to the workspace folder (run dir + index live under .ml/).
+ * @param presetId Which preset to load (std-train | hq-train).
+ * @param name Human-friendly run label, used in run-id slug and surfaced in pickers.
+ * @param seed Optional seed; runner gets `--seed` flag iff defined.
+ * @param datasetPath Optional dataset CSV path; passed via RUNFORGE_DATASET env var.
  */
 export async function executeRun(
   workspaceRoot: string,
@@ -138,7 +144,21 @@ export async function executeRun(
   // GPU Preflight Check (must happen before run starts)
   channel.appendLine('');
   channel.appendLine('Detecting GPU capabilities...');
-  const gpuInfo = await detectGpu(pythonPath);
+  let gpuInfo;
+  try {
+    gpuInfo = await detectGpu(pythonPath);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    channel.appendLine(`  GPU detection failed: ${message}`);
+    channel.appendLine('  GPU detection failed; falling back to CPU.');
+    gpuInfo = {
+      cuda_available: false,
+      total_vram: 0,
+      free_vram: 0,
+      detection_method: 'none' as const,
+      status: 'GPU detection failed',
+    };
+  }
   channel.appendLine(`  ${gpuInfo.status}`);
 
   // Select device based on GPU info and preset requirements
@@ -213,8 +233,11 @@ export async function executeRun(
     aborted: false,
   };
 
-  // Create callbacks for streaming
+  // Create callbacks for streaming.
+  // Contract: each callback guards on activeRun.token === runToken — late callbacks from a
+  // prior run are dropped silently. onExit is the sole authority for handleRunComplete.
   const callbacks: RunnerCallbacks = {
+    /** Stdout line from runner; written to channel + appended to log file. */
     onStdout: (line) => {
       // Guard against late callbacks from a different run
       if (!activeRun || activeRun.token !== runToken) return;
@@ -222,6 +245,7 @@ export async function executeRun(
       channel.appendLine(line);
       appendLog(runDir, line).catch(() => {}); // Fire and forget
     },
+    /** Stderr line from runner; OOM patterns trigger killRunOnOom. */
     onStderr: (line) => {
       // Guard against late callbacks from a different run
       if (!activeRun || activeRun.token !== runToken) return;
@@ -234,6 +258,7 @@ export async function executeRun(
         killRunOnOom(runToken, channel);
       }
     },
+    /** Process exit; aborted state overrides result before handleRunComplete. */
     onExit: async (result) => {
       // Guard against late callbacks from a different run
       if (!activeRun || activeRun.token !== runToken) return;
@@ -286,6 +311,44 @@ export async function executeRun(
 
 /** Force kill timeout in ms */
 const FORCE_KILL_TIMEOUT_MS = 2000;
+
+/**
+ * Kill the active run (if any) for the given reason.
+ * Safe to call when no run is active — returns silently.
+ * SIGTERM first; SIGKILL fallback after FORCE_KILL_TIMEOUT_MS.
+ * Does not await process exit (callers in sync contexts like deactivate
+ * cannot block); cleanup of activeRun state happens via the existing onExit
+ * callback chain in handleRunComplete.
+ */
+export function killActiveRun(reason: string): void {
+  if (!activeRun) return;
+
+  const channel = getOutputChannel();
+  channel.appendLine('');
+  channel.appendLine(`Stopping active run: ${reason}`);
+
+  activeRun.aborted = true;
+  activeRun.abortReason = reason;
+
+  const proc = activeRun.process;
+  if (proc) {
+    try {
+      proc.kill('SIGTERM');
+    } catch {
+      // Process may have already exited; ignore.
+    }
+
+    setTimeout(() => {
+      try {
+        if (!proc.killed) {
+          proc.kill('SIGKILL');
+        }
+      } catch {
+        // Already exited; ignore.
+      }
+    }, FORCE_KILL_TIMEOUT_MS);
+  }
+}
 
 /**
  * Kill the running process on OOM detection
@@ -345,7 +408,13 @@ export function isOomError(line: string): boolean {
 }
 
 /**
- * Handle run completion with proper cleanup
+ * Handle run completion with proper cleanup.
+ * @param workspaceRoot Workspace folder; index.json + run dir live under .ml/.
+ * @param runDir Absolute path to this run's folder.
+ * @param request Original run request (already written to request.json).
+ * @param result Final result from runner; may be overridden upstream when aborted.
+ * @param device Device that was actually used (post-gating).
+ * @param runToken Token guarding against state mutation by a stale callback.
  */
 async function handleRunComplete(
   workspaceRoot: string,
@@ -427,13 +496,4 @@ async function handleRunComplete(
   }
 }
 
-/**
- * Format duration in human-readable format
- */
-export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
-}
+export { formatDuration };

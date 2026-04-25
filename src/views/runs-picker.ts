@@ -6,6 +6,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { getRecentRuns } from '../workspace/index-manager.js';
+import { formatDuration } from '../utils/format.js';
 import type { IndexEntry } from '../types.js';
 
 /** QuickPick item for a run */
@@ -79,15 +80,4 @@ function formatDetail(entry: IndexEntry): string {
   }
 
   return parts.join(' | ');
-}
-
-/**
- * Format duration in human-readable format
- */
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
 }
