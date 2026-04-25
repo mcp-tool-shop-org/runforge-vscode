@@ -1,0 +1,161 @@
+// Regression for F-COORD-010 (Stage A iter #4): canonical RunIndex shape on disk,
+// exercised through the production write→read CALL CHAIN.
+//
+// Iter #3's regression (test/regression-coord-008.test.ts) wrote test data
+// directly in the observability `{runs:[]}` shape to isolate the path bug from
+// the shape bug. That scaffolding around F-COORD-010 was prima facie evidence
+// F-COORD-010 was in flight — but it was logged as a Stage B candidate instead
+// of CRITICAL, so the production write→read chain was never exercised end-to-end.
+//
+// This test exercises the production CALL CHAIN with zero stubbing:
+//   appendToIndex(ws, entry)   ← workspace writer (src/workspace/index-manager.ts)
+//   safeReadIndex(ws)          ← observability reader (src/observability/fs-safe.ts)
+//
+// If writer and reader ever drift on the on-disk shape again — e.g., writer
+// emits a bare array while reader parses `{runs:[]}` (the original F-COORD-010
+// failure mode), or any future shape change touches one side without the other
+// — these assertions fail immediately because the entry written via the writer
+// will not be the entry returned by the reader.
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import * as os from 'node:os';
+
+import type { IndexEntry } from '../src/types.js';
+import { WORKSPACE_PATHS } from '../src/types.js';
+import { appendToIndex, createTimestamp } from '../src/workspace/index-manager.js';
+import { safeReadIndex } from '../src/observability/fs-safe.js';
+
+function makeEntry(runId: string, overrides: Partial<IndexEntry> = {}): IndexEntry {
+  return {
+    run_id: runId,
+    created_at: createTimestamp(),
+    name: runId,
+    preset_id: 'std-train',
+    status: 'succeeded',
+    run_dir: `.ml/runs/${runId}`,
+    summary: {
+      duration_ms: 1234,
+      final_metrics: { accuracy: 0.95 },
+      device: 'cpu',
+    },
+    ...overrides,
+  };
+}
+
+describe('F-COORD-010 regression: production write→read chain agrees on RunIndex shape', () => {
+  let workspaceRoot: string;
+
+  beforeEach(async () => {
+    workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'runforge-coord010-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(workspaceRoot, { recursive: true, force: true });
+  });
+
+  it('appendToIndex → safeReadIndex round-trip preserves a single entry', async () => {
+    const entry = makeEntry('coord010-single');
+
+    await appendToIndex(workspaceRoot, entry);
+
+    const result = await safeReadIndex(workspaceRoot);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.value.runs).toHaveLength(1);
+    const readBack = result.value.runs[0];
+    // The entry written via the production writer must be the entry returned
+    // by the production reader. If shape drifts, this will fail.
+    expect(readBack.run_id).toBe(entry.run_id);
+    expect(readBack.run_dir).toBe(entry.run_dir);
+    expect(readBack.preset_id).toBe(entry.preset_id);
+    expect(readBack.status).toBe(entry.status);
+    // The reader's RunIndex type is the canonical one from types.ts. The
+    // entries it returns must carry the canonical fields the writer emits.
+    expect(readBack).toMatchObject({
+      run_id: entry.run_id,
+      created_at: entry.created_at,
+      name: entry.name,
+      preset_id: entry.preset_id,
+      status: entry.status,
+      run_dir: entry.run_dir,
+    });
+  });
+
+  it('multiple appendToIndex calls accumulate and remain visible through safeReadIndex', async () => {
+    const a = makeEntry('coord010-a');
+    const b = makeEntry('coord010-b', { status: 'failed' });
+    const c = makeEntry('coord010-c');
+
+    await appendToIndex(workspaceRoot, a);
+    await appendToIndex(workspaceRoot, b);
+    await appendToIndex(workspaceRoot, c);
+
+    const result = await safeReadIndex(workspaceRoot);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.value.runs).toHaveLength(3);
+    const ids = result.value.runs.map((r) => r.run_id);
+    expect(ids).toEqual(['coord010-a', 'coord010-b', 'coord010-c']);
+    // Status of 'b' must round-trip — verifies entries are not mangled when
+    // the writer wraps and the reader unwraps.
+    expect(result.value.runs[1].status).toBe('failed');
+  });
+
+  it('on-disk file produced by writer is consumable by reader without manual reshape', async () => {
+    // Belt-and-braces: confirm the bytes the writer leaves on disk parse as
+    // the wrapped {runs:[]} shape the reader's RunIndex type promises. If a
+    // future change makes the writer emit a bare array again, the reader's
+    // type assertion (`result.value.runs`) breaks at runtime.
+    await appendToIndex(workspaceRoot, makeEntry('coord010-shape'));
+
+    const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
+    const raw = await fs.readFile(indexPath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    expect(Array.isArray(parsed)).toBe(false);
+    expect(parsed).toHaveProperty('runs');
+    expect(Array.isArray(parsed.runs)).toBe(true);
+
+    const result = await safeReadIndex(workspaceRoot);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.runs[0].run_id).toBe('coord010-shape');
+    }
+  });
+
+  it('legacy bare-array index.json on disk auto-upgrades through the production chain', async () => {
+    // Backend's iter #4 commit added a migration shim in readIndex() for the
+    // v1.0.1 bare-array shape. Verify it works end-to-end: a workspace whose
+    // index.json was written by an older RunForge must read cleanly through
+    // safeReadIndex once the writer touches it again.
+    const outputsDir = path.join(workspaceRoot, WORKSPACE_PATHS.OUTPUTS_DIR);
+    await fs.mkdir(outputsDir, { recursive: true });
+    const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
+
+    const legacyEntry = makeEntry('coord010-legacy');
+    await fs.writeFile(indexPath, JSON.stringify([legacyEntry], null, 2), 'utf-8');
+
+    // Trigger the writer (which runs readIndex internally → migration shim).
+    const newEntry = makeEntry('coord010-postmigrate');
+    await appendToIndex(workspaceRoot, newEntry);
+
+    const result = await safeReadIndex(workspaceRoot);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.value.runs).toHaveLength(2);
+    expect(result.value.runs.map((r) => r.run_id)).toEqual([
+      'coord010-legacy',
+      'coord010-postmigrate',
+    ]);
+
+    // After migration the on-disk file must be canonical {runs:[]}, not bare array.
+    const migratedRaw = await fs.readFile(indexPath, 'utf-8');
+    const migratedParsed = JSON.parse(migratedRaw);
+    expect(Array.isArray(migratedParsed)).toBe(false);
+    expect(migratedParsed).toHaveProperty('runs');
+  });
+});
