@@ -556,14 +556,44 @@ def load_csv(path: Path) -> LoadResult:
     # "CSV must contain a 'label' column" failure even when the file
     # clearly had one. Strip silently — Excel users hit this constantly
     # and the BOM is information-free for our purposes.
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
+    #
+    # FT-PY-008 (Phase 4 §3.3): wrap UnicodeDecodeError with an actionable
+    # message instead of letting the cryptic codec error reach the user.
+    # Phase 4 does NOT auto-detect encoding (Q5 conservative path); the
+    # user is told exactly how to fix it.
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+    except UnicodeDecodeError as e:
+        raise ValueError(
+            "CSV is not UTF-8. Re-save with UTF-8 encoding "
+            "(Excel: Save As → CSV UTF-8)."
+        ) from e
     if content.startswith("﻿"):
         content = content.lstrip("﻿")
     lines = content.splitlines(keepends=True)
 
     if len(lines) < 2:
-        raise ValueError("CSV must have header row and at least one data row")
+        raise ValueError(
+            "CSV has no data rows (only header). "
+            "Add at least one data row to train."
+        )
+
+    # FT-PY-008 (Phase 4 §3.3): non-comma delimiter detection.
+    # Conservative explicit-error path per Q5 — Phase 4 does NOT auto-detect.
+    # Inspect the header line: if it contains zero commas but has at least
+    # one ';' or tab, the file is using a non-comma delimiter. Raise an
+    # actionable message before pandas/sklearn turns it into a cryptic
+    # "expected N columns, got 1" error.
+    header_line = lines[0].rstrip("\r\n")
+    if header_line and "," not in header_line:
+        for delim, label in ((";", ";"), ("\t", "\\t")):
+            if delim in header_line:
+                raise ValueError(
+                    f"CSV uses '{label}' delimiter; only ',' is supported. "
+                    f"Convert with: pandas.read_csv(file, sep='{label}')"
+                    f".to_csv(out, sep=',')"
+                )
 
     # Parse header
     header = [h.strip() for h in lines[0].strip().split(",")]
@@ -594,10 +624,17 @@ def load_csv(path: Path) -> LoadResult:
     # generic "no valid data rows" error.
     label_has_value = False
 
+    # FT-PY-008 (Phase 4 §3.3): track whether ANY non-blank data line
+    # existed, to distinguish header-only CSV from "all rows dropped due
+    # to missing values". The latter already has a specific error
+    # downstream; the former gets its own message.
+    saw_non_blank_data_line = False
+
     for i, line in enumerate(lines[1:], start=2):
         line = line.strip()
         if not line:
             continue
+        saw_non_blank_data_line = True
 
         parts = [p.strip() for p in line.split(",")]
         if len(parts) != len(header):
@@ -634,10 +671,33 @@ def load_csv(path: Path) -> LoadResult:
                     float(p)
                 except ValueError:
                     col_name = header[j]
+                    # FT-PY-008 (Phase 4 §3.3): when the offending column
+                    # is the label, surface the LabelEncoder hint instead
+                    # of the generic non-numeric message. Classification
+                    # requires integer/float labels — categorical labels
+                    # like "yes"/"no" need encoding before training.
+                    if j == label_idx:
+                        raise ValueError(
+                            f"Label column 'label' contains non-numeric "
+                            f"values (row {i}: '{p}'). RunForge "
+                            f"classification requires integer or float "
+                            f"labels. Convert categorical labels with "
+                            f"sklearn.preprocessing.LabelEncoder before "
+                            f"training."
+                        )
                     raise ValueError(f"Non-numeric value in column '{col_name}' at row {i}")
 
     if rows_dropped > 0:
         print(f"Dropped {rows_dropped} rows with missing values")
+
+    # FT-PY-008 (Phase 4 §3.3): header-only CSV (no non-blank data lines).
+    # The `len(lines) < 2` check at the top catches the literal one-line
+    # case; this catches CSVs with trailing blank lines after the header.
+    if not saw_non_blank_data_line:
+        raise ValueError(
+            "CSV has no data rows (only header). "
+            "Add at least one data row to train."
+        )
 
     # F-PY-B003 (iter #5b): if no data rows had a label value at all, that's
     # an all-NaN-label dataset — surface a specific message rather than the
