@@ -11,6 +11,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { safeReadIndex, safeReadRunJson, getActionableMessage } from './fs-safe.js';
 import { openJsonDocument } from './open-summary.js';
+import { listOrphanedRuns } from './orphan-markers.js';
 import { ARTIFACT_FILENAMES, WORKSPACE_PATHS, type IndexEntry, type RunIndex, type RunMetadata } from '../types.js';
 
 export type { RunMetadata } from '../types.js';
@@ -92,13 +93,50 @@ export async function openMetadataInEditor(metadata: RunMetadata): Promise<void>
 }
 
 /**
+ * FT-BRIDGE-004a: Surface a "saved but not indexed" warning if any orphaned
+ * runs exist under the workspace.
+ *
+ * Informational — does NOT block the calling command. The user gets a single
+ * warning per invocation regardless of how many orphans exist (one count, one
+ * banner). Detailed per-orphan diagnostics live in `runforge.browseRuns` per
+ * Stage C.
+ *
+ * Exported so extension-level command handlers can call it directly, even
+ * when the underlying load helpers are bypassed (or when a command has no
+ * single load helper to hook into).
+ */
+export async function surfaceOrphanBannerIfAny(workspaceRoot: string): Promise<void> {
+  const orphanScan = await listOrphanedRuns(workspaceRoot);
+  if (orphanScan.orphans.length > 0) {
+    const count = orphanScan.orphans.length;
+    const message =
+      `${count} run(s) saved but not indexed. ` +
+      `Run "RunForge: Recover Index" to add them to the run list, ` +
+      `or use "RunForge: Browse Runs" to open them directly.`;
+    vscode.window.showWarningMessage(message);
+  }
+}
+
+/**
  * Phase 2.3: Get latest run metadata with structured error handling
  *
  * Returns a result object with actionable error messages.
+ *
+ * FT-BRIDGE-004a: surfaces an orphan banner ("N run(s) saved but not indexed")
+ * before doing the index read, so users hitting `runforge.openLatestMetadata`
+ * see the same diagnostic that `runforge.browseRuns` already shows. Pass
+ * `{ surfaceOrphanBanner: false }` from callers that have already surfaced
+ * the banner themselves (e.g. `exportLatestRunAsMarkdown`) to avoid double-fire.
  */
 export async function getLatestRunMetadataSafe(
-  workspaceRoot: string
+  workspaceRoot: string,
+  options?: { surfaceOrphanBanner?: boolean }
 ): Promise<{ ok: true; value: RunMetadata } | { ok: false; message: string }> {
+  // Default: surface the banner. Wrappers that already did so opt out.
+  if (options?.surfaceOrphanBanner !== false) {
+    await surfaceOrphanBannerIfAny(workspaceRoot);
+  }
+
   const indexResult = await safeReadIndex(workspaceRoot);
 
   if (!indexResult.ok) {

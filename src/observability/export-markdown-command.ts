@@ -8,7 +8,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { getLatestRunMetadataSafe } from './metadata-command.js';
+import { getLatestRunMetadataSafe, surfaceOrphanBannerIfAny } from './metadata-command.js';
 import { getLatestRunDir } from './fs-safe.js';
 import { escapeTableCell } from './render/escape.js';
 import { ARTIFACT_FILENAMES, type MetricsV1, type RunMetadata } from '../types.js';
@@ -212,6 +212,10 @@ function buildMarkdown(
 
 /**
  * Export the latest run as a markdown summary
+ *
+ * FT-BRIDGE-004a: surfaces the orphan banner up-front (before any work),
+ * then suppresses the banner inside `getLatestRunMetadataSafe` so the user
+ * only sees ONE warning per invocation.
  */
 export async function exportLatestRunAsMarkdown(): Promise<void> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -222,8 +226,15 @@ export async function exportLatestRunAsMarkdown(): Promise<void> {
 
   const workspaceRoot = workspaceFolders[0].uri.fsPath;
 
-  // Get metadata via the safe path
-  const metaResult = await getLatestRunMetadataSafe(workspaceRoot);
+  // FT-BRIDGE-004a: surface "saved but not indexed" banner first.
+  // Informational — command continues regardless.
+  await surfaceOrphanBannerIfAny(workspaceRoot);
+
+  // Get metadata via the safe path. We already surfaced the banner above, so
+  // tell the helper to skip its own surfacing (avoids double-fire).
+  const metaResult = await getLatestRunMetadataSafe(workspaceRoot, {
+    surfaceOrphanBanner: false,
+  });
   if (!metaResult.ok) {
     vscode.window.showInformationMessage(metaResult.message);
     return;

@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
+import { listOrphanedRuns } from './orphan-markers.js';
 import { ARTIFACT_FILENAMES, type LinearCoefficients } from '../types.js';
 
 /**
@@ -127,6 +128,10 @@ export async function openLinearCoefficientsInEditor(artifactPath: string): Prom
 
 /**
  * View linear coefficients for the latest run
+ *
+ * FT-BRIDGE-004a: surfaces an orphan banner ("N run(s) saved but not indexed")
+ * up-front so users see the diagnostic regardless of which observability
+ * surface they invoke.
  */
 export async function viewLatestLinearCoefficients(): Promise<void> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -136,6 +141,19 @@ export async function viewLatestLinearCoefficients(): Promise<void> {
   }
 
   const workspaceRoot = workspaceFolders[0].uri.fsPath;
+
+  // FT-BRIDGE-004a: surface "saved but not indexed" banner. Informational —
+  // command continues regardless of orphan presence.
+  const orphanScan = await listOrphanedRuns(workspaceRoot);
+  if (orphanScan.orphans.length > 0) {
+    const count = orphanScan.orphans.length;
+    const message =
+      `${count} run(s) saved but not indexed. ` +
+      `Run "RunForge: Recover Index" to add them to the run list, ` +
+      `or use "RunForge: Browse Runs" to open them directly.`;
+    vscode.window.showWarningMessage(message);
+  }
+
   const latestRunDir = getLatestRunDir(workspaceRoot);
 
   if (!latestRunDir) {

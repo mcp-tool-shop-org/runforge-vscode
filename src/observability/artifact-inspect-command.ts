@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import { pythonSpawnEnv } from '../runner/python-runner.js';
+import { listOrphanedRuns } from './orphan-markers.js';
 
 /**
  * Pipeline step information from inspection
@@ -31,20 +32,59 @@ export interface ArtifactInspectResult {
 }
 
 /**
+ * FT-BRIDGE-004a: Surface a "saved but not indexed" warning if any orphaned
+ * runs exist under the workspace.
+ *
+ * Informational — does NOT block the calling command. Single warning per
+ * invocation regardless of orphan count. Detailed per-orphan diagnostics live
+ * in `runforge.browseRuns` per Stage C.
+ *
+ * Exported so command paths that bypass `inspectArtifact()` (or run before it)
+ * can surface the same banner.
+ */
+export async function surfaceArtifactInspectOrphanBanner(
+  workspaceRoot: string
+): Promise<void> {
+  const orphanScan = await listOrphanedRuns(workspaceRoot);
+  if (orphanScan.orphans.length > 0) {
+    const count = orphanScan.orphans.length;
+    const message =
+      `${count} run(s) saved but not indexed. ` +
+      `Run "RunForge: Recover Index" to add them to the run list, ` +
+      `or use "RunForge: Browse Runs" to open them directly.`;
+    vscode.window.showWarningMessage(message);
+  }
+}
+
+/**
  * Execute artifact inspection command via Python CLI
  *
  * @param pythonPath Path to Python interpreter
  * @param runnerPath Path to ml_runner module
  * @param artifactPath Path to model.pkl file
- * @param basePath Optional base path for relative path computation
+ * @param basePath Optional base path for relative path computation. When
+ *   provided AND `options.surfaceOrphanBanner` is not explicitly false, this
+ *   path is treated as the workspace root for FT-BRIDGE-004a's orphan banner
+ *   pre-check.
+ * @param options Flags. `surfaceOrphanBanner` defaults to true when basePath
+ *   is provided; pass `false` to suppress (e.g. when the caller already
+ *   surfaced its own banner).
  * @returns Inspection result
  */
 export async function inspectArtifact(
   pythonPath: string,
   runnerPath: string,
   artifactPath: string,
-  basePath?: string
+  basePath?: string,
+  options?: { surfaceOrphanBanner?: boolean }
 ): Promise<ArtifactInspectResult> {
+  // FT-BRIDGE-004a: surface the orphan banner BEFORE shelling out to Python.
+  // Only when we have a workspace root (basePath) — without it we have no
+  // anchor for the orphan scan. Caller can opt out via the options flag.
+  if (basePath && options?.surfaceOrphanBanner !== false) {
+    await surfaceArtifactInspectOrphanBanner(basePath);
+  }
+
   return new Promise((resolve, reject) => {
     const args = [
       '-m', 'ml_runner',
