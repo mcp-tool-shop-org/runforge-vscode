@@ -38,7 +38,7 @@ For the full trust model, see [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
 
 ### Security & Data Scope
 
-**Data touched:** workspace CSV files (read-only for training), `.runforge/` directory (run metadata, model artifacts, metrics JSON), Python subprocess stdout/stderr. **Data NOT touched:** no files outside the open workspace, no browser data, no OS credentials. **Permissions required:** filesystem read/write within workspace only, Python subprocess execution. **No network egress** — all operations are local. **No telemetry** is collected or sent.
+**Data touched:** workspace CSV files (read-only for training), `.ml/` directory (run metadata, model artifacts, metrics JSON), Python subprocess stdout/stderr. **Data NOT touched:** no files outside the open workspace, no browser data, no OS credentials. **Permissions required:** filesystem read/write within workspace only, Python subprocess execution. **No network egress** — all operations are local. **No telemetry** is collected or sent.
 
 ### Lifecycle of a Run
 
@@ -58,7 +58,7 @@ dataset.csv
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
-.runforge/runs/<run-id>/
+.ml/runs/<run-id>/
     ├── run.json                              ← Metadata + pointers
     ├── metrics.json                          ← Phase 2 metrics (3 keys)
     ├── metrics.v1.json                       ← Detailed metrics by profile
@@ -208,7 +208,7 @@ Returns column names, row count, feature count, and label validation.
 
 ### Provenance Tracking
 
-All runs are indexed in `.runforge/index.json` for traceability:
+All runs are indexed in `.ml/outputs/index.json` for traceability:
 
 - Given a `model.pkl`, trace back to run metadata
 - Find all runs for a given dataset fingerprint

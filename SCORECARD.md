@@ -6,6 +6,18 @@
 **Date:** 2026-02-27
 **Type tags:** `[all]` `[npm]` `[vsix]`
 
+## 2026-04-25 Status — Post-Stage-A
+
+The 50/50 score in this document was assessed at v1.0.1 release (2026-02-27). It predates the discovery of 5 production-CRITICAL bugs that shipped in Marketplace v1.0.1 and were surfaced + fixed during the 2026-04-24/25 Dogfood Swarm Stage A:
+
+- F-COORD-003 — Python subprocess `spawnRunnerScript` ImportError
+- F-COORD-004 — PYTHONIOENCODING/PYTHONUNBUFFERED unset
+- F-COORD-008 — Observability path mismatch (`.runforge/` vs `.ml/`)
+- F-COORD-010 — index.json shape divergence (bare-array writer vs `{runs:[]}` reader)
+- F-COORD-011 — IndexEntry shape divergence (TS shadow type vs Python writer)
+
+All five are closed on `swarm/dogfood`. A full SCORECARD re-score will land as part of Phase 10 (Full Treatment). Until that re-score, treat the 50/50 figure above as historical context, not current state.
+
 ## Pre-Remediation Assessment
 
 | Category | Score | Notes |

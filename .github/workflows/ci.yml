@@ -50,16 +50,20 @@ jobs:
           python-version: '3.12'
 
       - name: Install Python deps for ml_runner boundary tests
+        timeout-minutes: 10
         run: pip install scikit-learn pandas numpy joblib
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: npm ci
 
       - name: Run tests
+        timeout-minutes: 10
         run: npm test
 
       - name: Run tests with coverage
         if: matrix.node-version == '20'
+        timeout-minutes: 15
         run: npx vitest run --coverage
 
       - name: Upload coverage to Codecov
@@ -70,10 +74,12 @@ jobs:
           fail_ci_if_error: false
 
       - name: Compile (production)
+        timeout-minutes: 5
         run: npm run compile
 
       - name: Package VSIX
         if: matrix.node-version == '20'
+        timeout-minutes: 10
         run: npx vsce package --no-dependencies
 
   dep-audit:
@@ -88,7 +94,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: npm ci
 
       - name: Run npm audit
+        timeout-minutes: 10
         run: npm audit --omit=dev || true

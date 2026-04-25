@@ -2,7 +2,7 @@
 
 All notable changes to the RunForge VS Code extension will be documented in this file.
 
-## [Unreleased]
+## [1.0.2] - pending
 
 ### Architecture
 - Consolidated `.ml/outputs/index.json` to a single writer (Python `provenance.py`).
@@ -64,6 +64,10 @@ All notable changes to the RunForge VS Code extension will be documented in this
   during iter #5a's eslint cleanup phase).
 
 ## [1.0.1] - 2026-03-25
+
+### Note (added 2026-04-25)
+
+Marketplace v1.0.1 shipped with 5 production-CRITICAL bugs (subprocess ImportError, encoding, observability path mismatch, index shape, index entry shape) discovered during the Dogfood Swarm. All five are fixed on `swarm/dogfood` and will ship in v1.0.2. Users on v1.0.1 should upgrade to v1.0.2 (or later) for working `Train` and run-browsing features.
 
 ### Added
 - 5 version consistency tests (semver, CHANGELOG, engine constraint, publisher)
