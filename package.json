@@ -170,16 +170,19 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "verify": "npm test && npm run compile && npx vsce package --no-dependencies",
+    "verify": "npm test && (npm run lint || echo \"lint reports findings (non-blocking; see follow-up wave)\") && npm run compile && npx vsce package --no-dependencies",
     "package": "vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "@vscode/vsce": "^2.22.0",
     "esbuild": "^0.19.11",
+    "eslint": "^8.57.1",
     "typescript": "^5.3.3",
-    "@vitest/coverage-v8": "^1.6.1",
     "vitest": "^1.2.0"
   }
 }

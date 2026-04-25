@@ -6,6 +6,8 @@ node_modules/**
 .git/**
 .github/**
 .gitignore
+.vscodeignore
+.eslintrc.json
 tsconfig.json
 vitest.config.ts
 **/*.map
@@ -19,4 +21,17 @@ resources/**
 CONTRACT.md
 CONTRACT-PHASE-3.md
 CONTRIBUTING.md
+CLAUDE.md
+SHIP_GATE.md
+SCORECARD.md
 site/**
+site/.astro/**
+*.vsix
+runs/**
+test_datasets/**
+generate_test_runs.py
+.benchmarks/**
+.pytest_cache/**
+**/__pycache__/**
+**/*.pyc
+**/*.egg-info/**

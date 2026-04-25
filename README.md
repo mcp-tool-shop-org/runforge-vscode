@@ -458,7 +458,7 @@ Training now produces `metrics.v1.json` alongside `metrics.json`:
 
 ```json
 {
-  "schema_version": "run.v0.3.3",
+  "schema_version": "run.v0.3.6",
   "metrics_v1": {
     "schema_version": "metrics.v1",
     "metrics_profile": "classification.proba.v1",
