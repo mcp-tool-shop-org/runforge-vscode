@@ -36,25 +36,41 @@ Phase 4 introduces user-initiated cancel of an in-progress training run via VS C
 - TS extension propagates `vscode.window.withProgress` `CancellationToken` through `run-manager.executeRun()` to the Python subprocess.
 - On token fire, TS sends `SIGTERM` to the Python process group.
 - Python `ml_runner.runner` registers a `signal.SIGTERM` handler at the start of `run_training()`. The handler emits `cancelling` events (per second of grace window), performs graceful cleanup (flush partial logs, mark partial artifacts), writes a `.cancelled` marker file matching `cancelled.schema.v1.0.0.json`, emits one final `run_cancelled` event, and exits with non-zero status.
-- TS waits up to **5 seconds** for graceful exit. If Python has not exited within 5s, TS sends `SIGKILL`. The 5s grace window is fixed in Phase 4; configurable in Phase 5+.
+- TS arms a **5-second SIGKILL trigger** the moment SIGTERM is sent. If Python has not exited by t+5s, TS sends `SIGKILL` regardless of whether cleanup is in flight. The 5s grace window is fixed in Phase 4; configurable in Phase 5+. **The 5s timer is a SIGKILL trigger only — it is NOT a graceful detector.**
 - During the grace window, the TS Bridge surfaces a "Cancelling… N s" affordance to the user using the `cancelling` event countdown (Q6 Mike refinement).
+
+**Graceful detector (source-of-truth doctrine — see §3.1.3):**
+The terminal cancel state is determined by ARTIFACTS ON DISK + EVENTS OBSERVED, never by process-exit timing. After Python exits (graceful or SIGKILL):
+- `.cancelled` marker present **OR** `run_cancelled` event was observed during the run → **"Cancelled (graceful)"**. Even if SIGKILL fired, if Python managed to atomically write the marker (or emit the event) before SIGKILL landed, the cleanup is durable.
+- Neither marker nor `run_cancelled` event, non-zero exit → **"Cancelled (forced)"**. SIGKILL won the race or Python crashed mid-cleanup. Partial artifacts may exist; UI surfaces accordingly.
+- `artifacts_written` event observed AND `run.json` exists → **"Completed"**. Race case: training finished before cancel signal could land. Cancel intent is recorded but supersedes nothing.
 
 **State machine (cancel):**
 ```
 running → user clicks cancel → TS fires CancellationToken
+  → TS arms 5s SIGKILL timer + sends SIGTERM
   → Python receives SIGTERM
     → emits cancelling{seconds_remaining: 5} immediately
     → emits cancelling{seconds_remaining: 4..0} per second
-    → flushes partial state, writes .cancelled marker
-    → emits run_cancelled{graceful: true}
+    → flushes partial state, atomically writes .cancelled marker
+    → emits run_cancelled (graceful: true)
     → exits non-zero
-  TS reads .cancelled marker → UI status: "Cancelled (graceful)"
 
-If Python has not emitted run_cancelled within 5s:
-  TS sends SIGKILL → Python dies hard, no marker
-  TS records cancel intent in run-manager state
-  UI status: "Cancelled (forced)" — partial artifacts may exist on disk
+  TS post-exit detection (regardless of how exit happened):
+    1. .cancelled marker exists OR run_cancelled event was observed
+       → UI status: "Cancelled (graceful)"
+    2. neither marker nor event, non-zero exit
+       → UI status: "Cancelled (forced)" — partial artifacts may exist
+    3. artifacts_written event observed + run.json exists
+       → UI status: "Completed" (training finished before cancel landed)
+
+  SIGKILL trigger fires at t+5s independently:
+    → if Python still running, send SIGKILL
+    → does NOT change graceful-detector logic above
+    → if marker was written before t+5s, graceful state still wins
 ```
+
+Atomic marker write (Python `os.replace()` on `.cancelled.tmp` → `.cancelled`) is what makes the race-free guarantee possible: either the marker is fully written and visible, or it is not present at all. Partial markers cannot exist.
 
 #### 3.1.2 Recovery
 Phase 4 introduces a `runforge.recoverIndex` command that walks `.ml/runs/`, re-reads each `run.json`, and re-appends to `.ml/outputs/index.json` any run that is missing from the index. Handles the case where Python wrote a run successfully but the index update failed (`.index-orphan` marker present from Stage C work).
@@ -64,6 +80,35 @@ Phase 4 introduces a `runforge.recoverIndex` command that walks `.ml/runs/`, re-
 - Recovery does NOT modify run.json or other artifacts; only the index is rebuilt.
 - Recovery surfaces a structured report (count of orphans recovered, count already indexed, count skipped due to corrupt run.json).
 - Cancelled runs (with `.cancelled` marker but no run.json) are NOT added to the index; they remain visible in the orphan picker.
+
+#### 3.1.3 Source-of-truth doctrine (events + markers, never process-exit timing)
+
+**Generalized principle (extends to crash paths and success paths, not just cancel):**
+
+Every terminal run state is determined by **artifacts on disk + events observed during the run lifetime**, never by process-exit timing or exit code alone. Process-exit timing is a control-flow trigger (e.g., the 5s SIGKILL window in §3.1.1); it is NOT a state detector.
+
+**Detection rules (apply uniformly across cancel + crash + success paths):**
+
+| Terminal state | Detector |
+|---|---|
+| Completed | `artifacts_written` event observed AND `run.json` exists at the canonical path |
+| Cancelled (graceful) | `.cancelled` marker present **OR** `run_cancelled` event was observed |
+| Cancelled (forced) | Cancel intent fired (TS sent SIGTERM) AND neither marker nor `run_cancelled` event landed AND non-zero exit |
+| Crashed | Cancel intent NOT fired AND `artifacts_written` event NOT observed AND non-zero exit |
+| Indexed (post-success) | Completed AND `index.json` entry exists for this run_id |
+| Orphaned | Completed AND `.index-orphan` marker present (Stage C contract) |
+
+**Why this matters:**
+
+- A Python that finishes cleanup at t=4.9s but whose exit registers at t=5.1s would, under exit-time-based detection, be misclassified as "forced" even though the marker was atomically written. The marker IS the truth.
+- A successful run whose Python process exits with code 1 due to an obscure shutdown handler glitch (after `artifacts_written` was already emitted) is still a successful run. The artifact is the truth.
+- A run that hits a wall-clock CI timeout 30 seconds after `artifacts_written` was emitted but before clean exit is still a successful run.
+
+**Implementation rule for FT-BACK-001 (cancel plumb), FT-PY-004 (Python signal handler), and any future state-machine consumer:**
+
+The state-detector code path MUST consult the marker/event ledger first; process-exit-timing checks are advisory only. This is enforced by the Extension Host smoke test (§3.4) which exercises a deliberately delayed-exit Python fixture to catch any consumer that conflates exit-timing with state.
+
+**Antecedent in this codebase:** Iter #5b's regression already established "success requires `run.json` existence after exit code 0" — same principle applied to the success path. §3.1.3 generalizes the principle to cover cancel + crash paths uniformly.
 
 ### 3.2 Event stream
 
