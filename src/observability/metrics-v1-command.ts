@@ -7,7 +7,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { WORKSPACE_PATHS, type MetricsV1 } from '../types.js';
+import { ARTIFACT_FILENAMES, type MetricsV1 } from '../types.js';
 import { getLatestRunDir } from './fs-safe.js';
 
 /**
@@ -133,7 +133,7 @@ export async function viewLatestMetricsV1(): Promise<void> {
     return;
   }
 
-  const metricsPath = path.join(latestRunDir, 'metrics.v1.json');
+  const metricsPath = path.join(latestRunDir, ARTIFACT_FILENAMES.METRICS_V1_JSON);
   if (!fs.existsSync(metricsPath)) {
     vscode.window.showWarningMessage('metrics.v1.json not found in latest run. This run may be from an older version.');
     return;

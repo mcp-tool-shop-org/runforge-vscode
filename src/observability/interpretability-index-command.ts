@@ -10,63 +10,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
-
-/**
- * Metrics v1 entry summary
- */
-interface MetricsV1Summary {
-  metrics_profile: string;
-  accuracy?: number;
-}
-
-/**
- * Feature importance entry summary
- */
-interface FeatureImportanceSummary {
-  model_family: string;
-  top_k: string[];
-}
-
-/**
- * Linear coefficients entry summary
- */
-interface LinearCoefficientsSummary {
-  model_family: string;
-  num_classes: number;
-  top_k_by_class: Array<{
-    class: number | string;
-    top_features: string[];
-  }>;
-}
-
-/**
- * Available artifact entry
- */
-interface ArtifactEntry<T> {
-  schema_version: string;
-  path: string;
-  summary: T;
-}
-
-/**
- * Interpretability index structure
- *
- * TODO(iter #5b, Backend): canonicalize as `InterpretabilityIndex` in
- * `src/types.ts` alongside the other artifact shapes (matches
- * `python/ml_runner/contracts/interpretability.index.schema.v1.json`).
- * Kept local for iter #5a since canonicalization is Backend's domain.
- */
-interface InterpretabilityIndex {
-  schema_version: string;
-  run_id: string;
-  runforge_version: string;
-  created_at: string;
-  available_artifacts: {
-    metrics_v1?: ArtifactEntry<MetricsV1Summary>;
-    feature_importance_v1?: ArtifactEntry<FeatureImportanceSummary>;
-    linear_coefficients_v1?: ArtifactEntry<LinearCoefficientsSummary>;
-  };
-}
+import { ARTIFACT_FILENAMES, type InterpretabilityIndex } from '../types.js';
 
 /**
  * Format the interpretability index for display
@@ -206,7 +150,7 @@ export async function viewLatestInterpretabilityIndex(): Promise<void> {
     return;
   }
 
-  const artifactPath = path.join(latestRunDir, 'artifacts', 'interpretability.index.v1.json');
+  const artifactPath = path.join(latestRunDir, 'artifacts', ARTIFACT_FILENAMES.INTERPRETABILITY_INDEX_V1_JSON);
   if (!fs.existsSync(artifactPath)) {
     vscode.window.showWarningMessage(
       'interpretability.index.v1.json not found. This run may have been created before Phase 3.6.'

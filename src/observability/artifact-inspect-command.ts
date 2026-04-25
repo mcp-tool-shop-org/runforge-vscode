@@ -8,6 +8,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
+import { pythonSpawnEnv } from '../runner/python-runner.js';
 
 /**
  * Pipeline step information from inspection
@@ -57,10 +58,7 @@ export async function inspectArtifact(
 
     const proc = spawn(pythonPath, args, {
       cwd: path.dirname(runnerPath),
-      env: {
-        ...process.env,
-        PYTHONPATH: runnerPath,
-      },
+      env: pythonSpawnEnv({ runnerParent: runnerPath }),
     });
 
     let stdout = '';

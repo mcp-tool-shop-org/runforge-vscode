@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import { getLatestRunMetadataSafe } from './metadata-command.js';
 import { getLatestRunDir } from './fs-safe.js';
 import { escapeTableCell } from './render/escape.js';
-import type { MetricsV1, RunMetadata } from '../types.js';
+import { ARTIFACT_FILENAMES, type MetricsV1, type RunMetadata } from '../types.js';
 
 /**
  * One entry in the interpretability.index.v1.json artifacts array.
@@ -177,7 +177,7 @@ function buildMarkdown(
   try {
     const files = fs.readdirSync(runDir);
     for (const file of files) {
-      if (file === 'run.json' || file === 'run-summary.md') {
+      if (file === ARTIFACT_FILENAMES.RUN_JSON || file === 'run-summary.md') {
         continue;
       }
       const stat = fs.statSync(path.join(runDir, file));
@@ -239,8 +239,8 @@ export async function exportLatestRunAsMarkdown(): Promise<void> {
   }
 
   // Load optional detailed files
-  const metricsV1 = readJsonSafe<MetricsV1>(path.join(runDir, 'metrics.v1.json'));
-  const interpIndex = readJsonSafe<InterpIndex>(path.join(runDir, 'artifacts', 'interpretability.index.v1.json'));
+  const metricsV1 = readJsonSafe<MetricsV1>(path.join(runDir, ARTIFACT_FILENAMES.METRICS_V1_JSON));
+  const interpIndex = readJsonSafe<InterpIndex>(path.join(runDir, 'artifacts', ARTIFACT_FILENAMES.INTERPRETABILITY_INDEX_V1_JSON));
 
   // Build and write
   const markdown = buildMarkdown(metadata, metricsV1, interpIndex, runDir);

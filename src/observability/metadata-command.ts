@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { safeReadIndex, safeReadRunJson, getActionableMessage } from './fs-safe.js';
 import { openJsonDocument } from './open-summary.js';
-import { WORKSPACE_PATHS, type IndexEntry, type RunIndex, type RunMetadata } from '../types.js';
+import { ARTIFACT_FILENAMES, WORKSPACE_PATHS, type IndexEntry, type RunIndex, type RunMetadata } from '../types.js';
 
 export type { RunMetadata } from '../types.js';
 
@@ -51,7 +51,7 @@ export async function getLatestRunEntry(workspaceRoot: string): Promise<IndexEnt
  * Load run metadata from a run directory
  */
 export async function loadRunMetadata(runDir: string): Promise<RunMetadata | null> {
-  const runJsonPath = path.join(runDir, 'run.json');
+  const runJsonPath = path.join(runDir, ARTIFACT_FILENAMES.RUN_JSON);
 
   try {
     const content = await fs.readFile(runJsonPath, 'utf-8');

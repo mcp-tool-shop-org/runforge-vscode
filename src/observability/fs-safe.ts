@@ -8,7 +8,7 @@
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
-import { WORKSPACE_PATHS, type RunIndex, type RunMetadata } from '../types.js';
+import { ARTIFACT_FILENAMES, WORKSPACE_PATHS, type RunIndex, type RunMetadata } from '../types.js';
 
 /**
  * Result type for safe operations
@@ -185,7 +185,7 @@ export async function safeReadRunJson(
 ): Promise<SafeResult<RunMetadata>> {
   // runDir is workspace-relative and points to the run directory.
   // e.g., ".ml/runs/20240201-123456-abc12345" — append run.json to read metadata.
-  const runJsonPath = path.join(workspaceRoot, runDir, 'run.json');
+  const runJsonPath = path.join(workspaceRoot, runDir, ARTIFACT_FILENAMES.RUN_JSON);
 
   const result = await readJsonFile<RunMetadata>(runJsonPath);
 

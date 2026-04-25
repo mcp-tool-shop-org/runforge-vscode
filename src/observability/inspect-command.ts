@@ -5,9 +5,9 @@
  * Does not modify data or execute training.
  */
 
-import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
+import { pythonSpawnEnv } from '../runner/python-runner.js';
 
 export interface InspectResult {
   dataset_path: string;
@@ -36,10 +36,7 @@ export async function inspectDataset(
       '--label', labelColumn,
     ], {
       cwd: path.dirname(runnerPath),
-      env: {
-        ...process.env,
-        PYTHONPATH: runnerPath,
-      },
+      env: pythonSpawnEnv({ runnerParent: runnerPath }),
     });
 
     let stdout = '';

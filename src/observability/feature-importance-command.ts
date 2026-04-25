@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
-import type { FeatureImportance } from '../types.js';
+import { ARTIFACT_FILENAMES, type FeatureImportance } from '../types.js';
 
 /**
  * Format importance as percentage bar
@@ -110,10 +110,10 @@ export async function viewLatestFeatureImportance(): Promise<void> {
     return;
   }
 
-  const artifactPath = path.join(latestRunDir, 'artifacts', 'feature_importance.v1.json');
+  const artifactPath = path.join(latestRunDir, 'artifacts', ARTIFACT_FILENAMES.FEATURE_IMPORTANCE_V1_JSON);
   if (!fs.existsSync(artifactPath)) {
     // Check run.json to see if this run has feature importance
-    const runJsonPath = path.join(latestRunDir, 'run.json');
+    const runJsonPath = path.join(latestRunDir, ARTIFACT_FILENAMES.RUN_JSON);
     if (fs.existsSync(runJsonPath)) {
       const runJson = JSON.parse(fs.readFileSync(runJsonPath, 'utf-8'));
       if (!runJson.feature_importance_schema_version) {

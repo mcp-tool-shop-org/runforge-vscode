@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
-import type { LinearCoefficients } from '../types.js';
+import { ARTIFACT_FILENAMES, type LinearCoefficients } from '../types.js';
 
 /**
  * Format coefficient as a visual bar
@@ -143,10 +143,10 @@ export async function viewLatestLinearCoefficients(): Promise<void> {
     return;
   }
 
-  const artifactPath = path.join(latestRunDir, 'artifacts', 'linear_coefficients.v1.json');
+  const artifactPath = path.join(latestRunDir, 'artifacts', ARTIFACT_FILENAMES.LINEAR_COEFFICIENTS_V1_JSON);
   if (!fs.existsSync(artifactPath)) {
     // Check run.json to see if this run has linear coefficients
-    const runJsonPath = path.join(latestRunDir, 'run.json');
+    const runJsonPath = path.join(latestRunDir, ARTIFACT_FILENAMES.RUN_JSON);
     if (fs.existsSync(runJsonPath)) {
       const runJson = JSON.parse(fs.readFileSync(runJsonPath, 'utf-8'));
       if (!runJson.linear_coefficients_schema_version) {
