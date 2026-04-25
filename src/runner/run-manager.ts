@@ -22,6 +22,12 @@ import {
 import { createTimestamp } from '../workspace/index-manager.js';
 import { getPreset } from '../presets/registry.js';
 import { formatDuration } from '../utils/format.js';
+import {
+  EventStreamConsumer,
+  EVENT_TYPES,
+  type ParsedEvent,
+} from '../observability/event-stream-consumer.js';
+import { readCancelledMarker } from '../observability/cancelled-marker-reader.js';
 
 /** Output channel for training logs */
 let outputChannel: vscode.OutputChannel | undefined;
@@ -76,9 +82,146 @@ interface ActiveRun {
   process: ChildProcess | null;
   aborted: boolean;
   abortReason?: string;
+  /**
+   * Phase 4 (FT-BACK-001): cancel-intent flag.
+   * Set when the user fires the CancellationToken (or `killActiveRun` is
+   * called). Distinct from `aborted` — `aborted` covers any abnormal end
+   * (OOM kill, deactivate, cancel), while `cancelIntentFired` is specific
+   * to user-initiated SIGTERM and is the input signal to
+   * `detectCancelTerminalState`.
+   */
+  cancelIntentFired: boolean;
+  /**
+   * Phase 4: structured event ledger from Python stderr. Consulted by
+   * `detectCancelTerminalState` per CONTRACT-PHASE-4.md §3.1.3 — marker on
+   * disk OR `run_cancelled` event observed → graceful.
+   */
+  events: EventStreamConsumer;
+  /** Phase 4: armed when SIGTERM is sent. Cleared on exit / cancel-rescind. */
+  sigkillTimer: NodeJS.Timeout | null;
 }
 
 let activeRun: ActiveRun | null = null;
+
+/**
+ * Phase 4 (FT-BACK-001): SIGKILL trigger window after SIGTERM.
+ *
+ * Per CONTRACT-PHASE-4.md §3.1.1: "TS arms a 5-second SIGKILL trigger the
+ * moment SIGTERM is sent. If Python has not exited by t+5s, TS sends SIGKILL
+ * regardless of whether cleanup is in flight." This timer is a control-flow
+ * mechanism ONLY — it does NOT determine terminal state. State detection
+ * runs after exit and consults the marker/event ledger via
+ * `detectCancelTerminalState`.
+ */
+const CANCEL_SIGKILL_WINDOW_MS = 5000;
+
+/**
+ * Phase 4 terminal state classification per CONTRACT-PHASE-4.md §3.1.3.
+ *
+ * Source-of-truth doctrine: terminal state is determined by ARTIFACTS ON
+ * DISK + EVENTS OBSERVED, never by process-exit timing. Process-exit timing
+ * is a control-flow trigger (the 5s SIGKILL window above); it is NOT a
+ * state detector.
+ *
+ * Detection order (per §3.1.3 table):
+ *   1. `artifacts_written` event observed AND `run.json` exists at canonical
+ *      path → 'completed'. Race case: training finished before cancel
+ *      signal could land. Cancel intent is recorded but supersedes nothing.
+ *   2. `.cancelled` marker present OR `run_cancelled` event was observed →
+ *      'cancelled-graceful'. Even if SIGKILL fired, if Python managed to
+ *      atomically write the marker (or emit the event) before SIGKILL
+ *      landed, the cleanup is durable.
+ *   3. Cancel intent fired AND neither marker nor event AND non-zero exit →
+ *      'cancelled-forced'. SIGKILL won the race or Python crashed
+ *      mid-cleanup. Partial artifacts may exist; UI surfaces accordingly.
+ *   4. Cancel intent NOT fired AND no `artifacts_written` event AND non-zero
+ *      exit → 'crashed'.
+ *
+ * Exported for direct invocation by `test/cancel-state-machine.test.ts` per
+ * docs/CONTRACTS.md rule 5 — tests exercise the production call chain.
+ */
+export type CancelTerminalState =
+  | 'completed'
+  | 'cancelled-graceful'
+  | 'cancelled-forced'
+  | 'crashed';
+
+/**
+ * Inputs for the §3.1.3 detector. Pure-data shape — no I/O on the args. The
+ * marker check is the only filesystem touch performed by the detector
+ * itself, so it remains async.
+ */
+export interface CancelDetectorInputs {
+  /** Absolute path to the run directory. Used to read .cancelled marker + check run.json. */
+  runDir: string;
+  /** Event ledger snapshot from EventStreamConsumer.snapshot(). */
+  observedEvents: ReadonlyArray<ParsedEvent>;
+  /** Process exit code from the Python subprocess. */
+  exitCode: number;
+  /** True iff the user (or `killActiveRun`) fired the CancellationToken. */
+  cancelIntentFired: boolean;
+}
+
+/**
+ * Production call chain entry point — the single source of truth for cancel
+ * terminal-state classification. Runs AFTER the Python process has exited
+ * (graceful or via SIGKILL). Consults disk + observed events ONLY.
+ *
+ * Per Preload 3 in the FT-BACK-001 brief: tests invoke THIS function
+ * directly; no mirror lives in test code.
+ */
+export async function detectCancelTerminalState(
+  inputs: CancelDetectorInputs
+): Promise<CancelTerminalState> {
+  const { runDir, observedEvents, exitCode, cancelIntentFired } = inputs;
+
+  const artifactsWrittenObserved = observedEvents.some(
+    (e) => e.event === EVENT_TYPES.ARTIFACTS_WRITTEN
+  );
+  const runCancelledObserved = observedEvents.some(
+    (e) => e.event === EVENT_TYPES.RUN_CANCELLED
+  );
+
+  const runJsonPath = path.join(runDir, ARTIFACT_FILENAMES.RUN_JSON);
+  const runJsonExists = await fileExists(runJsonPath);
+
+  // Rule 1 — Completed: race case where training finished before cancel
+  // landed. Even if cancel intent fired at t=4.99s, if artifacts were
+  // written at t=5.0s with run.json present, we honor the success.
+  if (artifactsWrittenObserved && runJsonExists) {
+    return 'completed';
+  }
+
+  // Rule 2 — Cancelled (graceful): marker on disk OR run_cancelled event
+  // observed. Either alone is sufficient (race-resilient: marker write may
+  // succeed while event drops, or vice versa).
+  const marker = await readCancelledMarker(runDir);
+  if (marker !== null || runCancelledObserved) {
+    return 'cancelled-graceful';
+  }
+
+  // Rule 3 — Cancelled (forced): cancel intent fired but neither marker
+  // nor event landed AND exit was non-zero. SIGKILL won the race.
+  if (cancelIntentFired && exitCode !== 0) {
+    return 'cancelled-forced';
+  }
+
+  // Rule 4 — Crashed: no cancel intent, no artifacts_written, non-zero exit.
+  // (Zero-exit-but-no-artifacts also lands here — F-SP-002 already classifies
+  // that as failure via the run.json existence check upstream; we mirror
+  // the doctrine: artifact-on-disk is the truth.)
+  return 'crashed';
+}
+
+/** Internal helper — fs.access wrapped to a boolean. */
+async function fileExists(p: string): Promise<boolean> {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Check if a run is currently active
@@ -89,18 +232,33 @@ export function isRunning(): boolean {
 
 /**
  * Execute a training run with GPU gating.
+ *
+ * Phase 4 (FT-BACK-001): accepts an optional `vscode.CancellationToken`.
+ * When the token fires, the runner sends SIGTERM to the Python subprocess
+ * and arms a 5-second SIGKILL trigger per CONTRACT-PHASE-4.md §3.1.1. The
+ * 5s timer is a SIGKILL trigger ONLY — terminal state classification runs
+ * after exit and consults the §3.1.3 marker/event ledger via
+ * `detectCancelTerminalState`.
+ *
+ * Backward-compatible: callers that don't pass a token (legacy command
+ * surface) retain the prior shape.
+ *
  * @param workspaceRoot Absolute path to the workspace folder (run dir + index live under .ml/).
  * @param presetId Which preset to load (std-train | hq-train).
  * @param name Human-friendly run label, used in run-id slug and surfaced in pickers.
  * @param seed Optional seed; runner gets `--seed` flag iff defined.
  * @param datasetPath Optional dataset CSV path; passed via RUNFORGE_DATASET env var.
+ * @param cancellationToken Optional VS Code CancellationToken — when fired, sends SIGTERM with 5s SIGKILL trigger.
+ * @param progress Optional progress reporter (typically the one passed in by `vscode.window.withProgress`) — receives the "Cancelling… Ns" countdown updates per Q6.
  */
 export async function executeRun(
   workspaceRoot: string,
   presetId: PresetId,
   name: string,
   seed?: number,
-  datasetPath?: string
+  datasetPath?: string,
+  cancellationToken?: vscode.CancellationToken,
+  progress?: vscode.Progress<{ message?: string; increment?: number }>
 ): Promise<void> {
   // Check if already running
   if (activeRun) {
@@ -227,6 +385,9 @@ export async function executeRun(
   // Create run token for callback safety
   const runToken = Symbol(runId);
 
+  // Phase 4: structured event consumer for stderr JSONL.
+  const eventConsumer = new EventStreamConsumer();
+
   // Set active run (process will be set after spawn)
   activeRun = {
     token: runToken,
@@ -236,6 +397,9 @@ export async function executeRun(
     device: actualDevice,
     process: null,
     aborted: false,
+    cancelIntentFired: false,
+    events: eventConsumer,
+    sigkillTimer: null,
   };
 
   // Create callbacks for streaming.
@@ -250,12 +414,44 @@ export async function executeRun(
       channel.appendLine(line);
       appendLog(runDir, line).catch(() => {}); // Fire and forget
     },
-    /** Stderr line from runner; OOM patterns trigger killRunOnOom. */
+    /**
+     * Stderr line from runner.
+     *
+     * Phase 4 wiring (FT-BACK-001):
+     *  1. Feed every line to the EventStreamConsumer. JSONL events land in
+     *     the §3.1.3 ledger; non-JSONL lines come back as `LogLine` and
+     *     mirror to the OutputChannel as before.
+     *  2. OOM detection still runs on the raw line (covers tracebacks too).
+     *  3. `cancelling` events drive the "Cancelling… Ns" progress UI per
+     *     Q6 — this is the surface the user sees while SIGTERM is in
+     *     flight, before the 5s SIGKILL timer fires.
+     */
     onStderr: (line) => {
       // Guard against late callbacks from a different run
       if (!activeRun || activeRun.token !== runToken) return;
 
-      channel.appendLine(`[stderr] ${line}`);
+      // Feed the event consumer first so the §3.1.3 ledger captures
+      // run_cancelled / artifacts_written even if the OutputChannel append
+      // path throws.
+      const parsed = activeRun.events.push(line);
+
+      // Mirror to OutputChannel for the user. Skipped (invalid-shape)
+      // events are surfaced under a `[stderr-skip]` prefix so they don't
+      // pretend to be the underlying message.
+      if (parsed.kind === 'event') {
+        channel.appendLine(`[event] ${parsed.event.event}`);
+        // Drive the Cancelling-countdown UI from the cancelling event
+        // stream — Q6 requires "Cancelling… Ns" rather than apparent freeze.
+        if (parsed.event.event === EVENT_TYPES.CANCELLING && progress) {
+          progress.report({
+            message: `Cancelling… ${parsed.event.seconds_remaining}s`,
+          });
+        }
+      } else if (parsed.kind === 'skipped') {
+        channel.appendLine(`[stderr-skip] ${line}`);
+      } else {
+        channel.appendLine(`[stderr] ${line}`);
+      }
       appendLog(runDir, `[stderr] ${line}`).catch(() => {});
 
       // Check for OOM-like patterns (only when using GPU)
@@ -263,13 +459,81 @@ export async function executeRun(
         killRunOnOom(runToken, channel);
       }
     },
-    /** Process exit; aborted state overrides result before handleRunComplete. */
+    /**
+     * Process exit; aborted state overrides result before handleRunComplete.
+     *
+     * Phase 4 (FT-BACK-001) — terminal-state detection per §3.1.3:
+     * After exit (graceful or via SIGKILL), invoke
+     * `detectCancelTerminalState` with the §3.1.3 inputs (marker on disk +
+     * events observed + exit code + cancel intent). The detector NEVER
+     * consults exit-timing; it only consults the marker/event ledger. The
+     * result is logged + surfaced; downstream `handleRunComplete` keeps
+     * its existing F-SP-002 run.json check (which is the same source-of-
+     * truth principle applied to the success path — see §3.1.3 antecedent).
+     */
     onExit: async (result) => {
       // Guard against late callbacks from a different run
       if (!activeRun || activeRun.token !== runToken) return;
 
-      // If aborted, override the result
-      if (activeRun.aborted) {
+      // Snapshot detector inputs before clearing state.
+      const cancelIntentFired = activeRun.cancelIntentFired;
+      const observedEvents = activeRun.events.snapshot();
+
+      // Clear any pending SIGKILL timer — process has already exited.
+      if (activeRun.sigkillTimer) {
+        clearTimeout(activeRun.sigkillTimer);
+        activeRun.sigkillTimer = null;
+      }
+
+      // §3.1.3 detector: marker/event ledger first, exit-timing last.
+      // Run only when cancel intent was actually fired — avoids a marker
+      // walk on every successful run.
+      if (cancelIntentFired) {
+        try {
+          const terminalState = await detectCancelTerminalState({
+            runDir,
+            observedEvents,
+            exitCode: result.exit_code,
+            cancelIntentFired,
+          });
+          channel.appendLine(`[cancel-detector] terminal state: ${terminalState}`);
+
+          // Re-classify the result based on the §3.1.3 detector. Successful
+          // races (training finished before cancel landed) keep their
+          // 'succeeded' status; cancelled-graceful/forced both surface as
+          // failed with a specific abortReason.
+          if (terminalState === 'completed') {
+            // Race case: leave result as-is — training succeeded.
+          } else if (terminalState === 'cancelled-graceful') {
+            result = {
+              ...result,
+              status: 'failed',
+              error: 'Cancelled (graceful) — partial cleanup completed',
+            };
+          } else if (terminalState === 'cancelled-forced') {
+            result = {
+              ...result,
+              status: 'failed',
+              error: 'Cancelled (forced) — SIGKILL fired before cleanup completed',
+            };
+          } else if (terminalState === 'crashed') {
+            result = {
+              ...result,
+              status: 'failed',
+              error: result.error ?? 'Crashed during cancel handling',
+            };
+          }
+        } catch (err) {
+          // Detector should never throw — defensive log only.
+          const msg = err instanceof Error ? err.message : String(err);
+          channel.appendLine(`[cancel-detector] error: ${msg}`);
+        }
+      }
+
+      // Legacy abort path for non-cancel aborts (OOM, deactivate). The
+      // cancel-intent path above already overrides the result; only
+      // non-cancel aborts use the prior abortReason fallback.
+      if (activeRun.aborted && !cancelIntentFired) {
         result = {
           ...result,
           status: 'failed',
@@ -299,6 +563,23 @@ export async function executeRun(
     if (activeRun && activeRun.token === runToken) {
       activeRun.process = proc;
     }
+
+    // Phase 4 (FT-BACK-001): wire the CancellationToken to SIGTERM + 5s
+    // SIGKILL trigger per CONTRACT-PHASE-4.md §3.1.1. The token comes from
+    // `vscode.window.withProgress`; clicking the X on the progress
+    // notification fires it. The progress reporter (also from withProgress)
+    // is captured in the onStderr handler above to render the
+    // "Cancelling… Ns" countdown driven by Python's `cancelling` events.
+    if (cancellationToken) {
+      const tokenDisposable = cancellationToken.onCancellationRequested(() => {
+        cancelActiveRun(runToken, 'user cancelled via VS Code progress UI', channel);
+      });
+      // Best-effort cleanup: if the token disposes (e.g. progress closes
+      // without firing cancel), drop the listener.
+      proc.on('close', () => {
+        tokenDisposable.dispose();
+      });
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     channel.appendLine(`ERROR: Failed to start training: ${errorMessage}`);
@@ -315,12 +596,70 @@ export async function executeRun(
   }
 }
 
-/** Force kill timeout in ms */
+/** Force kill timeout in ms (legacy / non-cancel paths) */
 const FORCE_KILL_TIMEOUT_MS = 2000;
+
+/**
+ * Phase 4 (FT-BACK-001) cancel pathway — distinct from `killActiveRun`.
+ *
+ * Sends SIGTERM and arms the 5-second SIGKILL trigger per
+ * CONTRACT-PHASE-4.md §3.1.1. Sets `cancelIntentFired` on the active run
+ * so the §3.1.3 detector knows to consult the marker/event ledger.
+ *
+ * Token-guarded: callers pass the run's symbol so a stale token from a
+ * prior run can't fire SIGTERM at the next run.
+ */
+function cancelActiveRun(
+  runToken: symbol,
+  reason: string,
+  channel: vscode.OutputChannel
+): void {
+  if (!activeRun || activeRun.token !== runToken) return;
+  if (activeRun.cancelIntentFired) return; // idempotent — multiple cancel clicks
+
+  channel.appendLine('');
+  channel.appendLine(`Cancel requested: ${reason}`);
+
+  activeRun.cancelIntentFired = true;
+  activeRun.aborted = true; // legacy flag — kept consistent for downstream guards
+  activeRun.abortReason = reason;
+
+  const proc = activeRun.process;
+  if (!proc) return;
+
+  try {
+    proc.kill('SIGTERM');
+  } catch {
+    // Already exited.
+  }
+
+  // 5s SIGKILL trigger per §3.1.1. Control-flow only — does NOT determine
+  // terminal state. The §3.1.3 detector runs after exit and consults the
+  // marker/event ledger.
+  if (activeRun.sigkillTimer) {
+    clearTimeout(activeRun.sigkillTimer);
+  }
+  activeRun.sigkillTimer = setTimeout(() => {
+    try {
+      if (!proc.killed) {
+        channel.appendLine('[cancel] grace window elapsed — sending SIGKILL');
+        proc.kill('SIGKILL');
+      }
+    } catch {
+      // Already exited.
+    }
+  }, CANCEL_SIGKILL_WINDOW_MS);
+}
 
 /**
  * Kill the active run (if any) for the given reason.
  * Safe to call when no run is active — returns silently.
+ *
+ * Used by the legacy `deactivate()` and OOM paths. For user-initiated
+ * cancel via CancellationToken, the run-manager's internal `cancelActiveRun`
+ * fires instead — that path uses the §3.1.1 5-second window and §3.1.3
+ * detector.
+ *
  * SIGTERM first; SIGKILL fallback after FORCE_KILL_TIMEOUT_MS.
  * Does not await process exit (callers in sync contexts like deactivate
  * cannot block); cleanup of activeRun state happens via the existing onExit

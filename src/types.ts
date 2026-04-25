@@ -471,6 +471,14 @@ export const ARTIFACT_FILENAMES = {
   INTERPRETABILITY_INDEX_V1_JSON: 'interpretability.index.v1.json',
   MODEL_PKL: 'model.pkl',
   INDEX_ORPHAN_MARKER: '.index-orphan',
+  /**
+   * Phase 4 (FT-PY-004 + FT-BACK-001): cancellation marker.
+   * Written by Python provenance after a SIGTERM-handled graceful shutdown.
+   * Read by TS Bridge (`src/observability/cancelled-marker-reader.ts`) +
+   * `run-manager.detectCancelTerminalState()`.
+   * Mirrors `python/ml_runner/contracts/cancelled.schema.v1.0.0.json`.
+   */
+  CANCELLED_MARKER: '.cancelled',
 } as const;
 
 /**
@@ -490,4 +498,42 @@ export interface IndexOrphanMarker {
     traceback?: string;
   };
   index_path: string;
+}
+
+/**
+ * Cancellation marker — written by Python provenance under a run directory
+ * after Python catches SIGTERM and completes graceful cleanup before exit.
+ *
+ * Mirrors `python/ml_runner/contracts/cancelled.schema.v1.0.0.json` (FROZEN
+ * at v1.0.0 in Phase 4 Wave 0). Single writer = Python ml_runner. Single
+ * reader = TS Bridge (`src/observability/cancelled-marker-reader.ts`,
+ * consumed by `src/runner/run-manager.detectCancelTerminalState`).
+ *
+ * Per CONTRACT-PHASE-4.md §3.1.3 (source-of-truth doctrine): the presence of
+ * this marker — atomically written by Python via `os.replace()` — is the
+ * authoritative graceful-cancel signal alongside the `run_cancelled` event.
+ * Process-exit timing is NEVER consulted for state classification.
+ *
+ * Pairs with `RunCancelledEvent` (events.schema.v1) — either signal alone is
+ * sufficient to classify a run as `cancelled-graceful`.
+ */
+export interface IndexCancelledMarker {
+  schema_version: 'cancelled.v1.0.0';
+  /** Permissive identifier (matches both TS 4-segment and Python 3-segment per F-COORD-012). */
+  run_id: string;
+  /** Workspace-relative path to the run dir. Forward slashes only. */
+  run_dir: string;
+  /** ISO 8601 UTC timestamp when graceful cleanup completed and marker was atomically written. */
+  cancelled_at: string;
+  /** Which phase the cancel was caught during. */
+  step:
+    | 'dataset_loading'
+    | 'training'
+    | 'metrics_computation'
+    | 'artifact_writing'
+    | 'shutdown';
+  /** Optional human-readable trigger. */
+  reason?: string;
+  /** Workspace-relative paths to artifacts partially or fully written before cancellation. */
+  partial_artifacts?: string[];
 }

@@ -122,8 +122,29 @@ async function startTraining(presetId: PresetId): Promise<void> {
 
   const seed = seedInput ? parseInt(seedInput, 10) : undefined;
 
-  // Execute the run
-  await executeRun(workspaceRoot, presetId, name.trim(), seed);
+  // Phase 4 (FT-BACK-001): wrap the run in `withProgress` so the user has a
+  // cancel surface (the X on the progress notification fires the
+  // CancellationToken). The token + progress reporter both flow into
+  // executeRun; the reporter receives the "Cancelling… Ns" countdown that
+  // Python's `cancelling` events drive (per Q6).
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: `RunForge: training "${name.trim()}"`,
+      cancellable: true,
+    },
+    async (progress, token) => {
+      await executeRun(
+        workspaceRoot,
+        presetId,
+        name.trim(),
+        seed,
+        undefined, // datasetPath (handled via env var elsewhere)
+        token,
+        progress
+      );
+    }
+  );
 }
 
 /**
