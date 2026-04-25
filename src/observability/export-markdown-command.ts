@@ -8,25 +8,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { getLatestRunMetadataSafe, type RunMetadata } from './metadata-command.js';
+import { getLatestRunMetadataSafe } from './metadata-command.js';
 import { getLatestRunDir } from './fs-safe.js';
 import { escapeTableCell } from './render/escape.js';
-
-/**
- * Narrow shape of metrics.v1.json — only the fields we read.
- * Source: contracts/metrics.v1.json (defined in Python; this is the TS view).
- */
-interface MetricsV1 {
-  metrics_profile?: string;
-  accuracy?: number;
-  precision_macro?: number;
-  recall_macro?: number;
-  f1_macro?: number;
-  roc_auc?: number;
-  log_loss?: number;
-  confusion_matrix?: number[][];
-  class_labels?: Array<string | number>;
-}
+import type { MetricsV1, RunMetadata } from '../types.js';
 
 /**
  * One entry in the interpretability.index.v1.json artifacts array.

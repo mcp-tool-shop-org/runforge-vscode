@@ -8,29 +8,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
-
-/**
- * Feature with importance data
- */
-interface FeatureImportance {
-  name: string;
-  importance: number;
-  rank?: number;
-  index?: number;
-}
-
-/**
- * Feature importance artifact structure
- */
-interface FeatureImportanceArtifact {
-  schema_version: string;
-  model_family: string;
-  importance_type: string;
-  num_features: number;
-  features_by_importance: FeatureImportance[];
-  features_by_original_order: FeatureImportance[];
-  top_k: string[];
-}
+import type { FeatureImportance } from '../types.js';
 
 /**
  * Format importance as percentage bar
@@ -45,7 +23,7 @@ function formatImportanceBar(importance: number, maxWidth: number = 20): string 
 /**
  * Format feature importance for display
  */
-export function formatFeatureImportance(artifact: FeatureImportanceArtifact): string {
+export function formatFeatureImportance(artifact: FeatureImportance): string {
   const lines: string[] = [];
 
   lines.push('RunForge Feature Importance');
@@ -100,7 +78,7 @@ export function formatFeatureImportance(artifact: FeatureImportanceArtifact): st
 export async function openFeatureImportanceInEditor(artifactPath: string): Promise<void> {
   // Read and parse the artifact
   const content = fs.readFileSync(artifactPath, 'utf-8');
-  const artifact = JSON.parse(content) as FeatureImportanceArtifact;
+  const artifact = JSON.parse(content) as FeatureImportance;
   const formatted = formatFeatureImportance(artifact);
 
   // Show in output channel for nice formatting

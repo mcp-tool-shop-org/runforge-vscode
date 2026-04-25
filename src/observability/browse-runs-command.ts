@@ -10,9 +10,9 @@
 
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
+import { safeReadIndex, safeReadRunJson, getActionableMessage } from './fs-safe.js';
 import { openMarkdownSummary } from './open-summary.js';
-import { WORKSPACE_PATHS } from '../types.js';
+import { WORKSPACE_PATHS, type IndexEntry } from '../types.js';
 
 /**
  * QuickPick item for a run
@@ -44,7 +44,7 @@ function formatRunItem(entry: IndexEntry): RunQuickPickItem {
   }
 
   // Fingerprint prefix (first 8 chars)
-  const fingerprintPrefix = entry.dataset_fingerprint.substring(0, 8);
+  const fingerprintPrefix = entry.dataset_fingerprint_sha256.substring(0, 8);
 
   return {
     label: entry.run_id,
@@ -109,7 +109,7 @@ async function executeRunAction(
       break;
 
     case 'copy-fingerprint':
-      await vscode.env.clipboard.writeText(entry.dataset_fingerprint);
+      await vscode.env.clipboard.writeText(entry.dataset_fingerprint_sha256);
       vscode.window.showInformationMessage('Dataset fingerprint copied to clipboard.');
       break;
   }

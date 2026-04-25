@@ -8,7 +8,7 @@
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
-import { WORKSPACE_PATHS, type RunIndex } from '../types.js';
+import { WORKSPACE_PATHS, type RunIndex, type RunMetadata } from '../types.js';
 
 /**
  * Result type for safe operations
@@ -27,18 +27,6 @@ export interface SafeError {
   recoveryHint?: string;
   retryable?: boolean;
   originalError?: Error;
-}
-
-/**
- * Index entry from .ml/outputs/index.json
- */
-export interface IndexEntry {
-  run_id: string;
-  created_at: string;
-  dataset_fingerprint: string;
-  label_column: string;
-  run_dir: string;
-  model_pkl: string;
 }
 
 /**
@@ -194,12 +182,12 @@ export async function safeReadIndex(workspaceRoot: string): Promise<SafeResult<R
 export async function safeReadRunJson(
   workspaceRoot: string,
   runDir: string
-): Promise<SafeResult<Record<string, unknown>>> {
+): Promise<SafeResult<RunMetadata>> {
   // runDir is workspace-relative and points to the run directory.
   // e.g., ".ml/runs/20240201-123456-abc12345" — append run.json to read metadata.
   const runJsonPath = path.join(workspaceRoot, runDir, 'run.json');
 
-  const result = await readJsonFile<Record<string, unknown>>(runJsonPath);
+  const result = await readJsonFile<RunMetadata>(runJsonPath);
 
   if (!result.ok && result.error.code === 'NOT_FOUND') {
     result.error.recoveryHint = 'Run metadata is missing. The run may have been partially deleted.';

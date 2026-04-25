@@ -50,6 +50,11 @@ interface ArtifactEntry<T> {
 
 /**
  * Interpretability index structure
+ *
+ * TODO(iter #5b, Backend): canonicalize as `InterpretabilityIndex` in
+ * `src/types.ts` alongside the other artifact shapes (matches
+ * `python/ml_runner/contracts/interpretability.index.schema.v1.json`).
+ * Kept local for iter #5a since canonicalization is Backend's domain.
  */
 interface InterpretabilityIndex {
   schema_version: string;

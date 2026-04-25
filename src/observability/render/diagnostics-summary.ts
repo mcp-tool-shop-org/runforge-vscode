@@ -7,6 +7,8 @@
  * Pure function: takes parsed run.json, returns markdown string.
  */
 
+import type { RunMetadata } from '../../types.js';
+
 /**
  * Synthesized diagnostic record
  */
@@ -23,12 +25,12 @@ interface SynthesizedDiagnostic {
  * Currently synthesizes:
  * - MISSING_VALUES_DROPPED (from dropped_rows_missing_values)
  */
-function synthesizeDiagnostics(runJson: Record<string, unknown>): SynthesizedDiagnostic[] {
+function synthesizeDiagnostics(runJson: RunMetadata): SynthesizedDiagnostic[] {
   const diagnostics: SynthesizedDiagnostic[] = [];
 
   // Check dropped_rows_missing_values
   const droppedRows = runJson.dropped_rows_missing_values;
-  if (typeof droppedRows === 'number' && droppedRows > 0) {
+  if (droppedRows > 0) {
     diagnostics.push({
       code: 'MISSING_VALUES_DROPPED',
       severity: 'info',
@@ -44,23 +46,13 @@ function synthesizeDiagnostics(runJson: Record<string, unknown>): SynthesizedDia
  * Render diagnostics summary as markdown
  */
 export function renderDiagnosticsSummary(
-  runJson: Record<string, unknown>,
+  runJson: RunMetadata,
   runId: string
 ): string {
   const lines: string[] = [];
 
   lines.push(`# Diagnostics — ${runId}`);
   lines.push('');
-
-  // Check if we can synthesize diagnostics
-  if (!('dropped_rows_missing_values' in runJson)) {
-    lines.push('## Diagnostics Unavailable');
-    lines.push('');
-    lines.push('Run metadata is missing required fields for diagnostic synthesis.');
-    lines.push('This may be an older run or corrupted metadata.');
-    lines.push('');
-    return lines.join('\n');
-  }
 
   // Synthesize diagnostics
   const diagnostics = synthesizeDiagnostics(runJson);

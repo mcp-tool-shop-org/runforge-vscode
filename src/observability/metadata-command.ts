@@ -9,45 +9,11 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
-import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
+import { safeReadIndex, safeReadRunJson, getActionableMessage } from './fs-safe.js';
 import { openJsonDocument } from './open-summary.js';
-import { WORKSPACE_PATHS } from '../types.js';
+import { WORKSPACE_PATHS, type IndexEntry, type RunIndex, type RunMetadata } from '../types.js';
 
-export interface RunMetadata {
-  run_id: string;
-  runforge_version: string;
-  created_at: string;
-  dataset: {
-    path: string;
-    fingerprint_sha256: string;
-  };
-  label_column: string;
-  num_samples: number;
-  num_features: number;
-  dropped_rows_missing_values: number;
-  metrics: {
-    accuracy: number;
-    num_samples: number;
-    num_features: number;
-  };
-  artifacts: {
-    model_pkl: string;
-  };
-}
-
-export interface ProvenanceIndexEntry {
-  run_id: string;
-  created_at: string;
-  dataset_fingerprint_sha256: string;
-  label_column: string;
-  run_dir: string;
-  model_pkl: string;
-}
-
-export interface ProvenanceIndex {
-  schema_version: string;
-  runs: ProvenanceIndexEntry[];
-}
+export type { RunMetadata } from '../types.js';
 
 /**
  * Get the .ml workspace root path for a workspace
@@ -59,12 +25,12 @@ export function getRunforgeDir(workspaceRoot: string): string {
 /**
  * Load the provenance index from .ml/outputs/index.json
  */
-export async function loadProvenanceIndex(workspaceRoot: string): Promise<ProvenanceIndex | null> {
+export async function loadProvenanceIndex(workspaceRoot: string): Promise<RunIndex | null> {
   const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
 
   try {
     const content = await fs.readFile(indexPath, 'utf-8');
-    return JSON.parse(content) as ProvenanceIndex;
+    return JSON.parse(content) as RunIndex;
   } catch {
     return null;
   }
@@ -73,7 +39,7 @@ export async function loadProvenanceIndex(workspaceRoot: string): Promise<Proven
 /**
  * Get the latest run entry from the index
  */
-export async function getLatestRunEntry(workspaceRoot: string): Promise<ProvenanceIndexEntry | null> {
+export async function getLatestRunEntry(workspaceRoot: string): Promise<IndexEntry | null> {
   const index = await loadProvenanceIndex(workspaceRoot);
   if (!index || index.runs.length === 0) {
     return null;
@@ -152,5 +118,5 @@ export async function getLatestRunMetadataSafe(
     return { ok: false, message: getActionableMessage(runJsonResult.error) };
   }
 
-  return { ok: true, value: runJsonResult.value as RunMetadata };
+  return { ok: true, value: runJsonResult.value };
 }

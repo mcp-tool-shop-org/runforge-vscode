@@ -7,7 +7,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { WORKSPACE_PATHS } from '../types.js';
+import { WORKSPACE_PATHS, type MetricsV1 } from '../types.js';
 import { getLatestRunDir } from './fs-safe.js';
 
 /**
@@ -22,7 +22,7 @@ const PROFILE_NAMES: Record<string, string> = {
 /**
  * Format metrics v1 for display
  */
-export function formatMetricsV1(metrics: Record<string, unknown>): string {
+export function formatMetricsV1(metrics: MetricsV1): string {
   const lines: string[] = [];
 
   lines.push('RunForge Metrics v1');
@@ -30,27 +30,24 @@ export function formatMetricsV1(metrics: Record<string, unknown>): string {
   lines.push('');
 
   // Schema and profile
-  const schemaVersion = metrics['schema_version'] as string || 'unknown';
-  const profile = metrics['metrics_profile'] as string || 'unknown';
-  const profileName = PROFILE_NAMES[profile] || profile;
-  const numClasses = metrics['num_classes'] as number;
+  const profileName = PROFILE_NAMES[metrics.metrics_profile] || metrics.metrics_profile;
 
-  lines.push(`Schema Version:  ${schemaVersion}`);
+  lines.push(`Schema Version:  ${metrics.schema_version}`);
   lines.push(`Metrics Profile: ${profileName}`);
-  lines.push(`Number of Classes: ${numClasses}`);
+  lines.push(`Number of Classes: ${metrics.num_classes}`);
   lines.push('');
 
   // Base metrics
   lines.push('Base Metrics');
   lines.push('-'.repeat(40));
-  lines.push(`Accuracy:        ${formatPercent(metrics['accuracy'] as number)}`);
-  lines.push(`Precision:       ${formatPercent(metrics['precision_macro'] as number)}`);
-  lines.push(`Recall:          ${formatPercent(metrics['recall_macro'] as number)}`);
-  lines.push(`F1 Score:        ${formatPercent(metrics['f1_macro'] as number)}`);
+  lines.push(`Accuracy:        ${formatPercent(metrics.accuracy)}`);
+  lines.push(`Precision:       ${formatPercent(metrics.precision_macro)}`);
+  lines.push(`Recall:          ${formatPercent(metrics.recall_macro)}`);
+  lines.push(`F1 Score:        ${formatPercent(metrics.f1_macro)}`);
   lines.push('');
 
   // Confusion matrix
-  const cm = metrics['confusion_matrix'] as number[][] | undefined;
+  const cm = metrics.confusion_matrix;
   if (cm) {
     lines.push('Confusion Matrix');
     lines.push('-'.repeat(40));
@@ -61,22 +58,19 @@ export function formatMetricsV1(metrics: Record<string, unknown>): string {
   }
 
   // Proba metrics (if present)
-  if ('roc_auc' in metrics) {
+  if (metrics.roc_auc !== undefined) {
     lines.push('Probability Metrics');
     lines.push('-'.repeat(40));
-    lines.push(`ROC-AUC:         ${formatPercent(metrics['roc_auc'] as number)}`);
-    if ('log_loss' in metrics) {
-      lines.push(`Log Loss:        ${(metrics['log_loss'] as number).toFixed(4)}`);
+    lines.push(`ROC-AUC:         ${formatPercent(metrics.roc_auc)}`);
+    if (metrics.log_loss !== undefined) {
+      lines.push(`Log Loss:        ${metrics.log_loss.toFixed(4)}`);
     }
     lines.push('');
   }
 
   // Per-class metrics (if present)
-  if ('per_class_precision' in metrics) {
-    const precision = metrics['per_class_precision'] as number[];
-    const recall = metrics['per_class_recall'] as number[];
-    const f1 = metrics['per_class_f1'] as number[];
-    const labels = metrics['class_labels'] as (string | number)[];
+  if (metrics.per_class_precision && metrics.per_class_recall && metrics.per_class_f1 && metrics.class_labels) {
+    const { per_class_precision: precision, per_class_recall: recall, per_class_f1: f1, class_labels: labels } = metrics;
 
     lines.push('Per-Class Metrics');
     lines.push('-'.repeat(40));
@@ -107,7 +101,7 @@ function formatPercent(value: number): string {
 export async function openMetricsV1InEditor(metricsPath: string): Promise<void> {
   // Create a virtual document with formatted content
   const content = fs.readFileSync(metricsPath, 'utf-8');
-  const metrics = JSON.parse(content);
+  const metrics = JSON.parse(content) as MetricsV1;
   const formatted = formatMetricsV1(metrics);
 
   // Show in output channel for nice formatting

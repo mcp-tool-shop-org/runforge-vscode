@@ -5,13 +5,14 @@
  * Pure function: takes parsed JSON, returns markdown string.
  */
 
+import type { RunMetadata } from '../../types.js';
 import { escapeTableCell } from './escape.js';
 
 /**
  * Render run.json as markdown summary
  */
 export function renderRunSummary(
-  runJson: Record<string, unknown>,
+  runJson: RunMetadata,
   runId: string
 ): string {
   const lines: string[] = [];
@@ -23,64 +24,40 @@ export function renderRunSummary(
   lines.push('## Key Facts');
   lines.push('');
 
-  const version = runJson.runforge_version ?? 'unknown';
-  const createdAt = runJson.created_at ?? 'unknown';
-  const labelColumn = runJson.label_column ?? 'unknown';
-  const numSamples = runJson.num_samples ?? 'unknown';
-  const numFeatures = runJson.num_features ?? 'unknown';
-  const droppedRows = runJson.dropped_rows_missing_values ?? 0;
-
   lines.push(`| Field | Value |`);
   lines.push(`|-------|-------|`);
-  lines.push(`| RunForge Version | ${escapeTableCell(version)} |`);
-  lines.push(`| Created | ${escapeTableCell(formatDate(createdAt))} |`);
-  lines.push(`| Label Column | \`${escapeTableCell(labelColumn)}\` |`);
-  lines.push(`| Samples | ${escapeTableCell(numSamples)} |`);
-  lines.push(`| Features | ${escapeTableCell(numFeatures)} |`);
-  lines.push(`| Dropped Rows | ${escapeTableCell(droppedRows)} |`);
+  lines.push(`| RunForge Version | ${escapeTableCell(runJson.runforge_version)} |`);
+  lines.push(`| Created | ${escapeTableCell(formatDate(runJson.created_at))} |`);
+  lines.push(`| Label Column | \`${escapeTableCell(runJson.label_column)}\` |`);
+  lines.push(`| Samples | ${escapeTableCell(runJson.num_samples)} |`);
+  lines.push(`| Features | ${escapeTableCell(runJson.num_features)} |`);
+  lines.push(`| Dropped Rows | ${escapeTableCell(runJson.dropped_rows_missing_values)} |`);
   lines.push('');
 
   // Dataset section
-  if (runJson.dataset && typeof runJson.dataset === 'object') {
-    const dataset = runJson.dataset as Record<string, unknown>;
-    lines.push('## Dataset');
-    lines.push('');
-    lines.push(`- **Path:** \`${dataset.path ?? 'unknown'}\``);
-    lines.push(`- **Fingerprint:** \`${dataset.fingerprint_sha256 ?? 'unknown'}\``);
-    lines.push('');
-  }
+  lines.push('## Dataset');
+  lines.push('');
+  lines.push(`- **Path:** \`${runJson.dataset.path}\``);
+  lines.push(`- **Fingerprint:** \`${runJson.dataset.fingerprint_sha256}\``);
+  lines.push('');
 
   // Metrics section
-  if (runJson.metrics && typeof runJson.metrics === 'object') {
-    const metrics = runJson.metrics as Record<string, unknown>;
+  if (runJson.metrics) {
     lines.push('## Metrics');
     lines.push('');
     lines.push(`| Metric | Value |`);
     lines.push(`|--------|-------|`);
-
-    if (metrics.accuracy !== undefined) {
-      const accuracy = typeof metrics.accuracy === 'number'
-        ? (metrics.accuracy * 100).toFixed(2) + '%'
-        : metrics.accuracy;
-      lines.push(`| Accuracy | ${escapeTableCell(accuracy)} |`);
-    }
-    if (metrics.num_samples !== undefined) {
-      lines.push(`| Samples | ${escapeTableCell(metrics.num_samples)} |`);
-    }
-    if (metrics.num_features !== undefined) {
-      lines.push(`| Features | ${escapeTableCell(metrics.num_features)} |`);
-    }
+    lines.push(`| Accuracy | ${escapeTableCell((runJson.metrics.accuracy * 100).toFixed(2) + '%')} |`);
+    lines.push(`| Samples | ${escapeTableCell(runJson.metrics.num_samples)} |`);
+    lines.push(`| Features | ${escapeTableCell(runJson.metrics.num_features)} |`);
     lines.push('');
   }
 
   // Artifacts section
-  if (runJson.artifacts && typeof runJson.artifacts === 'object') {
-    const artifacts = runJson.artifacts as Record<string, unknown>;
+  if (runJson.artifacts && runJson.artifacts.model_pkl) {
     lines.push('## Artifacts');
     lines.push('');
-    if (artifacts.model_pkl) {
-      lines.push(`- **Model:** \`${artifacts.model_pkl}\``);
-    }
+    lines.push(`- **Model:** \`${runJson.artifacts.model_pkl}\``);
     lines.push('');
   }
 

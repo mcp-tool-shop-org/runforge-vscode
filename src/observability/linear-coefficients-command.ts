@@ -11,55 +11,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getLatestRunDir } from './fs-safe.js';
-
-/**
- * Feature coefficient data
- */
-interface FeatureCoefficient {
-  name: string;
-  coefficient: number;
-  abs_coefficient: number;
-  rank: number;
-}
-
-/**
- * Coefficients per class
- */
-interface ClassCoefficients {
-  class: number | string;
-  features: FeatureCoefficient[];
-}
-
-/**
- * Intercept per class
- */
-interface ClassIntercept {
-  class: number | string;
-  intercept: number;
-}
-
-/**
- * Top-k per class
- */
-interface ClassTopK {
-  class: number | string;
-  top_features: string[];
-}
-
-/**
- * Linear coefficients artifact structure
- */
-interface LinearCoefficientsArtifact {
-  schema_version: string;
-  model_family: string;
-  coefficient_space: string;
-  num_features: number;
-  num_classes: number;
-  classes: (number | string)[];
-  intercepts: ClassIntercept[];
-  coefficients_by_class: ClassCoefficients[];
-  top_k_by_class: ClassTopK[];
-}
+import type { LinearCoefficients } from '../types.js';
 
 /**
  * Format coefficient as a visual bar
@@ -81,7 +33,7 @@ function formatSign(coefficient: number): string {
 /**
  * Format linear coefficients for display
  */
-export function formatLinearCoefficients(artifact: LinearCoefficientsArtifact): string {
+export function formatLinearCoefficients(artifact: LinearCoefficients): string {
   const lines: string[] = [];
 
   lines.push('RunForge Linear Coefficients');
@@ -159,7 +111,7 @@ export function formatLinearCoefficients(artifact: LinearCoefficientsArtifact): 
 export async function openLinearCoefficientsInEditor(artifactPath: string): Promise<void> {
   // Read and parse the artifact
   const content = fs.readFileSync(artifactPath, 'utf-8');
-  const artifact = JSON.parse(content) as LinearCoefficientsArtifact;
+  const artifact = JSON.parse(content) as LinearCoefficients;
   const formatted = formatLinearCoefficients(artifact);
 
   // Show in output channel for nice formatting
