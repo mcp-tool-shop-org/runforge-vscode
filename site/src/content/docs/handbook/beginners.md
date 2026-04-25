@@ -44,7 +44,7 @@ Open the Command Palette (`Ctrl+Shift+P`), type "RunForge", and select `RunForge
 Open the Command Palette again and run `RunForge: View Latest Metrics`. You'll see accuracy, precision, recall, and F1 scores.
 
 **Minute 5: Explore artifacts**
-Look in your workspace's `.runforge/runs/` folder. Each run has a `run.json` (metadata), `metrics.v1.json` (detailed scores), and `artifacts/model.pkl` (the trained model). Try `RunForge: Browse Runs` for a guided tour.
+Look in your workspace's `.ml/runs/` folder. Each run has a `run.json` (metadata), `metrics.v1.json` (detailed scores), and `artifacts/model.pkl` (the trained model). Try `RunForge: Browse Runs` for a guided tour.
 
 ## Common Mistakes
 
@@ -68,7 +68,7 @@ Look in your workspace's `.runforge/runs/` folder. Each run has a `run.json` (me
 - **StandardScaler** — A preprocessing step that normalizes features to have zero mean and unit variance. Every RunForge model includes this automatically
 - **Preset** — A pre-configured training configuration (std-train for quick runs, hq-train for thorough runs)
 - **Profile** — A named set of hyperparameter overrides (`default`, `fast`, `thorough`). Profiles can change model family and tuning parameters
-- **Run** — A single training execution. Each run produces a `run.json` metadata file and a set of artifacts under `.runforge/runs/<run-id>/`
+- **Run** — A single training execution. Each run produces a `run.json` metadata file and a set of artifacts under `.ml/runs/<run-id>/`
 - **Feature importance** — A measure of how much each input feature contributes to model predictions. Available for Random Forest (Gini importance)
 - **Linear coefficients** — The weights a linear model assigns to each feature. Available for Logistic Regression and Linear SVC. Reported in standardized (scaled) feature space
 - **Interpretability index** — A unified artifact that lists all interpretability outputs for a run, their schema versions, and file paths

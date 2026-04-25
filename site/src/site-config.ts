@@ -18,7 +18,7 @@ export const config: SiteConfig = {
     previews: [
       { label: 'Install', code: 'ext install mcp-tool-shop.runforge' },
       { label: 'Set dataset', code: 'RUNFORGE_DATASET=data.csv\n# CSV must have a "label" column' },
-      { label: 'Train', code: 'Ctrl+Shift+P → RunForge: Train (Standard)\n# → .runforge/runs/<id>/run.json' },
+      { label: 'Train', code: 'Ctrl+Shift+P → RunForge: Train (Standard)\n# → .ml/runs/<id>/run.json' },
     ],
   },
 
@@ -58,7 +58,7 @@ export const config: SiteConfig = {
         },
         {
           title: '3. Train',
-          code: 'Ctrl+Shift+P → RunForge: Train (Standard)\n\n# Artifacts land in:\n.runforge/runs/<run-id>/\n  ├── run.json\n  ├── metrics.v1.json\n  └── artifacts/model.pkl',
+          code: 'Ctrl+Shift+P → RunForge: Train (Standard)\n\n# Artifacts land in:\n.ml/runs/<run-id>/\n  ├── run.json\n  ├── metrics.v1.json\n  └── artifacts/model.pkl',
         },
         {
           title: '4. Inspect results',

@@ -30,10 +30,12 @@ jobs:
       - name: Install site dependencies
         working-directory: site
         run: npm ci
+        timeout-minutes: 10
 
       - name: Build site
         working-directory: site
         run: npm run build
+        timeout-minutes: 5
 
       - uses: actions/upload-pages-artifact@v3
         with:

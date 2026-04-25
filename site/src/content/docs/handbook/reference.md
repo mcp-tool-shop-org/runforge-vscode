@@ -93,14 +93,14 @@ dataset.csv
   Extract interpretability
     |
     v
-  .runforge/runs/<run-id>/
+  .ml/runs/<run-id>/
 ```
 
 Every step is deterministic given the same seed, dataset, and configuration.
 
 ## Artifacts
 
-All run artifacts are saved under `.runforge/runs/<run-id>/`:
+All run artifacts are saved under `.ml/runs/<run-id>/`:
 
 | File | Contents |
 |------|----------|
@@ -157,7 +157,7 @@ Structured diagnostics explain run behavior as machine-readable codes:
 
 ## Security and Data Scope
 
-**Data touched:** workspace CSV files (read-only for training), `.runforge/` directory (run metadata, model artifacts, metrics). Python subprocess stdout/stderr.
+**Data touched:** workspace CSV files (read-only for training), `.ml/` directory (run metadata, model artifacts, metrics). Python subprocess stdout/stderr.
 
 **Data NOT touched:** no files outside the open workspace, no browser data, no OS credentials.
 

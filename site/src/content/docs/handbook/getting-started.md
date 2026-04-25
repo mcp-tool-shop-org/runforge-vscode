@@ -58,7 +58,7 @@ Rows with missing values are dropped automatically (the count is logged).
 
 ### Where Artifacts Go
 
-All run artifacts are saved under `.runforge/runs/<run-id>/`:
+All run artifacts are saved under `.ml/runs/<run-id>/`:
 
 | File | Contents |
 |------|----------|

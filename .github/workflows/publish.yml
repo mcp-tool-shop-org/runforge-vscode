@@ -27,13 +27,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 10
 
       # ── Quality gates (fail fast before packaging) ────────────────
       - name: Run tests
         run: npm test
+        timeout-minutes: 10
 
       - name: Compile (production)
         run: npm run compile
+        timeout-minutes: 5
 
       # ── Version consistency check ─────────────────────────────────
       - name: Verify tag matches package.json version
@@ -50,6 +53,7 @@ jobs:
       # ── Package + Release ─────────────────────────────────────────
       - name: Package VSIX
         run: npx vsce package
+        timeout-minutes: 10
 
       - name: Get version
         id: version
@@ -86,11 +90,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 10
 
       - name: Package VSIX
         run: npx vsce package
+        timeout-minutes: 10
 
       - name: Publish to VS Code Marketplace
+        timeout-minutes: 10
         run: |
           set -e
           echo "VSCE_PAT length: ${#VSCE_PAT}"
