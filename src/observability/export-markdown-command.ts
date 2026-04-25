@@ -182,7 +182,8 @@ function buildMarkdown(
       }
       const stat = fs.statSync(path.join(runDir, file));
       if (stat.isFile()) {
-        lines.push(`| ${escapeTableCell(file)} | \`${escapeTableCell(path.join(runDir, file))}\` |`);
+        // path.posix.join: rendered output is OS-stable; path.join above is for IO.
+        lines.push(`| ${escapeTableCell(file)} | \`${escapeTableCell(path.posix.join(runDir, file))}\` |`);
       }
     }
     // Check artifacts subdirectory
@@ -190,7 +191,7 @@ function buildMarkdown(
     if (fs.existsSync(artifactsDir)) {
       const artifactFiles = fs.readdirSync(artifactsDir);
       for (const file of artifactFiles) {
-        lines.push(`| artifacts/${escapeTableCell(file)} | \`${escapeTableCell(path.join(artifactsDir, file))}\` |`);
+        lines.push(`| artifacts/${escapeTableCell(file)} | \`${escapeTableCell(path.posix.join(runDir, 'artifacts', file))}\` |`);
       }
     }
   } catch (err) {

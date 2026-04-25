@@ -864,9 +864,9 @@ describe('formatInterpretabilityIndex — snapshot', () => {
       Quick Links
       ------------------------------------------------------------
 
-        Metrics:           \\runs\\test\\metrics.v1.json
-        Feature Importance: \\runs\\test\\artifacts\\feature_importance.v1.json
-        Linear Coefficients: \\runs\\test\\artifacts\\linear_coefficients.v1.json
+        Metrics:           /runs/test/metrics.v1.json
+        Feature Importance: /runs/test/artifacts/feature_importance.v1.json
+        Linear Coefficients: /runs/test/artifacts/linear_coefficients.v1.json
 
       Interpretation Guide
       ------------------------------------------------------------
@@ -921,7 +921,7 @@ describe('formatInterpretabilityIndex — snapshot', () => {
       Quick Links
       ------------------------------------------------------------
 
-        Metrics:           \\runs\\test\\metrics.v1.json
+        Metrics:           /runs/test/metrics.v1.json
 
       Interpretation Guide
       ------------------------------------------------------------

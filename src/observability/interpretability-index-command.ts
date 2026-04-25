@@ -86,16 +86,17 @@ export function formatInterpretabilityIndex(index: InterpretabilityIndex, runDir
   lines.push('-'.repeat(60));
   lines.push('');
 
+  // path.posix.join: rendered output uses forward slashes regardless of host OS.
   if (artifacts.metrics_v1) {
-    const metricsPath = path.join(runDir, artifacts.metrics_v1.path);
+    const metricsPath = path.posix.join(runDir, artifacts.metrics_v1.path);
     lines.push(`  Metrics:           ${metricsPath}`);
   }
   if (artifacts.feature_importance_v1) {
-    const fiPath = path.join(runDir, artifacts.feature_importance_v1.path);
+    const fiPath = path.posix.join(runDir, artifacts.feature_importance_v1.path);
     lines.push(`  Feature Importance: ${fiPath}`);
   }
   if (artifacts.linear_coefficients_v1) {
-    const lcPath = path.join(runDir, artifacts.linear_coefficients_v1.path);
+    const lcPath = path.posix.join(runDir, artifacts.linear_coefficients_v1.path);
     lines.push(`  Linear Coefficients: ${lcPath}`);
   }
   lines.push('');
