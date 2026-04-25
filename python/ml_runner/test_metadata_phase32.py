@@ -32,6 +32,9 @@ class TestMetadataWithProfile:
             profile_name="fast",
             profile_version="1.0",
             expanded_parameters_hash="def456",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "profile_name" in metadata
@@ -53,6 +56,9 @@ class TestMetadataWithProfile:
             profile_name="fast",
             profile_version="1.0",
             expanded_parameters_hash="def456",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "profile_version" in metadata
@@ -74,6 +80,9 @@ class TestMetadataWithProfile:
             profile_name="fast",
             profile_version="1.0",
             expanded_parameters_hash="def456789abc",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "expanded_parameters_hash" in metadata
@@ -97,6 +106,9 @@ class TestMetadataWithoutProfile:
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
             # No profile_name provided
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "profile_name" not in metadata
@@ -114,6 +126,9 @@ class TestMetadataWithoutProfile:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "profile_version" not in metadata
@@ -131,6 +146,9 @@ class TestMetadataWithoutProfile:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "expanded_parameters_hash" not in metadata
@@ -148,6 +166,9 @@ class TestMetadataWithoutProfile:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         # Fields should not exist at all
@@ -177,6 +198,9 @@ class TestMetadataWithHyperparameters:
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
             hyperparameters=hyperparams,
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "hyperparameters" in metadata
@@ -198,6 +222,9 @@ class TestMetadataWithHyperparameters:
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
             hyperparameters=[],  # Empty list
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "hyperparameters" not in metadata
@@ -216,6 +243,9 @@ class TestMetadataWithHyperparameters:
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
             hyperparameters=None,
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "hyperparameters" not in metadata
@@ -243,6 +273,9 @@ class TestMetadataVersion:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "runforge_version" in metadata

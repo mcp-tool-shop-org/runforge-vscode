@@ -27,6 +27,7 @@ New writes always emit the canonical 10-field entries.
 
 import json
 import os
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -36,6 +37,116 @@ from typing import Optional, List, Dict, Any
 # 10-field IndexEntry shape (run_id, created_at, name, preset_id, status,
 # summary, run_dir, dataset_fingerprint_sha256, label_column, model_pkl).
 INDEX_SCHEMA_VERSION = "1.0.0"
+
+# Mirrors src/types.ts ARTIFACT_FILENAMES.INDEX_ORPHAN_MARKER. Must stay in sync.
+INDEX_ORPHAN_FILENAME = ".index-orphan"
+
+# Schema id for the orphan marker — must match the `const` in
+# python/ml_runner/contracts/index-orphan.schema.v1.0.0.json.
+INDEX_ORPHAN_SCHEMA_VERSION = "index-orphan.v1.0.0"
+
+
+def _to_workspace_relative(path: Path, workspace_root: Path) -> str:
+    """
+    Convert an absolute path to a workspace-relative POSIX path.
+
+    Falls back to the absolute path (POSIX-normalized) if the path is not
+    under workspace_root — this should be vanishingly rare in production
+    (the runner always lives under .ml/), but the marker writer must not
+    raise on edge cases.
+    """
+    try:
+        rel = path.resolve().relative_to(workspace_root.resolve())
+        return str(rel).replace("\\", "/")
+    except (ValueError, OSError):
+        return str(path).replace("\\", "/")
+
+
+def write_index_orphan_marker(
+    run_dir: Path,
+    run_id: str,
+    workspace_root: Path,
+    index_path: Path,
+    error: BaseException,
+) -> Optional[Path]:
+    """
+    Atomically write the `.index-orphan` marker under `run_dir`.
+
+    Written when `run.json` was successfully created but the canonical index
+    update (`<workspace>/.ml/outputs/index.json`) failed. Read by the TS
+    Bridge to surface a "saved but not indexed" run in the UI rather than
+    silently dropping it from the workspace listing.
+
+    Schema authority: `python/ml_runner/contracts/index-orphan.schema.v1.0.0.json`.
+    Required fields: schema_version, run_id, run_dir, written_at, error,
+    index_path. The `error` object has required `type` and `message` plus
+    optional `traceback`.
+
+    Atomic write: the marker is first written to `<run_dir>/.index-orphan.tmp`
+    and then `os.replace`-d into place. A crash mid-write therefore leaves
+    either no marker or a complete marker — never a corrupted one.
+
+    This function MUST NOT raise. The caller is already in an error path
+    (the index update failed); a marker-write failure is logged and
+    swallowed so it doesn't mask the original error.
+
+    Args:
+        run_dir: Absolute path to the run directory (where the marker lands).
+        run_id: The run id whose index entry failed to land.
+        workspace_root: The workspace root (parent of `.ml/`). Used to
+            normalize `run_dir` and `index_path` to workspace-relative
+            POSIX paths in the marker payload.
+        index_path: Absolute path to the index file the writer was
+            attempting to update.
+        error: The exception raised by `append_run_to_index`.
+
+    Returns:
+        Path to the written marker, or None if the marker write itself
+        failed (e.g., permission error on run_dir). The caller should not
+        treat None as a hard error; it just means the orphan signal will
+        not be visible to the Bridge.
+    """
+    try:
+        # Build the payload conforming to the schema.
+        payload: Dict[str, Any] = {
+            "schema_version": INDEX_ORPHAN_SCHEMA_VERSION,
+            "run_id": run_id,
+            "run_dir": _to_workspace_relative(run_dir, workspace_root),
+            "written_at": datetime.now(timezone.utc).isoformat(),
+            "error": {
+                "type": type(error).__name__,
+                "message": str(error),
+                "traceback": "".join(
+                    traceback.format_exception(type(error), error, error.__traceback__)
+                ),
+            },
+            "index_path": _to_workspace_relative(index_path, workspace_root),
+        }
+
+        marker_path = run_dir / INDEX_ORPHAN_FILENAME
+        tmp_path = run_dir / (INDEX_ORPHAN_FILENAME + ".tmp")
+
+        run_dir.mkdir(parents=True, exist_ok=True)
+
+        # Write tmp + atomic replace.
+        with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(payload, f, indent=2, sort_keys=True, ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp_path, marker_path)
+
+        return marker_path
+    except Exception:
+        # Marker writing is best-effort. The caller is already in an error
+        # path; we must not raise and mask the original failure. Log via
+        # the runtime logger that this function never owns.
+        import logging
+        logging.getLogger(__name__).warning(
+            "Failed to write index-orphan marker for run_id=%s under %s",
+            run_id,
+            run_dir,
+            exc_info=True,
+        )
+        return None
 
 
 def get_index_path(workspace_outputs_dir: Path) -> Path:

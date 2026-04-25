@@ -25,10 +25,13 @@ Phase 3.2: Hyperparameters and profiles
 """
 
 import json
+import logging
 import os
 import pickle
 import random
+import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, List, NamedTuple
 
@@ -37,7 +40,50 @@ import numpy as np
 from .presets import get_preset
 from .inspect import compute_dataset_fingerprint
 from .metadata import generate_run_id, create_run_metadata, write_run_metadata, RUNFORGE_VERSION
-from .provenance import append_run_to_index
+from .provenance import append_run_to_index, write_index_orphan_marker, get_index_path
+
+logger = logging.getLogger(__name__)
+
+
+# F-PY-B004 (iter #5b): Structured event-stream foundation.
+#
+# Contract: structured events go to **stderr** as JSONL. Each event is
+# `{"event": <str>, "timestamp": <ISO-8601 UTC>, ...payload}`. Human-readable
+# progress remains on **stdout** unchanged. The TS Bridge reads stderr line
+# by line; any line that does not parse as a JSON object with an `event`
+# key is treated as a free-form log line.
+#
+# This is FOUNDATION ONLY. Phase 4 builds full progress emission on top of
+# this helper. Today only `run_start` is emitted.
+def emit_event(event_name: str, **payload: Any) -> None:
+    """
+    Write a structured event line to stderr as JSONL.
+
+    Never raises — best-effort. A failure to emit must not break a training
+    run. Each event includes a UTC ISO-8601 timestamp under `timestamp`.
+
+    Args:
+        event_name: Stable event name (e.g., 'run_start'). Goes into the
+            `event` field. Phase 4 will add more events; this function is
+            the single emit site so the contract stays in one place.
+        **payload: Additional JSON-serializable fields for the event.
+    """
+    try:
+        record: Dict[str, Any] = {
+            "event": event_name,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        record.update(payload)
+        line = json.dumps(record, ensure_ascii=False, sort_keys=True)
+        # Use stderr.write + flush so we don't pull in extra logging plumbing
+        # for the contract-bearing channel.
+        sys.stderr.write(line + "\n")
+        sys.stderr.flush()
+    except Exception:
+        # Best-effort: emission must never break the run. Log via standard
+        # logger (which goes to stderr too, but as free-form text — Bridge
+        # ignores non-JSONL stderr lines).
+        logger.warning("Failed to emit structured event %r", event_name, exc_info=True)
 from .model_factory import create_estimator, get_model_display_name
 from .resolver import resolve_config, ResolvedConfig, get_param_provenance
 from .hyperparams import validate_and_convert, HyperparamError
@@ -168,6 +214,17 @@ def run_training(
 
     # Profile can override model_family
     actual_model_family = resolved.model_family
+
+    # F-PY-B004 (iter #5b): emit structured `run_start` event to stderr.
+    # Python's `run_id` is generated later from the dataset fingerprint, so
+    # we surface `out_dir` here (which the TS Bridge already named with the
+    # TS-side run_id). Phase 4 may consolidate the run_id flow and revisit.
+    emit_event(
+        "run_start",
+        preset_id=preset_id,
+        model_family=actual_model_family,
+        out_dir=str(out_dir),
+    )
 
     # Validate and convert hyperparameters to proper types
     typed_hyperparams: Dict[str, Any] = {}
@@ -399,10 +456,10 @@ def run_training(
     # `<workspace>/.ml/outputs/index.json`).
     workspace_outputs_dir = _find_workspace_outputs_dir(out_path)
     if workspace_outputs_dir:
+        # Workspace root is the parent of `.ml/`. All paths in the
+        # index entry are workspace-relative with forward slashes.
+        workspace_root = workspace_outputs_dir.parent.parent
         try:
-            # Workspace root is the parent of `.ml/`. All paths in the
-            # index entry are workspace-relative with forward slashes.
-            workspace_root = workspace_outputs_dir.parent.parent
             run_rel_path = out_path.resolve().relative_to(workspace_root.resolve())
 
             duration_ms = int(time.monotonic() * 1000) - training_start_ms
@@ -429,8 +486,35 @@ def run_training(
             )
             print(f"Provenance index updated: {workspace_outputs_dir / 'index.json'}")
         except Exception as e:
-            # Don't fail training if provenance update fails
-            print(f"Warning: Could not update provenance index: {e}")
+            # F-PY-B002 (iter #5b): Don't fail training if provenance update
+            # fails — but DO leave a structured `.index-orphan` marker under
+            # the run directory so the TS Bridge can surface the run as
+            # "saved but not indexed" rather than silently dropping it.
+            #
+            # The marker shape conforms to
+            # `python/ml_runner/contracts/index-orphan.schema.v1.0.0.json`
+            # and `IndexOrphanMarker` in `src/types.ts`.
+            logger.warning(
+                "Could not update provenance index: %s",
+                e,
+                exc_info=True,
+            )
+            marker_path = write_index_orphan_marker(
+                run_dir=out_path,
+                run_id=run_id,
+                workspace_root=workspace_root,
+                index_path=get_index_path(workspace_outputs_dir),
+                error=e,
+            )
+            if marker_path is not None:
+                print(
+                    f"Warning: provenance index update failed; orphan marker "
+                    f"written at {marker_path}"
+                )
+            else:
+                print(
+                    f"Warning: provenance index update failed: {e}"
+                )
     else:
         print("Note: Not in a .ml workspace, skipping provenance index")
 
@@ -466,9 +550,17 @@ def load_csv(path: Path) -> LoadResult:
         - num_features: Number of features
         - rows_dropped: Count of rows dropped due to missing values
     """
-    # Read CSV manually (stdlib only)
+    # F-PY-B003 (iter #5b): read raw text first so we can strip a UTF-8 BOM
+    # from the first column name. UTF-8-with-BOM CSVs (Excel default on
+    # Windows) inject `﻿` into header[0]; the result was an opaque
+    # "CSV must contain a 'label' column" failure even when the file
+    # clearly had one. Strip silently — Excel users hit this constantly
+    # and the BOM is information-free for our purposes.
     with open(path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+        content = f.read()
+    if content.startswith("﻿"):
+        content = content.lstrip("﻿")
+    lines = content.splitlines(keepends=True)
 
     if len(lines) < 2:
         raise ValueError("CSV must have header row and at least one data row")
@@ -484,10 +576,23 @@ def load_csv(path: Path) -> LoadResult:
     feature_names = [h for i, h in enumerate(header) if i != label_idx]
     num_features = len(feature_names)
 
+    # F-PY-B003 (iter #5b): single-column CSV (only 'label', no features)
+    # used to silently produce num_features=0 and downstream sklearn
+    # warnings. Catch up-front with a specific actionable message.
+    if num_features == 0:
+        raise ValueError(
+            "CSV must have at least one feature column in addition to 'label'."
+        )
+
     # Parse data rows
     data_rows: List[List[float]] = []
     labels: List[float] = []
     rows_dropped = 0
+
+    # F-PY-B003 (iter #5b): track non-empty label values to detect the
+    # all-NaN-label case before the row-drop step swallows it into a
+    # generic "no valid data rows" error.
+    label_has_value = False
 
     for i, line in enumerate(lines[1:], start=2):
         line = line.strip()
@@ -497,6 +602,11 @@ def load_csv(path: Path) -> LoadResult:
         parts = [p.strip() for p in line.split(",")]
         if len(parts) != len(header):
             raise ValueError(f"Row {i}: expected {len(header)} columns, got {len(parts)}")
+
+        # Track whether any row carries a non-empty label cell, regardless
+        # of feature emptiness — feeds the all-NaN-label diagnostic.
+        if parts[label_idx] != "":
+            label_has_value = True
 
         # Check for missing values (empty strings)
         has_missing = any(p == "" for p in parts)
@@ -528,6 +638,15 @@ def load_csv(path: Path) -> LoadResult:
 
     if rows_dropped > 0:
         print(f"Dropped {rows_dropped} rows with missing values")
+
+    # F-PY-B003 (iter #5b): if no data rows had a label value at all, that's
+    # an all-NaN-label dataset — surface a specific message rather than the
+    # downstream "no valid data rows" generic error.
+    if not label_has_value:
+        raise ValueError(
+            "Label column 'label' is empty or all NaN. "
+            "Add at least one numeric label value."
+        )
 
     if not data_rows:
         raise ValueError("CSV has no valid data rows after dropping missing values")

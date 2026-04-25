@@ -46,6 +46,9 @@ class TestSchemaVersionField:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "schema_version" in metadata
@@ -78,22 +81,28 @@ class TestMetricsV1Pointer:
         assert metadata["metrics_v1"]["metrics_profile"] == "classification.proba.v1"
         assert metadata["metrics_v1"]["artifact_path"] == "metrics.v1.json"
 
-    def test_metrics_v1_not_included_when_missing(self):
-        """metrics_v1 is omitted when params not provided."""
-        metadata = create_run_metadata(
-            run_id="test-run",
-            dataset_path="/path/to/data.csv",
-            dataset_fingerprint="abc123" + "0" * 58,
-            label_column="label",
-            num_samples=100,
-            num_features=10,
-            dropped_rows=5,
-            accuracy=0.95,
-            model_pkl_path="artifacts/model.pkl",
-            model_family="logistic_regression",
-        )
+    def test_metrics_v1_required_raises_when_missing(self):
+        """metrics_v1 params are required (run.schema.v0.3.6 marks `metrics_v1` required).
 
-        assert "metrics_v1" not in metadata
+        Updated in iter #5b (F-PY-B001): the silent-omit path was a latent
+        contract violation. Now raises ValueError.
+        """
+        with pytest.raises(ValueError, match="metrics_v1.*required"):
+            create_run_metadata(
+                run_id="test-run",
+                dataset_path="/path/to/data.csv",
+                dataset_fingerprint="abc123" + "0" * 58,
+                label_column="label",
+                num_samples=100,
+                num_features=10,
+                dropped_rows=5,
+                accuracy=0.95,
+                model_pkl_path="artifacts/model.pkl",
+                model_family="logistic_regression",
+                metrics_v1_schema_version=None,  # type: ignore[arg-type]
+                metrics_v1_profile="classification.base.v1",
+                metrics_v1_artifact_path="metrics.v1.json",
+            )
 
     def test_artifacts_includes_metrics_v1_json(self):
         """artifacts contains metrics_v1_json when provided."""

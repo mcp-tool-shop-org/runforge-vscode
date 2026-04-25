@@ -21,8 +21,10 @@
     },
     "run_id": {
       "type": "string",
-      "pattern": "^\\d{8}-\\d{6}-[a-z0-9-]+-[a-f0-9]{4}$",
-      "description": "The run id whose index entry failed to land. Matches the run-folder.ts pattern."
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "description": "The run id whose index entry failed to land. Permissive identifier-shaped pattern accommodating both the TS run-folder.ts 4-segment form (YYYYMMDD-HHMMSS-<slug>-<rand4>) and the Python metadata.generate_run_id 3-segment form (YYYYMMDD-HHMMSS-<8hex>) until those are unified."
     },
     "run_dir": {
       "type": "string",

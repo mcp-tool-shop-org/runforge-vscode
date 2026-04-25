@@ -77,15 +77,15 @@ def create_run_metadata(
     dropped_rows: int,
     accuracy: float,
     model_pkl_path: str,
+    metrics_v1_schema_version: str,
+    metrics_v1_profile: str,
+    metrics_v1_artifact_path: str,
     model_family: str = "logistic_regression",
     created_at: Optional[datetime] = None,
     profile_name: Optional[str] = None,
     profile_version: Optional[str] = None,
     expanded_parameters_hash: Optional[str] = None,
     hyperparameters: Optional[List[Dict[str, Any]]] = None,
-    metrics_v1_schema_version: Optional[str] = None,
-    metrics_v1_profile: Optional[str] = None,
-    metrics_v1_artifact_path: Optional[str] = None,
     feature_importance_schema_version: Optional[str] = None,
     feature_importance_artifact_path: Optional[str] = None,
     linear_coefficients_schema_version: Optional[str] = None,
@@ -97,8 +97,14 @@ def create_run_metadata(
     Phase 2.2.1 fields: run.schema.v0.2.2.1
     Phase 3.1 addition: model_family
     Phase 3.2 addition: profile info and hyperparameters (optional)
-    Phase 3.3 addition: schema_version, metrics_v1 pointer
+    Phase 3.3 addition: schema_version, metrics_v1 pointer (REQUIRED — see schema)
     Phase 3.4 addition: feature_importance pointer (optional)
+
+    Contract: `metrics_v1` is REQUIRED by `run.schema.v0.3.6.json` (the
+    `required` list at lines 183-197). All three `metrics_v1_*` parameters
+    must be non-empty strings; passing None or "" raises ValueError. This
+    used to be a silent-omit path (pre-iter-#5b) — the conditional was
+    unreachable in practice but a latent contract violation.
 
     Args:
         run_id: Unique run identifier
@@ -110,15 +116,15 @@ def create_run_metadata(
         dropped_rows: Rows dropped due to missing values
         accuracy: Validation accuracy
         model_pkl_path: Relative path to model.pkl
+        metrics_v1_schema_version: Schema version from metrics.v1.json (Phase 3.3, REQUIRED)
+        metrics_v1_profile: Metrics profile from metrics.v1.json (Phase 3.3, REQUIRED)
+        metrics_v1_artifact_path: Relative path to metrics.v1.json (Phase 3.3, REQUIRED)
         model_family: Model family used (Phase 3.1)
         created_at: Optional fixed timestamp (for determinism)
         profile_name: Training profile name (Phase 3.2, omit if None)
         profile_version: Training profile version (Phase 3.2, omit if None)
         expanded_parameters_hash: SHA-256 of expanded profile params (Phase 3.2, omit if None)
         hyperparameters: List of {name, value, source} dicts (Phase 3.2, omit if empty)
-        metrics_v1_schema_version: Schema version from metrics.v1.json (Phase 3.3)
-        metrics_v1_profile: Metrics profile from metrics.v1.json (Phase 3.3)
-        metrics_v1_artifact_path: Relative path to metrics.v1.json (Phase 3.3)
         feature_importance_schema_version: Schema version from feature_importance.v1.json (Phase 3.4)
         feature_importance_artifact_path: Relative path to feature_importance.v1.json (Phase 3.4)
         linear_coefficients_schema_version: Schema version from linear_coefficients.v1.json (Phase 3.5)
@@ -126,7 +132,28 @@ def create_run_metadata(
 
     Returns:
         Metadata dict conforming to schema
+
+    Raises:
+        ValueError: If any required metrics_v1_* parameter is None or empty.
     """
+    # F-PY-B001 (iter #5b): metrics_v1 is REQUIRED by run.schema.v0.3.6.json.
+    # Replace silent-omit with explicit error so contract violations surface.
+    if not metrics_v1_schema_version:
+        raise ValueError(
+            "metrics_v1_schema_version is required (run.schema.v0.3.6.json marks "
+            "`metrics_v1` as required). Got None or empty string."
+        )
+    if not metrics_v1_profile:
+        raise ValueError(
+            "metrics_v1_profile is required (run.schema.v0.3.6.json marks "
+            "`metrics_v1` as required). Got None or empty string."
+        )
+    if not metrics_v1_artifact_path:
+        raise ValueError(
+            "metrics_v1_artifact_path is required (run.schema.v0.3.6.json marks "
+            "`metrics_v1` as required). Got None or empty string."
+        )
+
     if created_at is None:
         fixed_time = os.environ.get("RUNFORGE_TEST_FIXED_TIME")
         if fixed_time:
@@ -158,14 +185,13 @@ def create_run_metadata(
         },
     }
 
-    # Phase 3.3: Add metrics_v1 pointer if provided
-    if metrics_v1_schema_version and metrics_v1_profile and metrics_v1_artifact_path:
-        metadata["metrics_v1"] = {
-            "schema_version": metrics_v1_schema_version,
-            "metrics_profile": metrics_v1_profile,
-            "artifact_path": metrics_v1_artifact_path,
-        }
-        metadata["artifacts"]["metrics_v1_json"] = metrics_v1_artifact_path
+    # Phase 3.3: metrics_v1 pointer (always written — REQUIRED by schema)
+    metadata["metrics_v1"] = {
+        "schema_version": metrics_v1_schema_version,
+        "metrics_profile": metrics_v1_profile,
+        "artifact_path": metrics_v1_artifact_path,
+    }
+    metadata["artifacts"]["metrics_v1_json"] = metrics_v1_artifact_path
 
     # Phase 3.4: Add feature importance pointer if available
     if feature_importance_schema_version and feature_importance_artifact_path:

@@ -392,6 +392,9 @@ class TestMetadataModelFamily:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="random_forest",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "model_family" in metadata
@@ -412,6 +415,9 @@ class TestMetadataModelFamily:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             # No model_family specified
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert metadata["model_family"] == "logistic_regression"
@@ -432,6 +438,9 @@ class TestMetadataModelFamily:
                 accuracy=0.95,
                 model_pkl_path="artifacts/model.pkl",
                 model_family=model,
+                metrics_v1_schema_version="metrics.v1",
+                metrics_v1_profile="classification.base.v1",
+                metrics_v1_artifact_path="metrics.v1.json",
             )
 
             assert metadata["model_family"] == model

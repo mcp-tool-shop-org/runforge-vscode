@@ -52,6 +52,9 @@ class TestLinearCoefficientsPointer:
             model_family="logistic_regression",
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "linear_coefficients_schema_version" in metadata
@@ -72,6 +75,9 @@ class TestLinearCoefficientsPointer:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="random_forest",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "linear_coefficients_schema_version" not in metadata
@@ -92,6 +98,9 @@ class TestLinearCoefficientsPointer:
             model_family="logistic_regression",
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "linear_coefficients_json" in metadata["artifacts"]
@@ -110,6 +119,9 @@ class TestLinearCoefficientsPointer:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="random_forest",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "linear_coefficients_json" not in metadata["artifacts"]
@@ -137,6 +149,9 @@ class TestCoexistenceWithFeatureImportance:
             feature_importance_artifact_path="artifacts/feature_importance.v1.json",
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         # Both present
@@ -158,6 +173,9 @@ class TestCoexistenceWithFeatureImportance:
             model_family="random_forest",
             feature_importance_schema_version="feature_importance.v1",
             feature_importance_artifact_path="artifacts/feature_importance.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "feature_importance_schema_version" in metadata
@@ -178,6 +196,9 @@ class TestCoexistenceWithFeatureImportance:
             model_family="logistic_regression",
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "feature_importance_schema_version" not in metadata
@@ -202,6 +223,9 @@ class TestBackwardCompatibility:
             model_family="random_forest",
             feature_importance_schema_version="feature_importance.v1",
             feature_importance_artifact_path="artifacts/feature_importance.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert metadata["feature_importance_schema_version"] == "feature_importance.v1"
@@ -250,6 +274,9 @@ class TestBackwardCompatibility:
             expanded_parameters_hash="def456" + "0" * 58,
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert metadata["profile_name"] == "fast"
@@ -270,6 +297,9 @@ class TestBackwardCompatibility:
             model_family="logistic_regression",
             linear_coefficients_schema_version="linear_coefficients.v1",
             linear_coefficients_artifact_path="artifacts/linear_coefficients.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "metrics" in metadata

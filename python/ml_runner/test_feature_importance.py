@@ -460,6 +460,9 @@ class TestMetadataIntegration:
             model_family="random_forest",
             feature_importance_schema_version="feature_importance.v1",
             feature_importance_artifact_path="artifacts/feature_importance.v1.json",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "feature_importance_schema_version" in metadata
@@ -483,6 +486,9 @@ class TestMetadataIntegration:
             accuracy=0.95,
             model_pkl_path="artifacts/model.pkl",
             model_family="logistic_regression",
+            metrics_v1_schema_version="metrics.v1",
+            metrics_v1_profile="classification.base.v1",
+            metrics_v1_artifact_path="metrics.v1.json",
         )
 
         assert "feature_importance_schema_version" not in metadata

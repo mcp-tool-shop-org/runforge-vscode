@@ -7,6 +7,8 @@ Phase 2.1: CSV-based classification with Logistic Regression.
 - 80/20 deterministic train/val split
 - Strict metrics schema (3 keys only)
 - Pipeline artifact (includes preprocessing)
-"""
 
-__version__ = "0.2.1"
+Note: Canonical version lives in `metadata.RUNFORGE_VERSION`. The legacy
+`__version__` attribute that lived here was removed in iter #5b — it had
+no consumers and was drifting from the canonical value.
+"""
