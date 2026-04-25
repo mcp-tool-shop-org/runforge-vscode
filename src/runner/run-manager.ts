@@ -28,6 +28,26 @@ import {
   type ParsedEvent,
 } from '../observability/event-stream-consumer.js';
 import { readCancelledMarker } from '../observability/cancelled-marker-reader.js';
+import type { SafeError } from '../observability/fs-safe.js';
+
+/**
+ * Phase 4 (FT-BACK-005): canonical workspace-trust-guard error message.
+ *
+ * Surfaced verbatim via `vscode.window.showErrorMessage` when
+ * `vscode.workspace.isTrusted` is false at the start of `executeRun`. The
+ * humanization-lens copy points users at the standard VS Code "Trust this
+ * Workspace" affordances (banner + status-bar badge) instead of leaving them
+ * staring at a raw permission failure.
+ *
+ * Exported so tests can assert on the verbatim text without duplicating the
+ * literal — same canonical-constant pattern as `ARTIFACT_FILENAMES` /
+ * `WORKSPACE_PATHS` in `src/types.ts`.
+ */
+export const WORKSPACE_NOT_TRUSTED_MESSAGE =
+  "This workspace is restricted. RunForge cannot spawn the Python subprocess to train models in untrusted workspaces. Click 'Trust this Workspace' in the workspace trust banner (or the trust badge in the status bar) to enable training.";
+
+export const WORKSPACE_NOT_TRUSTED_RECOVERY_HINT =
+  "Trust the workspace via VS Code's workspace trust UI, then re-run training.";
 
 /** Output channel for training logs */
 let outputChannel: vscode.OutputChannel | undefined;
@@ -260,6 +280,28 @@ export async function executeRun(
   cancellationToken?: vscode.CancellationToken,
   progress?: vscode.Progress<{ message?: string; increment?: number }>
 ): Promise<void> {
+  // Phase 4 (FT-BACK-005): workspace-trust guard — gate Python subprocess
+  // spawn on `vscode.workspace.isTrusted`. Untrusted workspaces never reach
+  // `spawnRunner`; the user gets an actionable error pointing at VS Code's
+  // standard trust affordances. We deliberately do NOT auto-call
+  // `requestWorkspaceTrust()` — that pops a modal and yanks the user out of
+  // their flow. Instead the user clicks the workspace-trust banner or the
+  // trust badge in the status bar, then re-invokes the command.
+  if (!vscode.workspace.isTrusted) {
+    const safeError: SafeError = {
+      code: 'WORKSPACE_NOT_TRUSTED',
+      message: WORKSPACE_NOT_TRUSTED_MESSAGE,
+      path: workspaceRoot,
+      recoveryHint: WORKSPACE_NOT_TRUSTED_RECOVERY_HINT,
+      retryable: true,
+    };
+    void vscode.window.showErrorMessage(safeError.message);
+    const channel = getOutputChannel();
+    channel.appendLine('');
+    channel.appendLine(`ERROR: ${safeError.message}`);
+    return;
+  }
+
   // Check if already running
   if (activeRun) {
     vscode.window.showWarningMessage('A training run is already in progress.');

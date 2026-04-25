@@ -19,9 +19,15 @@ export type SafeResult<T> =
 
 /**
  * Structured error information
+ *
+ * Phase 4 (FT-BACK-005): `WORKSPACE_NOT_TRUSTED` is the workspace-trust-guard
+ * code surfaced by `executeRun` when `vscode.workspace.isTrusted` is false.
+ * Per docs/TRUST_MODEL.md, RunForge spawns a Python subprocess that loads a
+ * dataset and writes artifacts under `.ml/`; both surfaces are gated on the
+ * workspace being trusted by VS Code.
  */
 export interface SafeError {
-  code: 'NOT_FOUND' | 'CORRUPT_JSON' | 'READ_ERROR' | 'PARSE_ERROR';
+  code: 'NOT_FOUND' | 'CORRUPT_JSON' | 'READ_ERROR' | 'PARSE_ERROR' | 'WORKSPACE_NOT_TRUSTED';
   message: string;
   path: string;
   recoveryHint?: string;
