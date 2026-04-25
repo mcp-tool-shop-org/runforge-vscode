@@ -19,6 +19,7 @@ import { viewLatestFeatureImportance } from './observability/feature-importance-
 import { viewLatestLinearCoefficients } from './observability/linear-coefficients-command.js';
 import { viewLatestInterpretabilityIndex } from './observability/interpretability-index-command.js';
 import { exportLatestRunAsMarkdown } from './observability/export-markdown-command.js';
+import { recoverIndex } from './observability/recover-index-command.js';
 import { WORKSPACE_PATHS, type PresetId } from './types.js';
 
 /** Extension path for bundled runner */
@@ -64,7 +65,10 @@ export function activate(context: vscode.ExtensionContext): void {
     // not externally fireable.
     vscode.commands.registerCommand('runforge.cancelActiveRun', () =>
       killActiveRun('user cancelled via runforge.cancelActiveRun command')
-    )
+    ),
+    // Phase 4 (FT-BACK-002): walk .ml/runs/, re-append unindexed runs to
+    // .ml/outputs/index.json. Antidote to F-PY-B002 orphan-marker scenarios.
+    vscode.commands.registerCommand('runforge.recoverIndex', () => recoverIndex())
   );
 }
 

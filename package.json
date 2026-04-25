@@ -118,6 +118,12 @@
         "title": "Cancel Active Training",
         "category": "RunForge",
         "icon": "$(stop-circle)"
+      },
+      {
+        "command": "runforge.recoverIndex",
+        "title": "Recover Index",
+        "category": "RunForge",
+        "icon": "$(refresh)"
       }
     ],
     "configuration": {
