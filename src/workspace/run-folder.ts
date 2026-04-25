@@ -6,7 +6,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { RunIdComponents, RunRequest, RunResult } from '../types.js';
-import { WORKSPACE_PATHS } from '../types.js';
+import { ARTIFACT_FILENAMES, WORKSPACE_PATHS } from '../types.js';
 
 /**
  * Generate a unique run ID
@@ -108,7 +108,7 @@ export async function createRunFolder(workspaceRoot: string, runId: string): Pro
  * Write request.json to run folder
  */
 export async function writeRequest(runDir: string, request: RunRequest): Promise<void> {
-  const filePath = path.join(runDir, 'request.json');
+  const filePath = path.join(runDir, ARTIFACT_FILENAMES.REQUEST_JSON);
   await fs.writeFile(filePath, JSON.stringify(request, null, 2), 'utf-8');
 }
 
@@ -116,7 +116,7 @@ export async function writeRequest(runDir: string, request: RunRequest): Promise
  * Write result.json to run folder
  */
 export async function writeResult(runDir: string, result: RunResult): Promise<void> {
-  const filePath = path.join(runDir, 'result.json');
+  const filePath = path.join(runDir, ARTIFACT_FILENAMES.RESULT_JSON);
   await fs.writeFile(filePath, JSON.stringify(result, null, 2), 'utf-8');
 }
 
@@ -124,7 +124,7 @@ export async function writeResult(runDir: string, result: RunResult): Promise<vo
  * Append to logs.txt in run folder
  */
 export async function appendLog(runDir: string, line: string): Promise<void> {
-  const filePath = path.join(runDir, 'logs.txt');
+  const filePath = path.join(runDir, ARTIFACT_FILENAMES.LOGS_TXT);
   await fs.appendFile(filePath, line + '\n', 'utf-8');
 }
 
@@ -132,7 +132,7 @@ export async function appendLog(runDir: string, line: string): Promise<void> {
  * Read metrics.json from run folder (if exists)
  */
 export async function readMetrics(runDir: string): Promise<Record<string, number>> {
-  const filePath = path.join(runDir, 'metrics.json');
+  const filePath = path.join(runDir, ARTIFACT_FILENAMES.METRICS_JSON);
   try {
     const content = await fs.readFile(filePath, 'utf-8');
     const metrics = JSON.parse(content);
