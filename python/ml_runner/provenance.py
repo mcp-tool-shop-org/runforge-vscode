@@ -23,6 +23,13 @@ appear in the wild from earlier iterations:
   pre-iter-#5a Python writer
 Both are normalized to the canonical `{schema_version, runs}` shape on read.
 New writes always emit the canonical 10-field entries.
+
+Phase 4 (FT-PY-004) addition:
+- `write_cancelled_marker()` — atomic writer for the `.cancelled` marker file
+  conforming to `cancelled.schema.v1.0.0.json`. Pairs with the `run_cancelled`
+  event emitted by `runner.py`'s SIGTERM handler. Either signal (marker on
+  disk, event on stderr) is sufficient for the TS Bridge to detect graceful
+  cancel per CONTRACT-PHASE-4.md §3.1.3 source-of-truth doctrine.
 """
 
 import json
@@ -44,6 +51,29 @@ INDEX_ORPHAN_FILENAME = ".index-orphan"
 # Schema id for the orphan marker — must match the `const` in
 # python/ml_runner/contracts/index-orphan.schema.v1.0.0.json.
 INDEX_ORPHAN_SCHEMA_VERSION = "index-orphan.v1.0.0"
+
+# Phase 4 (FT-PY-004): cancellation marker contract.
+#
+# Mirrors src/types.ts ARTIFACT_FILENAMES.CANCELLED_MARKER (Backend agent
+# adds the TS-side constant in the parallel Wave 2 commit). Must stay in
+# sync — both writers/readers must point at the same on-disk filename.
+CANCELLED_FILENAME = ".cancelled"
+
+# Schema id for the cancellation marker — must match the `const` in
+# python/ml_runner/contracts/cancelled.schema.v1.0.0.json.
+CANCELLED_SCHEMA_VERSION = "cancelled.v1.0.0"
+
+# Allowed values for the `step` field of the cancellation marker / event.
+# Mirrors the enum in cancelled.schema.v1.0.0.json + events.schema.v1.json
+# `cancelling`/`run_cancelled` definitions. Single source so runner.py
+# imports one constant rather than literal-stringly listing the enum twice.
+CANCEL_STEPS = (
+    "dataset_loading",
+    "training",
+    "metrics_computation",
+    "artifact_writing",
+    "shutdown",
+)
 
 
 def _to_workspace_relative(path: Path, workspace_root: Path) -> str:
@@ -142,6 +172,109 @@ def write_index_orphan_marker(
         import logging
         logging.getLogger(__name__).warning(
             "Failed to write index-orphan marker for run_id=%s under %s",
+            run_id,
+            run_dir,
+            exc_info=True,
+        )
+        return None
+
+
+def write_cancelled_marker(
+    *,
+    run_dir: Path,
+    run_id: str,
+    workspace_root: Path,
+    step: str,
+    reason: Optional[str] = None,
+    partial_artifacts: Optional[List[str]] = None,
+) -> Optional[Path]:
+    """
+    Atomically write the `.cancelled` marker under `run_dir`.
+
+    Written by the SIGTERM handler in `runner.run_training()` after graceful
+    cleanup completes. Pairs with the `run_cancelled` event emitted on
+    stderr — both signals are redundant by design (CONTRACT-PHASE-4.md
+    §3.1.3): either is sufficient for the TS Bridge to detect graceful
+    cancel even if the other was lost.
+
+    Schema authority: `python/ml_runner/contracts/cancelled.schema.v1.0.0.json`.
+    Required fields: schema_version, run_id, run_dir, cancelled_at, step.
+    Optional fields: reason, partial_artifacts.
+
+    Atomic write: payload is first written to `<run_dir>/.cancelled.tmp`
+    and then `os.replace`-d into place. A crash mid-write therefore leaves
+    either no marker or a complete marker — never a corrupted one. This is
+    the property §3.1.3 relies on for race-free graceful detection.
+
+    Best-effort: this function MUST NOT raise. The caller is in a cancel
+    path; a marker-write failure is logged and swallowed so the
+    `run_cancelled` event remains the redundant signal carrier. If both
+    fail, the TS Bridge falls back to "Cancelled (forced)" via SIGKILL +
+    no-marker-no-event detection.
+
+    Args:
+        run_dir: Absolute path to the run directory (where the marker lands).
+        run_id: The run id whose training was cancelled. Permissive identifier
+            shape — matches both Python 3-segment and TS 4-segment forms per
+            F-COORD-012 (unification deferred to Phase 5+).
+        workspace_root: The workspace root (parent of `.ml/`). Used to
+            normalize `run_dir` to a workspace-relative POSIX path in the
+            marker payload.
+        step: Which run phase the cancel was caught during. Must be one of
+            CANCEL_STEPS. Bridge UI uses this to surface what work was lost
+            (e.g., "cancelled during training — no metrics" vs "cancelled
+            during artifact writing — partial artifacts may exist").
+        reason: Optional human-readable trigger (e.g., "user cancelled via
+            SIGTERM").
+        partial_artifacts: Optional list of workspace-relative paths to any
+            artifacts that were partially or fully written before the cancel
+            completed. Lets the UI offer "Open partial artifacts" instead of
+            treating the run dir as empty.
+
+    Returns:
+        Path to the written marker, or None if the marker write itself
+        failed (permission error, disk full, etc.). The caller does not
+        treat None as fatal — it just means the on-disk signal will not be
+        visible to the Bridge; the `run_cancelled` event still provides
+        the redundant detection path.
+    """
+    try:
+        # Build the payload conforming to the schema.
+        payload: Dict[str, Any] = {
+            "schema_version": CANCELLED_SCHEMA_VERSION,
+            "run_id": run_id,
+            "run_dir": _to_workspace_relative(run_dir, workspace_root),
+            "cancelled_at": datetime.now(timezone.utc).isoformat(),
+            "step": step,
+        }
+        if reason is not None:
+            payload["reason"] = reason
+        if partial_artifacts is not None:
+            # Normalize each path to forward slashes; tolerate already-relative.
+            payload["partial_artifacts"] = [
+                str(p).replace("\\", "/") for p in partial_artifacts
+            ]
+
+        marker_path = run_dir / CANCELLED_FILENAME
+        tmp_path = run_dir / (CANCELLED_FILENAME + ".tmp")
+
+        run_dir.mkdir(parents=True, exist_ok=True)
+
+        # Write tmp + atomic replace. The tmp-then-replace dance is the
+        # contract: partial markers cannot exist (CONTRACT-PHASE-4.md §3.1.1).
+        with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(payload, f, indent=2, sort_keys=True, ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp_path, marker_path)
+
+        return marker_path
+    except Exception:
+        # Marker writing is best-effort. The caller is in a cancel path;
+        # we must not raise and mask the original cancel signal flow. Log
+        # via the runtime logger that this function never owns.
+        import logging
+        logging.getLogger(__name__).warning(
+            "Failed to write cancelled marker for run_id=%s under %s",
             run_id,
             run_dir,
             exc_info=True,
