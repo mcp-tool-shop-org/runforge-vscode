@@ -37,6 +37,90 @@ import { formatFeatureImportance } from '../src/observability/feature-importance
 import { formatLinearCoefficients } from '../src/observability/linear-coefficients-command.js';
 import { formatInterpretabilityIndex } from '../src/observability/interpretability-index-command.js';
 
+// ── Markdown-injection robustness (F-TESTS-008) ──────────────────────────────
+
+describe('formatters with markdown-injection inputs', () => {
+  it('formatInspectResult handles columns with pipe, backtick, and special chars', () => {
+    const result = {
+      dataset_path: '/data/x.csv',
+      fingerprint_sha256: 'a'.repeat(64),
+      columns: ['col|with|pipes', 'col`with`backticks', 'col[with]brackets', 'label'],
+      num_rows: 10,
+      label_column: 'label',
+      num_features_excluding_label: 3,
+      label_present: true,
+    };
+    const output = formatInspectResult(result);
+    expect(output.length).toBeGreaterThan(0);
+    expect(output).toContain('col|with|pipes');
+    expect(output).toContain('col`with`backticks');
+  });
+
+  it('formatMetricsV1 handles class labels with pipes without crashing', () => {
+    const metrics = {
+      schema_version: '0.3.3',
+      metrics_profile: 'classification.base.v1',
+      num_classes: 2,
+      accuracy: 0.9,
+      precision_macro: 0.9,
+      recall_macro: 0.9,
+      f1_macro: 0.9,
+      class_labels: ['class|A', 'class|B'],
+      confusion_matrix: [[5, 0], [0, 5]],
+    };
+    const output = formatMetricsV1(metrics);
+    expect(output.length).toBeGreaterThan(0);
+    expect(typeof output).toBe('string');
+  });
+
+  it('formatFeatureImportance handles feature names with markdown specials', () => {
+    const artifact = {
+      schema_version: '0.3.4',
+      model_family: 'random_forest',
+      importance_type: 'gini',
+      num_features: 2,
+      features_by_importance: [
+        { name: 'f|with|pipe', importance: 0.6, rank: 1, index: 0 },
+        { name: '*bold*_under_', importance: 0.4, rank: 2, index: 1 },
+      ],
+      features_by_original_order: [
+        { name: 'f|with|pipe', importance: 0.6, rank: 1, index: 0 },
+        { name: '*bold*_under_', importance: 0.4, rank: 2, index: 1 },
+      ],
+      top_k: ['f|with|pipe'],
+    };
+    const output = formatFeatureImportance(artifact);
+    expect(output.length).toBeGreaterThan(0);
+    expect(output).toContain('f|with|pipe');
+  });
+
+  it('formatLinearCoefficients handles feature names with backticks and newlines safely', () => {
+    const artifact = {
+      schema_version: '0.3.5',
+      model_family: 'logistic_regression',
+      coefficient_space: 'standardized',
+      num_features: 2,
+      num_classes: 2,
+      classes: [0, 1],
+      intercepts: [{ class: 1, intercept: 0.1 }],
+      coefficients_by_class: [
+        {
+          class: 1,
+          features: [
+            { name: '`code_col`', coefficient: 1.0, abs_coefficient: 1.0, rank: 1 },
+            { name: 'multi\nline', coefficient: -0.5, abs_coefficient: 0.5, rank: 2 },
+          ],
+        },
+      ],
+      top_k_by_class: [{ class: 1, top_features: ['`code_col`', 'multi\nline'] }],
+    };
+    const output = formatLinearCoefficients(artifact);
+    // Must not throw and must produce non-empty output.
+    expect(output.length).toBeGreaterThan(0);
+    expect(typeof output).toBe('string');
+  });
+});
+
 // ── formatInspectResult ──────────────────────────────────────────────────────
 
 describe('formatInspectResult', () => {

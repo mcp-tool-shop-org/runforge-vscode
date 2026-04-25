@@ -165,6 +165,37 @@ describe('fs-safe', () => {
     });
   });
 
+  describe('readJsonFile path-traversal handling (F-TESTS-005)', () => {
+    it('returns a structured error (no throw) when given a parent-traversal path', async () => {
+      const traversalPath = path.join(testDir, '..', '..', '..', 'etc', 'passwd');
+      const result = await readJsonFile(traversalPath);
+      // Behavior contract: never throw; always SafeResult.
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(['NOT_FOUND', 'READ_ERROR', 'CORRUPT_JSON']).toContain(result.error.code);
+      }
+    });
+
+    it('returns a structured error for an empty-string path', async () => {
+      const result = await readJsonFile('');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(['NOT_FOUND', 'READ_ERROR']).toContain(result.error.code);
+      }
+    });
+
+    it('handles a Windows-style backslash path without throwing', async () => {
+      const filePath = path.join(testDir, 'with-backslashes.json');
+      await fs.writeFile(filePath, '{"ok":true}');
+      // Replace forward slashes with backslashes to simulate raw Windows input.
+      const winStyle = filePath.replace(/\//g, '\\');
+      const result = await readJsonFile<{ ok: boolean }>(winStyle);
+      // On POSIX this becomes NOT_FOUND; on Windows it should resolve.
+      // Either way: structured result, never throw.
+      expect(typeof result.ok).toBe('boolean');
+    });
+  });
+
   describe('safeReadRunJson', () => {
     it('returns ok result for valid run.json', async () => {
       const runforgeDir = path.join(testDir, '.runforge');
