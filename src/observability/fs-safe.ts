@@ -8,7 +8,7 @@
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
-import { WORKSPACE_PATHS } from '../types.js';
+import { WORKSPACE_PATHS, type RunIndex } from '../types.js';
 
 /**
  * Result type for safe operations
@@ -39,13 +39,6 @@ export interface IndexEntry {
   label_column: string;
   run_dir: string;
   model_pkl: string;
-}
-
-/**
- * Index file structure
- */
-export interface RunIndex {
-  runs: IndexEntry[];
 }
 
 /**
