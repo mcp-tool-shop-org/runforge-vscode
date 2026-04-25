@@ -122,6 +122,10 @@ export function spawnRunner(
     '--device', options.device, // Extension decides device, runner must respect
   ];
 
+  if (options.name !== undefined) {
+    args.push('--name', options.name);
+  }
+
   if (options.seed !== undefined) {
     args.push('--seed', String(options.seed));
   }

@@ -6,7 +6,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
-import type { PresetId, RunRequest, RunResult, IndexEntry, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
+import type { PresetId, RunRequest, RunResult, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
 import { checkPython, spawnRunner, type RunnerCallbacks } from './python-runner.js';
 import { detectGpu, selectDevice, getCpuFallbackMessage, formatBytes } from './gpu-probe.js';
 import {
@@ -16,9 +16,8 @@ import {
   writeResult,
   appendLog,
   readMetrics,
-  toWorkspaceRelativePath,
 } from '../workspace/run-folder.js';
-import { appendToIndex, createTimestamp } from '../workspace/index-manager.js';
+import { createTimestamp } from '../workspace/index-manager.js';
 import { getPreset } from '../presets/registry.js';
 import { formatDuration } from '../utils/format.js';
 
@@ -285,6 +284,7 @@ export async function executeRun(
     const proc = spawnRunner(pythonPath, BUNDLED_RUNNER_MODULE, {
       preset_id: presetId,
       run_dir: runDir,
+      name,
       seed,
       device: actualDevice,
       cwd: workspaceRoot,
@@ -413,7 +413,13 @@ export function isOomError(line: string): boolean {
 
 /**
  * Handle run completion with proper cleanup.
- * @param workspaceRoot Workspace folder; index.json + run dir live under .ml/.
+ *
+ * Iter #5a: This function no longer writes index.json — Python ml_runner is
+ * the single writer (consolidation; same pattern as F-COORD-003). TS only
+ * writes result.json (per-run) and reads metrics for the completion log.
+ *
+ * @param _workspaceRoot Workspace folder. Retained for signature stability;
+ *   unused after the index-writer move to Python.
  * @param runDir Absolute path to this run's folder.
  * @param request Original run request (already written to request.json).
  * @param result Final result from runner; may be overridden upstream when aborted.
@@ -421,7 +427,7 @@ export function isOomError(line: string): boolean {
  * @param runToken Token guarding against state mutation by a stale callback.
  */
 async function handleRunComplete(
-  workspaceRoot: string,
+  _workspaceRoot: string,
   runDir: string,
   request: RunRequest,
   result: RunResult,
@@ -438,34 +444,13 @@ async function handleRunComplete(
       channel.appendLine(`WARN: Failed to write result.json: ${e}`);
     }
 
-    // Read metrics if available
+    // Read metrics if available (for completion-log display only — index.json
+    // is now written by Python ml_runner; iter #5a consolidation).
     let finalMetrics: Record<string, number> = {};
     try {
       finalMetrics = await readMetrics(runDir);
     } catch {
       // No metrics file or invalid JSON - that's OK
-    }
-
-    // Create index entry with device tracking
-    const indexEntry: IndexEntry = {
-      run_id: request.run_id,
-      created_at: request.created_at,
-      name: request.name,
-      preset_id: request.preset_id,
-      status: result.status,
-      run_dir: toWorkspaceRelativePath(workspaceRoot, runDir),
-      summary: {
-        duration_ms: result.duration_ms,
-        final_metrics: finalMetrics,
-        device: device,
-      },
-    };
-
-    // Append to index
-    try {
-      await appendToIndex(workspaceRoot, indexEntry);
-    } catch (e) {
-      channel.appendLine(`WARN: Failed to append to index.json: ${e}`);
     }
 
     // Log completion

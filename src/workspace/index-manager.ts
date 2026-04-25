@@ -1,6 +1,13 @@
 /**
- * Index Manager
- * Handles append-only index.json operations
+ * Index Manager — read-side only (iter #5a).
+ *
+ * Python ml_runner is now the single writer of `.ml/outputs/index.json`
+ * (architectural consolidation; same pattern as F-COORD-003). The TS
+ * extension only reads this file to surface past runs in the picker.
+ *
+ * Writers (`appendToIndex`, `ensureIndex`, `validateIndexEntry`) were
+ * removed in this iteration; the `readIndex` migration shim still tolerates
+ * the legacy bare-array shape from v1.0.1.
  */
 
 import * as fs from 'node:fs/promises';
@@ -9,30 +16,13 @@ import type { IndexEntry, RunIndex } from '../types.js';
 import { WORKSPACE_PATHS } from '../types.js';
 
 /**
- * Ensure the outputs directory and index file exist
- */
-export async function ensureIndex(workspaceRoot: string): Promise<void> {
-  const outputsDir = path.join(workspaceRoot, WORKSPACE_PATHS.OUTPUTS_DIR);
-  const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
-
-  // Create outputs directory
-  await fs.mkdir(outputsDir, { recursive: true });
-
-  // Create index file if missing — canonical shape is {runs:[]} (see types.ts:RunIndex)
-  try {
-    await fs.access(indexPath);
-  } catch {
-    await fs.writeFile(indexPath, JSON.stringify({ runs: [] }, null, 2), 'utf-8');
-  }
-}
-
-/**
  * Read all index entries.
  *
- * On-disk shape is the canonical `RunIndex` (`{runs: IndexEntry[]}`) shared with
- * the observability reader. This function intentionally returns the inner
- * `IndexEntry[]` so internal callers (`appendToIndex`, `getRecentRuns`,
- * `findRunById`) stay unchanged — the wrap/unwrap boundary lives here.
+ * Accepts three on-disk shapes and normalizes to `IndexEntry[]`:
+ * 1. Canonical `{schema_version, runs: IndexEntry[]}` — Python ml_runner output.
+ * 2. Pre-iter#5a `{runs: IndexEntry[]}` (no schema_version) — TS-side legacy.
+ * 3. Legacy bare-array `[entry, ...]` — v1.0.1 only; tolerated for read,
+ *    NOT rewritten on disk (Python owns writes now).
  */
 export async function readIndex(workspaceRoot: string): Promise<IndexEntry[]> {
   const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
@@ -41,16 +31,15 @@ export async function readIndex(workspaceRoot: string): Promise<IndexEntry[]> {
     const content = await fs.readFile(indexPath, 'utf-8');
     const parsed = JSON.parse(content);
 
-    // Migration shim: v1.0.1 wrote a bare `[entry,...]` array. If we encounter
-    // that legacy shape, wrap it on the fly and rewrite the file in canonical form.
+    // Legacy bare-array shape (v1.0.1). Tolerate on read; do not rewrite —
+    // Python is now the sole writer and will rewrite to canonical shape on
+    // its next append.
     if (Array.isArray(parsed)) {
-      const migrated: RunIndex = { runs: parsed as IndexEntry[] };
-      await fs.writeFile(indexPath, JSON.stringify(migrated, null, 2), 'utf-8');
-      return migrated.runs;
+      return parsed as IndexEntry[];
     }
 
     if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as RunIndex).runs)) {
-      throw new Error('Index file is not a valid RunIndex ({runs: IndexEntry[]})');
+      throw new Error('Index file is not a valid RunIndex ({schema_version, runs: IndexEntry[]})');
     }
 
     return (parsed as RunIndex).runs;
@@ -61,88 +50,6 @@ export async function readIndex(workspaceRoot: string): Promise<IndexEntry[]> {
     }
     throw error;
   }
-}
-
-/**
- * Append a new entry to the index (append-only).
- * IMPORTANT: Never reorders or deletes existing entries.
- * Writes canonical `{runs: IndexEntry[]}` shape (shared `RunIndex` type).
- */
-export async function appendToIndex(workspaceRoot: string, entry: IndexEntry): Promise<void> {
-  await ensureIndex(workspaceRoot);
-
-  const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
-
-  // Read existing entries (handles legacy migration internally)
-  const entries = await readIndex(workspaceRoot);
-
-  // Validate entry has required fields
-  validateIndexEntry(entry);
-
-  // Append new entry
-  entries.push(entry);
-
-  // Write back in canonical {runs:[]} shape
-  const wrapped: RunIndex = { runs: entries };
-  await fs.writeFile(indexPath, JSON.stringify(wrapped, null, 2), 'utf-8');
-}
-
-/**
- * Validate that an index entry has all required fields
- */
-export function validateIndexEntry(entry: IndexEntry): void {
-  const required: (keyof IndexEntry)[] = [
-    'run_id',
-    'created_at',
-    'name',
-    'preset_id',
-    'status',
-    'run_dir',
-    'summary',
-  ];
-
-  for (const field of required) {
-    if (entry[field] === undefined) {
-      throw new Error(`Index entry missing required field: ${field}`);
-    }
-  }
-
-  // Validate run_dir uses forward slashes
-  if (entry.run_dir.includes('\\')) {
-    throw new Error('Index entry run_dir must use forward slashes');
-  }
-
-  // Validate run_dir is relative (not absolute)
-  if (path.isAbsolute(entry.run_dir)) {
-    throw new Error('Index entry run_dir must be workspace-relative');
-  }
-
-  // Validate created_at is ISO8601
-  if (!isValidISO8601(entry.created_at)) {
-    throw new Error('Index entry created_at must be ISO8601 format');
-  }
-
-  // Validate status
-  if (entry.status !== 'succeeded' && entry.status !== 'failed') {
-    throw new Error('Index entry status must be "succeeded" or "failed"');
-  }
-
-  // Validate summary has required fields
-  if (typeof entry.summary.duration_ms !== 'number') {
-    throw new Error('Index entry summary.duration_ms must be a number');
-  }
-
-  if (typeof entry.summary.final_metrics !== 'object') {
-    throw new Error('Index entry summary.final_metrics must be an object');
-  }
-}
-
-/**
- * Check if a string is valid ISO8601 format
- */
-function isValidISO8601(str: string): boolean {
-  const date = new Date(str);
-  return !isNaN(date.getTime());
 }
 
 /**
