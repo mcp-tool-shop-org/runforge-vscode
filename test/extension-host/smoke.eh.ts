@@ -335,17 +335,69 @@ suite('RunForge Extension Host smoke (FT-TEST-001)', () => {
   // is the closest shipped surface. Scenario 5b below exercises it as a
   // partial Wave 1 coverage point so the harness is useful today.
   // -------------------------------------------------------------------------
-  test.skip('scenario 5: runforge.recoverIndex backfills orphan run.json into index.json [FT-BACK-002 pending Wave 3]', async function () {
+  test('scenario 5: runforge.recoverIndex backfills orphan run.json into index.json', async function () {
     this.timeout(60_000);
-    // Implementation outline (un-skip when Wave 3 lands):
-    //
-    //   1. Pre-populate <scratch>/.ml/runs/<fakeId>/run.json with a valid
-    //      v0.3.6 shape (no index entry).
-    //   2. Pre-populate <scratch>/.ml/outputs/index.json without that fakeId.
-    //   3. await vscode.commands.executeCommand('runforge.recoverIndex')
-    //   4. Wait for index.json to contain the fakeId.
-    //   5. Idempotency: invoke recoverIndex a second time, confirm no
-    //      duplicate entries (per §3.1.2 "Recovery is idempotent").
+    if (!trainingDone) this.skip();
+
+    // Pattern lesson #15 applied prospectively: wait for EVIDENCE (the
+    // index.json file actually contains the run_id), NOT for "command
+    // returned." The command returning successfully doesn't prove
+    // recovery happened — the index file change does.
+
+    // 1. Fabricate an orphan run dir with a valid v0.3.6 run.json by
+    //    copying scenario 1's real run.json + rewriting the run_id.
+    //    This guarantees schema validity without re-implementing it.
+    const [realRunJson] = listRunJsonPaths(scratch);
+    const orphanRunId = `20260425-093000-recover-fixture-1234`;
+    const orphanRunDir = path.join(scratch, '.ml', 'runs', orphanRunId);
+    fs.mkdirSync(orphanRunDir, { recursive: true });
+    const realRunJsonContent = JSON.parse(fs.readFileSync(realRunJson, 'utf-8'));
+    const orphanRunJsonContent = { ...realRunJsonContent, run_id: orphanRunId };
+    fs.writeFileSync(
+      path.join(orphanRunDir, 'run.json'),
+      JSON.stringify(orphanRunJsonContent, null, 2),
+      'utf-8'
+    );
+
+    // 2. Verify fixture is currently NOT in index.json.
+    const indexBefore = readIndex(scratch);
+    assert.ok(indexBefore, 'index.json should exist from scenario 1');
+    const wasIndexedBefore = indexBefore!.runs.some((r) => r.run_id === orphanRunId);
+    assert.equal(wasIndexedBefore, false, 'orphan fixture must not be pre-indexed');
+
+    // 3. Fire recoverIndex command.
+    await vscode.commands.executeCommand('runforge.recoverIndex');
+
+    // 4. Wait for evidence: index.json contains the orphanRunId.
+    await waitFor(
+      () => {
+        const idx = readIndex(scratch);
+        return !!idx && idx.runs.some((r) => r.run_id === orphanRunId);
+      },
+      {
+        timeoutMs: 15_000,
+        intervalMs: 250,
+        description: 'index.json to include the recovered run_id',
+      }
+    );
+
+    const indexAfter = readIndex(scratch);
+    assert.ok(indexAfter, 'index.json should still exist after recovery');
+    const recoveredEntry = indexAfter!.runs.find((r) => r.run_id === orphanRunId);
+    assert.ok(recoveredEntry, `index.json must contain entry for ${orphanRunId}`);
+
+    // 5. Idempotency check: re-fire recoverIndex; verify NO duplicate.
+    await vscode.commands.executeCommand('runforge.recoverIndex');
+    // Give the index writer a beat in case of any async stragglers.
+    await new Promise((r) => setTimeout(r, 500));
+    const indexAfterSecond = readIndex(scratch);
+    assert.ok(indexAfterSecond, 'index.json should exist after second recovery');
+    const occurrences = indexAfterSecond!.runs.filter((r) => r.run_id === orphanRunId).length;
+    assert.equal(
+      occurrences,
+      1,
+      `idempotent recovery should not duplicate; got ${occurrences} entries for ${orphanRunId}`
+    );
   });
 
   // Scenario 5b (Wave 1 partial coverage, ships now):
