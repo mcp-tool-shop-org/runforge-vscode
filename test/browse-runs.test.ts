@@ -2,7 +2,7 @@
  * Browse Runs command tests (F-TESTS-004).
  *
  * Verifies the pre-QuickPick branches in src/observability/browse-runs-command.ts:
- *   - empty .runforge directory → informational message, no picker shown
+ *   - empty .ml directory → informational message, no picker shown
  *   - empty runs array → "No runs found." message
  *   - newest-first reversal of index.runs (does NOT mutate the index)
  *   - malformed index.json → graceful actionable message
@@ -59,7 +59,7 @@ describe('browseRuns', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('shows actionable message and does not open picker when .runforge is missing', async () => {
+  it('shows actionable message and does not open picker when .ml is missing', async () => {
     await browseRuns(tmpDir, 'python', '/runner', channel);
     expect(showQuickPick).not.toHaveBeenCalled();
     expect(showInformationMessage).toHaveBeenCalledTimes(1);
@@ -68,9 +68,10 @@ describe('browseRuns', () => {
   });
 
   it('shows "No runs found" message when index has empty runs array', async () => {
-    await fs.mkdir(path.join(tmpDir, '.runforge'));
+    const outputsDir = path.join(tmpDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
     await fs.writeFile(
-      path.join(tmpDir, '.runforge', 'index.json'),
+      path.join(outputsDir, 'index.json'),
       JSON.stringify({ runs: [] })
     );
 
@@ -82,14 +83,15 @@ describe('browseRuns', () => {
   });
 
   it('shows runs newest-first in QuickPick (entries reversed)', async () => {
-    await fs.mkdir(path.join(tmpDir, '.runforge'));
+    const outputsDir = path.join(tmpDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
     const runs = [
       {
         run_id: 'run-oldest',
         created_at: '2026-04-01T00:00:00Z',
         dataset_fingerprint: 'a'.repeat(64),
         label_column: 'label',
-        run_dir: 'runs/run-oldest/run.json',
+        run_dir: '.ml/runs/run-oldest',
         model_pkl: 'runs/run-oldest/model.pkl',
       },
       {
@@ -97,7 +99,7 @@ describe('browseRuns', () => {
         created_at: '2026-04-02T00:00:00Z',
         dataset_fingerprint: 'b'.repeat(64),
         label_column: 'label',
-        run_dir: 'runs/run-middle/run.json',
+        run_dir: '.ml/runs/run-middle',
         model_pkl: 'runs/run-middle/model.pkl',
       },
       {
@@ -105,12 +107,12 @@ describe('browseRuns', () => {
         created_at: '2026-04-03T00:00:00Z',
         dataset_fingerprint: 'c'.repeat(64),
         label_column: 'label',
-        run_dir: 'runs/run-newest/run.json',
+        run_dir: '.ml/runs/run-newest',
         model_pkl: 'runs/run-newest/model.pkl',
       },
     ];
     await fs.writeFile(
-      path.join(tmpDir, '.runforge', 'index.json'),
+      path.join(outputsDir, 'index.json'),
       JSON.stringify({ runs })
     );
 
@@ -128,14 +130,15 @@ describe('browseRuns', () => {
   });
 
   it('does not mutate the index.runs array (display-only reversal)', async () => {
-    await fs.mkdir(path.join(tmpDir, '.runforge'));
+    const outputsDir = path.join(tmpDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
     const runs = [
       {
         run_id: 'r1',
         created_at: '2026-04-01T00:00:00Z',
         dataset_fingerprint: 'a'.repeat(64),
         label_column: 'l',
-        run_dir: 'runs/r1/run.json',
+        run_dir: '.ml/runs/r1',
         model_pkl: 'runs/r1/model.pkl',
       },
       {
@@ -143,12 +146,12 @@ describe('browseRuns', () => {
         created_at: '2026-04-02T00:00:00Z',
         dataset_fingerprint: 'b'.repeat(64),
         label_column: 'l',
-        run_dir: 'runs/r2/run.json',
+        run_dir: '.ml/runs/r2',
         model_pkl: 'runs/r2/model.pkl',
       },
     ];
     await fs.writeFile(
-      path.join(tmpDir, '.runforge', 'index.json'),
+      path.join(outputsDir, 'index.json'),
       JSON.stringify({ runs })
     );
 
@@ -157,15 +160,16 @@ describe('browseRuns', () => {
 
     // Re-read the on-disk index — order must still be r1, r2 (chronological).
     const after = JSON.parse(
-      await fs.readFile(path.join(tmpDir, '.runforge', 'index.json'), 'utf-8')
+      await fs.readFile(path.join(outputsDir, 'index.json'), 'utf-8')
     );
     expect(after.runs[0].run_id).toBe('r1');
     expect(after.runs[1].run_id).toBe('r2');
   });
 
   it('handles malformed index.json gracefully (CORRUPT_JSON path)', async () => {
-    await fs.mkdir(path.join(tmpDir, '.runforge'));
-    await fs.writeFile(path.join(tmpDir, '.runforge', 'index.json'), 'not valid json{{');
+    const outputsDir = path.join(tmpDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
+    await fs.writeFile(path.join(outputsDir, 'index.json'), 'not valid json{{');
 
     await browseRuns(tmpDir, 'python', '/runner', channel);
 
@@ -176,19 +180,20 @@ describe('browseRuns', () => {
   });
 
   it('returns early when user cancels the second picker (action selection)', async () => {
-    await fs.mkdir(path.join(tmpDir, '.runforge'));
+    const outputsDir = path.join(tmpDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
     const runs = [
       {
         run_id: 'only-run',
         created_at: '2026-04-01T00:00:00Z',
         dataset_fingerprint: 'a'.repeat(64),
         label_column: 'label',
-        run_dir: 'runs/only-run/run.json',
+        run_dir: '.ml/runs/only-run',
         model_pkl: 'runs/only-run/model.pkl',
       },
     ];
     await fs.writeFile(
-      path.join(tmpDir, '.runforge', 'index.json'),
+      path.join(outputsDir, 'index.json'),
       JSON.stringify({ runs })
     );
 

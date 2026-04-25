@@ -11,6 +11,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
 import { openJsonDocument } from './open-summary.js';
+import { WORKSPACE_PATHS } from '../types.js';
 
 export interface RunMetadata {
   run_id: string;
@@ -49,17 +50,17 @@ export interface ProvenanceIndex {
 }
 
 /**
- * Get the .runforge directory path for a workspace
+ * Get the .ml workspace root path for a workspace
  */
 export function getRunforgeDir(workspaceRoot: string): string {
-  return path.join(workspaceRoot, '.runforge');
+  return path.join(workspaceRoot, WORKSPACE_PATHS.ML_ROOT);
 }
 
 /**
- * Load the provenance index
+ * Load the provenance index from .ml/outputs/index.json
  */
 export async function loadProvenanceIndex(workspaceRoot: string): Promise<ProvenanceIndex | null> {
-  const indexPath = path.join(getRunforgeDir(workspaceRoot), 'index.json');
+  const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
 
   try {
     const content = await fs.readFile(indexPath, 'utf-8');
@@ -103,11 +104,9 @@ export async function getLatestRunMetadata(workspaceRoot: string): Promise<RunMe
     return null;
   }
 
-  // The run_dir in the index points to runs/<run_id>/run.json
-  // We need the directory containing run.json
-  const runforgeDir = getRunforgeDir(workspaceRoot);
-  const runJsonPath = path.join(runforgeDir, latestEntry.run_dir);
-  const runDir = path.dirname(runJsonPath);
+  // The run_dir in the index is workspace-relative (e.g., .ml/runs/<run_id>)
+  // and points to the run directory containing run.json.
+  const runDir = path.join(workspaceRoot, latestEntry.run_dir);
 
   return loadRunMetadata(runDir);
 }

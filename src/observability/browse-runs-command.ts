@@ -1,7 +1,7 @@
 /**
  * Browse Runs Command (Phase 2.3)
  *
- * Lists runs from .runforge/index.json and provides actions:
+ * Lists runs from .ml/outputs/index.json and provides actions:
  * - Open Run Summary
  * - View Diagnostics
  * - Inspect Model Artifact
@@ -12,6 +12,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { safeReadIndex, safeReadRunJson, getActionableMessage, type IndexEntry } from './fs-safe.js';
 import { openMarkdownSummary } from './open-summary.js';
+import { WORKSPACE_PATHS } from '../types.js';
 
 /**
  * QuickPick item for a run
@@ -172,8 +173,8 @@ async function inspectArtifact(
   workspaceRoot: string,
   context: { pythonPath: string; runnerPath: string; channel: vscode.OutputChannel }
 ): Promise<void> {
-  // model_pkl is relative to .runforge
-  const artifactPath = path.join(workspaceRoot, '.runforge', entry.model_pkl);
+  // model_pkl is relative to the .ml workspace root
+  const artifactPath = path.join(workspaceRoot, WORKSPACE_PATHS.ML_ROOT, entry.model_pkl);
 
   // Import the artifact inspection function
   const { inspectArtifact: doInspect, formatArtifactInspectResult, openInspectionInEditor } =

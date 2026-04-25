@@ -8,6 +8,7 @@
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
+import { WORKSPACE_PATHS } from '../types.js';
 
 /**
  * Result type for safe operations
@@ -29,7 +30,7 @@ export interface SafeError {
 }
 
 /**
- * Index entry from .runforge/index.json
+ * Index entry from .ml/outputs/index.json
  */
 export interface IndexEntry {
   run_id: string;
@@ -48,15 +49,15 @@ export interface RunIndex {
 }
 
 /**
- * Get the latest run directory under `<workspaceRoot>/.runforge/runs` by mtime.
+ * Get the latest run directory under `<workspaceRoot>/.ml/runs` by mtime.
  *
  * Returns the absolute path to the most recently modified run directory,
- * or `null` if `.runforge/runs` does not exist or is empty.
+ * or `null` if `.ml/runs` does not exist or is empty.
  *
  * Synchronous: callers in observability commands consume this directly without await.
  */
 export function getLatestRunDir(workspaceRoot: string): string | null {
-  const runsDir = path.join(workspaceRoot, '.runforge', 'runs');
+  const runsDir = path.join(workspaceRoot, WORKSPACE_PATHS.RUNS_DIR);
   if (!fsSync.existsSync(runsDir)) {
     return null;
   }
@@ -137,7 +138,7 @@ export async function readJsonFile<T>(filePath: string): Promise<SafeResult<T>> 
 }
 
 /**
- * Read the .runforge/index.json file safely
+ * Read the .ml/outputs/index.json file safely
  *
  * Special handling:
  * - Missing directory → returns empty runs with hint
@@ -145,17 +146,17 @@ export async function readJsonFile<T>(filePath: string): Promise<SafeResult<T>> 
  * - Corrupt JSON → backs up file, returns empty runs with warning
  */
 export async function safeReadIndex(workspaceRoot: string): Promise<SafeResult<RunIndex>> {
-  const runforgeDir = path.join(workspaceRoot, '.runforge');
-  const indexPath = path.join(runforgeDir, 'index.json');
+  const mlRoot = path.join(workspaceRoot, WORKSPACE_PATHS.ML_ROOT);
+  const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
 
-  // Check if .runforge directory exists
-  if (!(await exists(runforgeDir))) {
+  // Check if .ml directory exists
+  if (!(await exists(mlRoot))) {
     return {
       ok: false,
       error: {
         code: 'NOT_FOUND',
-        message: 'No .runforge directory found',
-        path: runforgeDir,
+        message: 'No .ml directory found',
+        path: mlRoot,
         recoveryHint: 'Run a training first to generate runs.',
         retryable: false,
       },
@@ -201,9 +202,9 @@ export async function safeReadRunJson(
   workspaceRoot: string,
   runDir: string
 ): Promise<SafeResult<Record<string, unknown>>> {
-  // runDir is relative to .runforge, and points to run.json path
-  // e.g., "runs/20240201-123456-abc12345/run.json"
-  const runJsonPath = path.join(workspaceRoot, '.runforge', runDir);
+  // runDir is workspace-relative and points to the run directory.
+  // e.g., ".ml/runs/20240201-123456-abc12345" — append run.json to read metadata.
+  const runJsonPath = path.join(workspaceRoot, runDir, 'run.json');
 
   const result = await readJsonFile<Record<string, unknown>>(runJsonPath);
 
@@ -231,7 +232,7 @@ export function formatError(error: SafeError): string {
 export function getActionableMessage(error: SafeError): string {
   switch (error.code) {
     case 'NOT_FOUND':
-      if (error.path.includes('.runforge')) {
+      if (error.path.includes(WORKSPACE_PATHS.ML_ROOT)) {
         return 'No runs yet. Run a training to generate runs.';
       }
       return `File not found: ${path.basename(error.path)}`;

@@ -50,15 +50,15 @@ afterEach(async () => {
 // ── getRunforgeDir ───────────────────────────────────────────────────────────
 
 describe('getRunforgeDir', () => {
-  it('returns .runforge under workspace root', () => {
+  it('returns .ml under workspace root', () => {
     const result = getRunforgeDir('/my/workspace');
-    expect(result).toBe(path.join('/my/workspace', '.runforge'));
+    expect(result).toBe(path.join('/my/workspace', '.ml'));
   });
 
   it('handles trailing slash', () => {
     // path.join normalizes this
     const result = getRunforgeDir('/my/workspace/');
-    expect(result).toContain('.runforge');
+    expect(result).toContain('.ml');
   });
 });
 
@@ -108,8 +108,8 @@ describe('loadRunMetadata', () => {
 
 describe('loadProvenanceIndex', () => {
   it('returns parsed index from index.json', async () => {
-    const runforgeDir = path.join(tempDir, '.runforge');
-    await fs.mkdir(runforgeDir, { recursive: true });
+    const outputsDir = path.join(tempDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
 
     const index = {
       schema_version: '0.2.0',
@@ -119,12 +119,12 @@ describe('loadProvenanceIndex', () => {
           created_at: '2026-01-01T00:00:00+00:00',
           dataset_fingerprint_sha256: 'abc',
           label_column: 'label',
-          run_dir: 'runs/r1/run.json',
+          run_dir: '.ml/runs/r1',
           model_pkl: 'runs/r1/model.pkl',
         },
       ],
     };
-    await fs.writeFile(path.join(runforgeDir, 'index.json'), JSON.stringify(index));
+    await fs.writeFile(path.join(outputsDir, 'index.json'), JSON.stringify(index));
 
     const result = await loadProvenanceIndex(tempDir);
     expect(result).not.toBeNull();
@@ -142,8 +142,8 @@ describe('loadProvenanceIndex', () => {
 
 describe('getLatestRunEntry', () => {
   it('returns the last entry in the index', async () => {
-    const runforgeDir = path.join(tempDir, '.runforge');
-    await fs.mkdir(runforgeDir, { recursive: true });
+    const outputsDir = path.join(tempDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
 
     const index = {
       schema_version: '0.2.0',
@@ -152,7 +152,7 @@ describe('getLatestRunEntry', () => {
         { run_id: 'r2', created_at: '2026-01-02', dataset_fingerprint_sha256: 'b', label_column: 'l', run_dir: 'd2', model_pkl: 'm2' },
       ],
     };
-    await fs.writeFile(path.join(runforgeDir, 'index.json'), JSON.stringify(index));
+    await fs.writeFile(path.join(outputsDir, 'index.json'), JSON.stringify(index));
 
     const result = await getLatestRunEntry(tempDir);
     expect(result).not.toBeNull();
@@ -165,11 +165,11 @@ describe('getLatestRunEntry', () => {
   });
 
   it('returns null when index has empty runs array', async () => {
-    const runforgeDir = path.join(tempDir, '.runforge');
-    await fs.mkdir(runforgeDir, { recursive: true });
+    const outputsDir = path.join(tempDir, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
 
     await fs.writeFile(
-      path.join(runforgeDir, 'index.json'),
+      path.join(outputsDir, 'index.json'),
       JSON.stringify({ schema_version: '0.2.0', runs: [] })
     );
 

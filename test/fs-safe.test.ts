@@ -89,19 +89,19 @@ describe('fs-safe', () => {
   });
 
   describe('safeReadIndex', () => {
-    it('returns NOT_FOUND when .runforge directory missing', async () => {
+    it('returns NOT_FOUND when .ml directory missing', async () => {
       const result = await safeReadIndex(testDir);
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error.code).toBe('NOT_FOUND');
-        expect(result.error.message).toContain('.runforge');
+        expect(result.error.message).toContain('.ml');
         expect(result.error.recoveryHint).toContain('training');
       }
     });
 
     it('returns NOT_FOUND when index.json missing', async () => {
-      await fs.mkdir(path.join(testDir, '.runforge'));
+      await fs.mkdir(path.join(testDir, '.ml', 'outputs'), { recursive: true });
 
       const result = await safeReadIndex(testDir);
 
@@ -113,8 +113,8 @@ describe('fs-safe', () => {
     });
 
     it('returns ok result for valid index.json', async () => {
-      const runforgeDir = path.join(testDir, '.runforge');
-      await fs.mkdir(runforgeDir);
+      const outputsDir = path.join(testDir, '.ml', 'outputs');
+      await fs.mkdir(outputsDir, { recursive: true });
 
       const index: RunIndex = {
         runs: [
@@ -123,13 +123,13 @@ describe('fs-safe', () => {
             created_at: '2024-01-01T00:00:00Z',
             dataset_fingerprint: 'abc123',
             label_column: 'label',
-            run_dir: 'runs/test-run-1/run.json',
+            run_dir: '.ml/runs/test-run-1',
             model_pkl: 'runs/test-run-1/model.pkl',
           },
         ],
       };
       await fs.writeFile(
-        path.join(runforgeDir, 'index.json'),
+        path.join(outputsDir, 'index.json'),
         JSON.stringify(index)
       );
 
@@ -143,10 +143,10 @@ describe('fs-safe', () => {
     });
 
     it('backs up corrupt index.json and returns error', async () => {
-      const runforgeDir = path.join(testDir, '.runforge');
-      await fs.mkdir(runforgeDir);
+      const outputsDir = path.join(testDir, '.ml', 'outputs');
+      await fs.mkdir(outputsDir, { recursive: true });
       await fs.writeFile(
-        path.join(runforgeDir, 'index.json'),
+        path.join(outputsDir, 'index.json'),
         'not valid json'
       );
 
@@ -159,7 +159,7 @@ describe('fs-safe', () => {
       }
 
       // Check backup was created
-      const files = await fs.readdir(runforgeDir);
+      const files = await fs.readdir(outputsDir);
       const backupFile = files.find((f) => f.startsWith('index.json.corrupt.'));
       expect(backupFile).toBeDefined();
     });
@@ -198,8 +198,7 @@ describe('fs-safe', () => {
 
   describe('safeReadRunJson', () => {
     it('returns ok result for valid run.json', async () => {
-      const runforgeDir = path.join(testDir, '.runforge');
-      const runDir = path.join(runforgeDir, 'runs', 'test-run');
+      const runDir = path.join(testDir, '.ml', 'runs', 'test-run');
       await fs.mkdir(runDir, { recursive: true });
 
       const runJson = {
@@ -213,7 +212,7 @@ describe('fs-safe', () => {
         JSON.stringify(runJson)
       );
 
-      const result = await safeReadRunJson(testDir, 'runs/test-run/run.json');
+      const result = await safeReadRunJson(testDir, '.ml/runs/test-run');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -223,10 +222,9 @@ describe('fs-safe', () => {
     });
 
     it('returns NOT_FOUND for missing run.json', async () => {
-      const runforgeDir = path.join(testDir, '.runforge');
-      await fs.mkdir(runforgeDir);
+      await fs.mkdir(path.join(testDir, '.ml'), { recursive: true });
 
-      const result = await safeReadRunJson(testDir, 'runs/missing/run.json');
+      const result = await safeReadRunJson(testDir, '.ml/runs/missing');
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -266,11 +264,11 @@ describe('fs-safe', () => {
   });
 
   describe('getActionableMessage', () => {
-    it('returns actionable message for NOT_FOUND in .runforge', () => {
+    it('returns actionable message for NOT_FOUND in .ml', () => {
       const error: SafeError = {
         code: 'NOT_FOUND',
         message: 'Not found',
-        path: '/workspace/.runforge/index.json',
+        path: '/workspace/.ml/outputs/index.json',
       };
 
       const message = getActionableMessage(error);

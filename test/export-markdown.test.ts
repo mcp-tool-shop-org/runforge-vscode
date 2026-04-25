@@ -61,7 +61,7 @@ describe('export-markdown end-to-end escape coverage', () => {
     cwd = process.cwd();
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'runforge-md-'));
     workspaceRoot = tmpDir;
-    runDir = path.join(workspaceRoot, '.runforge', 'runs', '20260424-120000-abc12345');
+    runDir = path.join(workspaceRoot, '.ml', 'runs', '20260424-120000-abc12345');
     fs.mkdirSync(path.join(runDir, 'artifacts'), { recursive: true });
     summaryPath = path.join(runDir, 'run-summary.md');
   });
@@ -90,8 +90,10 @@ describe('export-markdown end-to-end escape coverage', () => {
     };
     fs.writeFileSync(path.join(runDir, 'run.json'), JSON.stringify(runJson));
 
-    // Write .runforge/index.json so getLatestRunMetadataSafe finds it.
-    const indexPath = path.join(workspaceRoot, '.runforge', 'index.json');
+    // Write .ml/outputs/index.json so getLatestRunMetadataSafe finds it.
+    const outputsDir = path.join(workspaceRoot, '.ml', 'outputs');
+    fs.mkdirSync(outputsDir, { recursive: true });
+    const indexPath = path.join(outputsDir, 'index.json');
     const idx = {
       schema_version: 'index.v1',
       runs: [
@@ -100,7 +102,7 @@ describe('export-markdown end-to-end escape coverage', () => {
           created_at: '2026-04-24T12:00:00+00:00',
           dataset_fingerprint: 'a'.repeat(64),
           label_column: 'lbl|col',
-          run_dir: 'runs/20260424-120000-abc12345/run.json',
+          run_dir: '.ml/runs/20260424-120000-abc12345',
           model_pkl: 'runs/20260424-120000-abc12345/artifacts/model.pkl',
         },
       ],
