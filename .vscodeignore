@@ -32,6 +32,7 @@ test_datasets/**
 generate_test_runs.py
 .benchmarks/**
 .pytest_cache/**
+coverage/**
 **/__pycache__/**
 **/*.pyc
 **/*.egg-info/**
