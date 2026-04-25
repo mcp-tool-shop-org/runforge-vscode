@@ -170,7 +170,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "verify": "npm test && (npm run lint || echo \"lint reports findings (non-blocking; see follow-up wave)\") && npm run compile && npx vsce package --no-dependencies",
+    "verify": "npm test && npm run lint && npm run compile && npx vsce package --no-dependencies",
     "package": "vsce package"
   },
   "devDependencies": {

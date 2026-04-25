@@ -17,6 +17,15 @@ All notable changes to the RunForge VS Code extension will be documented in this
   consolidation; legacy on-disk shapes migrated transparently on read.
 - New: [`docs/CONTRACTS.md`](docs/CONTRACTS.md) codifies the 6 doctrine rules
   surfaced by 5 iterations of architectural debt resolution.
+- Subprocess env hygiene consolidated in `pythonSpawnEnv()` helper —
+  `PYTHONIOENCODING='utf-8'` and `PYTHONUNBUFFERED='1'` now set on
+  every Python spawn (training, version check, GPU probe, dataset
+  inspect, artifact inspect).
+- Canonical `InterpretabilityIndex` + supporting summary types in
+  `src/types.ts`. Observability layer no longer defines local shadow.
+- New `ARTIFACT_FILENAMES` constant in `src/types.ts` — single source
+  of truth for artifact filenames (run.json, metrics.v1.json, etc.).
+  11 literal-string sites replaced.
 
 ### Fixed
 - `F-COORD-008` (CRITICAL, iter #3): observability hardcoded `.runforge/` paths;
@@ -28,10 +37,31 @@ All notable changes to the RunForge VS Code extension will be documented in this
   collapsed onto canonical imports from `src/types.ts`.
 - `F-COORD-003` (CRITICAL, iter #2): broken `spawnRunnerScript` directory-form
   invocation; now uses `python -m ml_runner` via `spawnRunner`.
+- F-COORD-004 (CRITICAL): Windows non-UTF-8 locales no longer corrupt
+  Python subprocess output. PYTHONIOENCODING set natively.
+- F-SP-002 (HIGH): success detection now requires `run.json` present
+  at run dir after exit code 0 — not just exit-code success.
+  Catches mid-write crashes that previously appeared as 'succeeded'.
+- F-SP-003 (HIGH): GPU torch probe drops stderr at OS level via
+  `stdio: ['ignore','pipe','ignore']`. Import warnings no longer
+  fragile-break the JSON parse.
+- F-SP-004 (HIGH): all 6 Python spawn sites now use `pythonSpawnEnv()`
+  — `PYTHONUNBUFFERED='1'` consistently set.
+- F-LD-001 (HIGH): `.ml`/`runs` literal at `src/workspace/run-folder.ts:97`
+  replaced with `WORKSPACE_PATHS.RUNS_DIR` constant.
 
 ### Tests
 - Added full-chain regression: production `appendToIndex` → `safeReadIndex`
   journey, no JSON stub-writes in setup (Rule 5 of `docs/CONTRACTS.md`).
+- 18 new regression tests in `test/regression-iter-5b.test.ts`:
+  9 for `pythonSpawnEnv` shape, 5 for success detection, 3 for
+  GPU stderr isolation. Total test count 247 → 265.
+
+### CI
+- Removed redundant `PYTHONIOENCODING: utf-8` env from CI test step
+  (now set natively in `pythonSpawnEnv`).
+- `npm run verify` lint step is now blocking (was non-blocking shim
+  during iter #5a's eslint cleanup phase).
 
 ## [1.0.1] - 2026-03-25
 
