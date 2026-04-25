@@ -112,6 +112,12 @@
         "title": "Export Latest Run as Markdown",
         "category": "RunForge",
         "icon": "$(markdown)"
+      },
+      {
+        "command": "runforge.cancelActiveRun",
+        "title": "Cancel Active Training",
+        "category": "RunForge",
+        "icon": "$(stop-circle)"
       }
     ],
     "configuration": {

@@ -55,7 +55,16 @@ export function activate(context: vscode.ExtensionContext): void {
     // Phase 3.6: View interpretability index
     vscode.commands.registerCommand('runforge.viewInterpretabilityIndex', () => viewLatestInterpretabilityIndex()),
     // Export run summary as markdown
-    vscode.commands.registerCommand('runforge.exportRunMarkdown', () => exportLatestRunAsMarkdown())
+    vscode.commands.registerCommand('runforge.exportRunMarkdown', () => exportLatestRunAsMarkdown()),
+    // Phase 4 (FT-BACK-001): cancel active training. Surfaces the same
+    // underlying killActiveRun pathway as the withProgress X-button + the
+    // deactivate hook. Useful when the withProgress notification was
+    // dismissed (palette stays as a recoverable cancel surface). Also the
+    // smoke test's programmatic cancel surface — withProgress's token is
+    // not externally fireable.
+    vscode.commands.registerCommand('runforge.cancelActiveRun', () =>
+      killActiveRun('user cancelled via runforge.cancelActiveRun command')
+    )
   );
 }
 

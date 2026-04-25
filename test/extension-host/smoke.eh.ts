@@ -227,89 +227,79 @@ suite('RunForge Extension Host smoke (FT-TEST-001)', () => {
       this.skip();
     }
 
-    // Pre-req: scenario 1 must have completed so we have an active extension.
+    // Pre-req: scenario 1 must have completed so we have an active extension
+    // AND a working scratch workspace. We REUSE that scratch (proven to work
+    // in scenario 1) instead of relocating to a fresh cancelScratch — runtime
+    // setWorkspaceFolder relocation appears to be the bug behind the prior
+    // 30s spawn timeout on CI Linux. Scenario 4 tracks ITS OWN run_id
+    // discriminated against scenario 1's existing run dirs.
     if (!trainingDone) this.skip();
+    assert.ok(scratch, 'scratch workspace from scenario 1 must exist');
 
-    const cancelScratch = makeScratchWorkspace('cancel');
-    const datasetPath = path.join(cancelScratch, 'iris.csv');
-    assert.ok(fs.existsSync(datasetPath), 'iris.csv must exist in scratch workspace');
+    const datasetPath = path.join(scratch, 'iris.csv');
+    assert.ok(fs.existsSync(datasetPath), 'iris.csv must exist in scratch');
 
-    await setWorkspaceFolder(cancelScratch);
+    // Snapshot existing run_ids BEFORE invoking trainStandard. Scenario 4
+    // waits for a NEW run dir not in this set — that's our run.
+    const runsDir = path.join(scratch, '.ml', 'runs');
+    const beforeRunIds = new Set<string>(
+      fs.existsSync(runsDir) ? fs.readdirSync(runsDir) : []
+    );
 
-    // Stub the two prompts trainStandard fires.
     const cancelPrompts = stubInputBox(['smoke-cancel', '99']);
     process.env.RUNFORGE_DATASET = datasetPath;
 
     try {
-      // Fire-and-forget the command. The withProgress wrapper exposes a
-      // CancellationToken via the X on the notification; we cannot click
-      // that in headless mode, so we trigger cancel via the underlying
-      // run-manager surface (`killActiveRun` on the legacy path is
-      // deactivate-only; for the cancel-detector path we rely on the
-      // CancellationTokenSource the host attaches to withProgress).
-      //
-      // Per the FT-BACK-001 brief: the cancel surface in this build is
-      // ONLY via withProgress, no separate runforge.cancelRun command.
-      // Programmatic cancel from a smoke test therefore requires the
-      // host to expose the token — VS Code's API does not let an
-      // outside test fire withProgress's token directly. The integration
-      // gate is: marker file appearance + run_cancelled event.
       const cmdPromise = Promise.resolve(
         vscode.commands.executeCommand('runforge.trainStandard')
       );
 
-      // Wait for Python to actually start (run dir exists with a
-      // request.json). This guarantees we cancel mid-run, not pre-spawn.
+      // Wait for OUR run dir to appear (one not in the before-snapshot)
+      // with a request.json. This avoids races with scenario 1's runs
+      // and guarantees we cancel mid-OUR-run, not pre-spawn.
+      let myRunId: string | undefined;
       await waitFor(
         () => {
-          const runsDir = path.join(cancelScratch, '.ml', 'runs');
           if (!fs.existsSync(runsDir)) return false;
-          const subs = fs.readdirSync(runsDir);
-          return subs.length > 0 && subs.some((s) =>
-            fs.existsSync(path.join(runsDir, s, 'request.json'))
-          );
+          for (const sub of fs.readdirSync(runsDir)) {
+            if (beforeRunIds.has(sub)) continue;
+            if (fs.existsSync(path.join(runsDir, sub, 'request.json'))) {
+              myRunId = sub;
+              return true;
+            }
+          }
+          return false;
         },
-        { timeoutMs: 30_000, description: 'Python subprocess to spawn' }
+        { timeoutMs: 30_000, description: "this scenario's Python subprocess to spawn" }
       );
+      assert.ok(myRunId, 'must have captured this scenario\'s run_id');
 
-      // Trigger cancel via deactivate path — this fires SIGTERM on the
-      // underlying process. Per §3.1.3 doctrine, terminal state is read
-      // from disk + events, not from how cancel was triggered.
-      // (The user-facing surface is the X on the progress notification;
-      // headless tests rely on the same SIGTERM pathway.)
-      await Promise.resolve(
-        vscode.commands.executeCommand('workbench.action.closeWindow')
-      ).catch(() => {
-        // closeWindow may not be wired; fall through and let cmdPromise
-        // resolve via the timeout path. This branch is safe because the
-        // §3.1.3 detector runs after Python exit regardless of trigger.
-      });
+      // Fire programmatic cancel via the new runforge.cancelActiveRun command
+      // (Phase 4 FT-BACK-001 surface — calls killActiveRun under the hood,
+      // same SIGTERM pathway as the withProgress X-button + the deactivate
+      // hook). Per §3.1.3, terminal state is read from disk + events, not
+      // from HOW cancel was triggered, so a command-fired cancel exercises
+      // the same back-half pipeline as a user X-click.
+      await vscode.commands.executeCommand('runforge.cancelActiveRun');
 
-      // SOURCE-OF-TRUTH ASSERTION (§3.1.3): marker on disk OR event observed.
-      // 10s window covers the 5s grace + Python cleanup overhead.
-      const runsDir = path.join(cancelScratch, '.ml', 'runs');
+      // SOURCE-OF-TRUTH ASSERTION (§3.1.3): .cancelled marker on disk for
+      // OUR specific run_id. 10s window covers the 5s grace + Python
+      // cleanup overhead.
+      const myRunDir = path.join(runsDir, myRunId!);
+      const markerPath = path.join(myRunDir, '.cancelled');
       const markerObserved = await new Promise<boolean>((resolve) => {
         const deadline = Date.now() + 10_000;
         const tick = () => {
-          if (!fs.existsSync(runsDir)) {
-            return Date.now() > deadline ? resolve(false) : setTimeout(tick, 250);
-          }
-          for (const sub of fs.readdirSync(runsDir)) {
-            const markerPath = path.join(runsDir, sub, '.cancelled');
-            if (fs.existsSync(markerPath)) return resolve(true);
-          }
+          if (fs.existsSync(markerPath)) return resolve(true);
           if (Date.now() > deadline) return resolve(false);
           setTimeout(tick, 250);
         };
         tick();
       });
 
-      // Per the brief: this assertion holds ONLY when FT-PY-004 has also
-      // landed. Until then, the marker will not appear and the test will
-      // fail at this assertion — that's the un-skip gate Coord watches.
       assert.ok(
         markerObserved,
-        'graceful cancel detector requires .cancelled marker (or run_cancelled event); FT-PY-004 must be landed'
+        `graceful cancel detector: .cancelled marker should appear at ${markerPath} (within 10s of cancel command). Per §3.1.3, marker presence = cancelled-graceful regardless of exit timing.`
       );
 
       await cmdPromise.catch(() => {
@@ -318,7 +308,8 @@ suite('RunForge Extension Host smoke (FT-TEST-001)', () => {
     } finally {
       cancelPrompts.restore();
       delete process.env.RUNFORGE_DATASET;
-      cleanupScratch(cancelScratch);
+      // Note: scratch is shared with scenario 1, do NOT cleanupScratch here.
+      // suiteTeardown handles final cleanup of scratch.
     }
   });
 
