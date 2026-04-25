@@ -39,7 +39,15 @@ from typing import Any, Dict, Optional, List, NamedTuple
 
 import numpy as np
 
-import jsonschema
+# jsonschema is an optional runtime dep. If unavailable (e.g., user installed
+# v1.0.2 without it), we soft-fall-back to bypassing the emit_event runtime
+# validation gate. Schema drift is still caught in CI + dev (where jsonschema
+# IS installed); end users without jsonschema still get all events emitted —
+# just unvalidated. README documents jsonschema as a recommended dep.
+try:
+    import jsonschema  # type: ignore[import-not-found]
+except ImportError:
+    jsonschema = None  # type: ignore[assignment]
 
 from .presets import get_preset
 from .inspect import compute_dataset_fingerprint
@@ -78,6 +86,8 @@ logger = logging.getLogger(__name__)
 # Cache the events schema validator at module import. Loading once amortizes
 # the JSON parse + Draft7 compile across hundreds of emissions per run.
 try:
+    if jsonschema is None:
+        raise ImportError("jsonschema not installed; emit_event runtime validation disabled")
     EVENTS_SCHEMA = load_schema("events.schema.v1")
     _EVENTS_VALIDATOR = jsonschema.Draft7Validator(EVENTS_SCHEMA)
 except Exception:

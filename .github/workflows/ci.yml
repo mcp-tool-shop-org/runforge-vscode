@@ -51,7 +51,7 @@ jobs:
 
       - name: Install Python deps for ml_runner boundary tests
         timeout-minutes: 10
-        run: pip install scikit-learn pandas numpy joblib
+        run: pip install scikit-learn pandas numpy joblib jsonschema
 
       - name: Install dependencies
         timeout-minutes: 10
@@ -129,7 +129,7 @@ jobs:
 
       - name: Install Python deps for ml_runner subprocess
         timeout-minutes: 10
-        run: pip install scikit-learn pandas numpy joblib
+        run: pip install scikit-learn pandas numpy joblib jsonschema
 
       - name: Install Node dependencies
         timeout-minutes: 10

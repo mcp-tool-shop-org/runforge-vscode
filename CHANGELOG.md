@@ -4,6 +4,14 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [1.0.2] - pending
 
+### Dependencies
+- **Optional new Python dep:** `jsonschema` enables runtime validation of
+  the structured event stream emitted by `ml_runner` to stderr (Phase 4
+  FT-PY-005). If `jsonschema` is not installed, events are still emitted
+  but bypass schema validation — runs still complete; CI / dev environments
+  with jsonschema catch schema drift earlier. Install with: `pip install jsonschema`.
+  See `python/ml_runner/contracts/events.schema.v1.json` for the schema.
+
 ### Architecture
 - Consolidated `.ml/outputs/index.json` to a single writer (Python `provenance.py`).
   TS `index-manager.ts` write path removed. Same consolidation pattern as
