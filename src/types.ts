@@ -470,4 +470,24 @@ export const ARTIFACT_FILENAMES = {
   LINEAR_COEFFICIENTS_V1_JSON: 'linear_coefficients.v1.json',
   INTERPRETABILITY_INDEX_V1_JSON: 'interpretability.index.v1.json',
   MODEL_PKL: 'model.pkl',
+  INDEX_ORPHAN_MARKER: '.index-orphan',
 } as const;
+
+/**
+ * Marker written by Python provenance when run.json succeeds but the canonical
+ * index update fails. Read by TS Bridge to surface "saved but not indexed"
+ * state in UI. Schema lives at python/ml_runner/contracts/index-orphan.schema.v1.0.0.json
+ * — both writers (Python) and readers (TS) must conform to that source-of-truth.
+ */
+export interface IndexOrphanMarker {
+  schema_version: 'index-orphan.v1.0.0';
+  run_id: string;
+  run_dir: string;
+  written_at: string;
+  error: {
+    type: string;
+    message: string;
+    traceback?: string;
+  };
+  index_path: string;
+}

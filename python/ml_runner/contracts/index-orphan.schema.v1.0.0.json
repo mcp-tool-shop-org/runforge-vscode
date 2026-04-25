@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "index-orphan.v1.0.0",
+  "title": "RunForge Index-Orphan Marker",
+  "description": "Marker file written under a run directory when the run.json was successfully created but the canonical index update (.ml/outputs/index.json) failed. Read by the TS Bridge to surface 'saved but not indexed' state in UI without silently dropping the run from the workspace listing. Single writer: Python ml_runner provenance module. Single reader: TS Bridge observability layer.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "run_dir",
+    "written_at",
+    "error",
+    "index_path"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "index-orphan.v1.0.0",
+      "description": "Versioned schema id. Increment on shape changes."
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^\\d{8}-\\d{6}-[a-z0-9-]+-[a-f0-9]{4}$",
+      "description": "The run id whose index entry failed to land. Matches the run-folder.ts pattern."
+    },
+    "run_dir": {
+      "type": "string",
+      "description": "Workspace-relative path to the run directory. Forward slashes only (Windows backslashes normalized at write time)."
+    },
+    "written_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the marker was written."
+    },
+    "error": {
+      "type": "object",
+      "required": ["type", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Exception class name (e.g. 'PermissionError', 'OSError', 'JSONDecodeError', 'FileNotFoundError'). Used by the Bridge to choose user-facing remediation copy."
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message from the exception. May be shown to the user."
+        },
+        "traceback": {
+          "type": "string",
+          "description": "Optional full traceback string. Useful for diagnostics; not displayed to the user by default."
+        }
+      }
+    },
+    "index_path": {
+      "type": "string",
+      "description": "Workspace-relative path to the index file the writer was attempting to update. Forward slashes only. Lets the Bridge advise on which file needs manual recovery."
+    }
+  }
+}
