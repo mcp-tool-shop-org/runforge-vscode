@@ -9,11 +9,26 @@ import type { RunMetadata } from '../../types.js';
 import { escapeTableCell } from './escape.js';
 
 /**
+ * Options for {@link renderRunSummary}.
+ *
+ * `deterministic`: when `true`, the `Created` row emits the raw ISO-8601
+ * timestamp from `runJson.created_at` instead of the locale-formatted form
+ * produced by {@link formatDate} (which calls `Date#toLocaleString()` and
+ * therefore varies by host timezone / locale). Used by snapshot tests so
+ * fixtures don't churn on machine differences. Default behavior (omitted /
+ * `false`) is unchanged for backward compatibility.
+ */
+export interface RenderRunSummaryOptions {
+  deterministic?: boolean;
+}
+
+/**
  * Render run.json as markdown summary
  */
 export function renderRunSummary(
   runJson: RunMetadata,
-  runId: string
+  runId: string,
+  options: RenderRunSummaryOptions = {}
 ): string {
   const lines: string[] = [];
 
@@ -24,10 +39,14 @@ export function renderRunSummary(
   lines.push('## Key Facts');
   lines.push('');
 
+  const createdDisplay = options.deterministic
+    ? String(runJson.created_at)
+    : formatDate(runJson.created_at);
+
   lines.push(`| Field | Value |`);
   lines.push(`|-------|-------|`);
   lines.push(`| RunForge Version | ${escapeTableCell(runJson.runforge_version)} |`);
-  lines.push(`| Created | ${escapeTableCell(formatDate(runJson.created_at))} |`);
+  lines.push(`| Created | ${escapeTableCell(createdDisplay)} |`);
   lines.push(`| Label Column | \`${escapeTableCell(runJson.label_column)}\` |`);
   lines.push(`| Samples | ${escapeTableCell(runJson.num_samples)} |`);
   lines.push(`| Features | ${escapeTableCell(runJson.num_features)} |`);
