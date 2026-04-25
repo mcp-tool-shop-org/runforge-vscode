@@ -537,3 +537,51 @@ export interface IndexCancelledMarker {
   /** Workspace-relative paths to artifacts partially or fully written before cancellation. */
   partial_artifacts?: string[];
 }
+
+/**
+ * Phase 4 (FT-BACK-002 + FT-BRIDGE-009): structured report returned by the
+ * `runforge.recoverIndex` command. Single canonical shape used by both:
+ *
+ * - WRITER: `runforge.recoverIndex` command in src/extension.ts (Backend
+ *   FT-BACK-002) — walks `.ml/runs/`, reads each run dir's state, decides
+ *   add-to-index vs skip, returns this report.
+ * - READER: `renderRecoveryReport()` in src/observability/render/ (Bridge
+ *   FT-BRIDGE-009) — renders this report as user-facing markdown.
+ *
+ * Per CONTRACT-PHASE-4.md §3.1.2: idempotent (re-running on same workspace
+ * yields identical report); does NOT modify run.json or other artifacts;
+ * cancelled runs (`.cancelled` marker present, no run.json) are
+ * `cancelled_excluded` (NOT added to the index — they remain visible in
+ * the orphan picker).
+ */
+export interface RecoveryReport {
+  /** Total run dirs discovered under .ml/runs/. */
+  scanned_run_dirs: number;
+  /** Count of runs already in index.json before recovery (no action taken). */
+  already_indexed: number;
+  /** Runs newly added to index.json by this recovery. */
+  recovered: RecoveryReportEntry[];
+  /** Run dirs that could not be recovered (corrupt or missing run.json). */
+  skipped: RecoveryReportSkip[];
+  /** Cancelled runs (`.cancelled` marker present, no run.json) — explicitly NOT indexed per §3.1.2. */
+  cancelled_excluded: RecoveryReportEntry[];
+  /** ISO 8601 UTC timestamp when recovery ran. */
+  recovered_at: string;
+}
+
+export interface RecoveryReportEntry {
+  run_id: string;
+  /** Workspace-relative path to the run dir. Forward slashes only. */
+  run_dir: string;
+  /** Best-effort classification of why this run was missing from the index. */
+  reason?: 'index_orphan_marker' | 'cancelled' | 'pre_existing_orphan';
+}
+
+export interface RecoveryReportSkip {
+  /** Workspace-relative path to the run dir that could not be recovered. */
+  run_dir: string;
+  /** Categorized failure reason. */
+  error: 'CORRUPT_RUN_JSON' | 'MISSING_RUN_JSON' | 'READ_ERROR';
+  /** Human-readable detail (file path, parse error, etc.). */
+  message: string;
+}

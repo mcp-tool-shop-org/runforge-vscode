@@ -78,8 +78,22 @@ Phase 4 introduces a `runforge.recoverIndex` command that walks `.ml/runs/`, re-
 **Contract:**
 - Recovery is idempotent: repeated calls do NOT duplicate index entries (keyed on `run_id`).
 - Recovery does NOT modify run.json or other artifacts; only the index is rebuilt.
-- Recovery surfaces a structured report (count of orphans recovered, count already indexed, count skipped due to corrupt run.json).
-- Cancelled runs (with `.cancelled` marker but no run.json) are NOT added to the index; they remain visible in the orphan picker.
+- Recovery returns a structured `RecoveryReport` (canonical TS type in `src/types.ts`) — single canonical shape consumed by both the command (writer) and the markdown render (reader). This is the prospective-contract pattern (lesson #11) applied to multi-domain Wave 3 work.
+- Cancelled runs (with `.cancelled` marker but no `run.json`) are NOT added to the index; they appear under `RecoveryReport.cancelled_excluded` and remain visible in the orphan picker.
+- Successful re-recoveries delete the `.index-orphan` marker if present (the run is now indexed; the orphan signal is stale).
+
+**RecoveryReport shape (canonical):**
+- `scanned_run_dirs: number` — total run dirs walked
+- `already_indexed: number` — count of runs present in index.json before recovery (no-op for these)
+- `recovered: RecoveryReportEntry[]` — runs newly added to index.json this call
+- `skipped: RecoveryReportSkip[]` — run dirs that could not be recovered (corrupt/missing run.json, read error). Each carries `{ run_dir, error: 'CORRUPT_RUN_JSON' | 'MISSING_RUN_JSON' | 'READ_ERROR', message }`.
+- `cancelled_excluded: RecoveryReportEntry[]` — cancelled runs explicitly NOT indexed per the rule above
+- `recovered_at: string` — ISO 8601 UTC timestamp
+
+**RecoveryReportEntry shape (per recovered or excluded run):**
+- `run_id: string`
+- `run_dir: string` — workspace-relative path, forward slashes
+- `reason?: 'index_orphan_marker' | 'cancelled' | 'pre_existing_orphan'` — best-effort classification of why the run wasn't already indexed
 
 #### 3.1.3 Source-of-truth doctrine (events + markers, never process-exit timing)
 
