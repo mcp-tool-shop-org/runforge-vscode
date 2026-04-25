@@ -7,12 +7,14 @@
 // commands hardcoded `.runforge/`. The chain broke silently: train succeeded,
 // view-runs returned empty.
 //
-// This journey-shaped test exercises the production WRITE path
-// (createRunFolder + appendToIndex) and then calls the observability READ helpers
-// (getLatestRunDir + safeReadIndex + safeReadRunJson) against the same workspace.
-// If anyone reintroduces a `.runforge` literal in either layer, or drifts the
-// WORKSPACE_PATHS constant in types.ts, this test fails because the read chain
-// cannot locate what the write chain produced.
+// POST iter #5a UPDATE: Backend's `ec81781` deleted `appendToIndex` from the TS
+// extension — Python ml_runner is now the single writer of `.ml/outputs/index.json`
+// (see test/regression-iter-5a.test.ts for the full Python → TS chain). The path-
+// canonicality contract this regression covers is unchanged: the observability read
+// helpers must locate what the writer (whoever it is) produces under `.ml/`. Here
+// we exercise the read chain against a workspace whose `.ml/` layout was
+// materialised the same way Python materialises it (run dir + canonical index.json
+// written via `fs.writeFile`, same on-disk shape).
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
@@ -21,7 +23,7 @@ import * as os from 'node:os';
 
 import { WORKSPACE_PATHS } from '../src/types.js';
 import { createRunFolder, generateRunId } from '../src/workspace/run-folder.js';
-import { appendToIndex, createTimestamp } from '../src/workspace/index-manager.js';
+import { createTimestamp } from '../src/workspace/index-manager.js';
 import {
   getLatestRunDir,
   safeReadIndex,
@@ -47,7 +49,7 @@ describe('F-COORD-008 regression: observability read-chain resolves canonical .m
     expect(WORKSPACE_PATHS.INDEX_FILE).toBe('.ml/outputs/index.json');
   });
 
-  it('write chain (createRunFolder + appendToIndex) materialises .ml/ layout on disk', async () => {
+  it('write chain (createRunFolder + canonical index emit) materialises .ml/ layout on disk', async () => {
     const runId = generateRunId('coord008');
     const runDir = await createRunFolder(workspaceRoot, runId);
 
@@ -60,26 +62,44 @@ describe('F-COORD-008 regression: observability read-chain resolves canonical .m
     const artifactsStat = await fs.stat(path.join(runDir, 'artifacts'));
     expect(artifactsStat.isDirectory()).toBe(true);
 
-    // Append an index entry using production helper and assert it lands under `.ml/outputs/`.
-    await appendToIndex(workspaceRoot, {
-      run_id: runId,
-      created_at: createTimestamp(),
-      name: 'coord008',
-      preset_id: 'std-train',
-      status: 'succeeded',
-      run_dir: `.ml/runs/${runId}`,
-      summary: {
-        duration_ms: 1234,
-        final_metrics: { accuracy: 0.95 },
-        device: 'cpu',
-      },
-    });
+    // Simulate Python ml_runner emitting the canonical index entry to
+    // `.ml/outputs/index.json`. The writer is no longer in TS (iter #5a
+    // consolidation); we materialise the same on-disk shape the writer
+    // produces so the read chain has something to find.
+    const outputsDir = path.join(workspaceRoot, '.ml', 'outputs');
+    await fs.mkdir(outputsDir, { recursive: true });
+    const canonicalIndex = {
+      schema_version: '1.0.0',
+      runs: [
+        {
+          run_id: runId,
+          created_at: createTimestamp(),
+          name: 'coord008',
+          preset_id: 'std-train',
+          status: 'succeeded',
+          summary: {
+            duration_ms: 1234,
+            final_metrics: { accuracy: 0.95 },
+            device: 'cpu',
+          },
+          run_dir: `.ml/runs/${runId}`,
+          dataset_fingerprint_sha256: 'a'.repeat(64),
+          label_column: 'label',
+          model_pkl: `.ml/runs/${runId}/artifacts/model.pkl`,
+        },
+      ],
+    };
+    await fs.writeFile(
+      path.join(outputsDir, 'index.json'),
+      JSON.stringify(canonicalIndex, null, 2),
+      'utf-8'
+    );
 
     const indexPath = path.join(workspaceRoot, '.ml', 'outputs', 'index.json');
     const indexStat = await fs.stat(indexPath);
     expect(indexStat.isFile()).toBe(true);
 
-    // Negative assertion — no `.runforge/` directory was produced by the write path.
+    // Negative assertion — no `.runforge/` directory was produced by any layer.
     const runforgeExists = await fs
       .access(path.join(workspaceRoot, '.runforge'))
       .then(() => true)
@@ -112,26 +132,36 @@ describe('F-COORD-008 regression: observability read-chain resolves canonical .m
       'utf-8'
     );
 
-    // Write the observability-shaped index file ({ runs: [...] }) at the canonical path.
-    // The point of this test is path canonicality — the index-schema-shape drift
-    // (bare array vs. wrapped) is a separate contract and not what F-COORD-008 covers.
+    // Write the canonical index.json shape ({schema_version, runs: [...]})
+    // — the on-disk shape Python ml_runner emits since iter #5a. The
+    // canonical IndexEntry uses `dataset_fingerprint_sha256` (not the
+    // pre-iter-#5a `dataset_fingerprint`).
     const outputsDir = path.join(workspaceRoot, '.ml', 'outputs');
     await fs.mkdir(outputsDir, { recursive: true });
-    const observabilityIndex = {
+    const canonicalIndex = {
+      schema_version: '1.0.0',
       runs: [
         {
           run_id: runId,
           created_at: runJson.created_at,
-          dataset_fingerprint: 'a'.repeat(64),
-          label_column: 'species',
+          name: 'coord008',
+          preset_id: 'std-train',
+          status: 'succeeded',
+          summary: {
+            duration_ms: 1234,
+            final_metrics: { accuracy: 0.95 },
+            device: 'cpu',
+          },
           run_dir: `.ml/runs/${runId}`,
-          model_pkl: `.ml/runs/${runId}/model.pkl`,
+          dataset_fingerprint_sha256: 'a'.repeat(64),
+          label_column: 'species',
+          model_pkl: `.ml/runs/${runId}/artifacts/model.pkl`,
         },
       ],
     };
     await fs.writeFile(
       path.join(outputsDir, 'index.json'),
-      JSON.stringify(observabilityIndex, null, 2),
+      JSON.stringify(canonicalIndex, null, 2),
       'utf-8'
     );
 
@@ -150,6 +180,9 @@ describe('F-COORD-008 regression: observability read-chain resolves canonical .m
       expect(indexResult.value.runs).toHaveLength(1);
       expect(indexResult.value.runs[0].run_id).toBe(runId);
       expect(indexResult.value.runs[0].run_dir).toBe(`.ml/runs/${runId}`);
+      // Canonical field name (post iter #5a) — Bridge's 2ca61b8 enforces
+      // `dataset_fingerprint_sha256` everywhere downstream.
+      expect(indexResult.value.runs[0].dataset_fingerprint_sha256).toMatch(/^[a-f0-9]{64}$/);
     }
 
     const runJsonResult = await safeReadRunJson(workspaceRoot, `.ml/runs/${runId}`);

@@ -85,11 +85,13 @@ describe('browseRuns', () => {
   it('shows runs newest-first in QuickPick (entries reversed)', async () => {
     const outputsDir = path.join(tmpDir, '.ml', 'outputs');
     await fs.mkdir(outputsDir, { recursive: true });
+    // Post iter #5a: canonical IndexEntry uses `dataset_fingerprint_sha256`,
+    // not the pre-iter-#5a `dataset_fingerprint` (Bridge's 2ca61b8 rename).
     const runs = [
       {
         run_id: 'run-oldest',
         created_at: '2026-04-01T00:00:00Z',
-        dataset_fingerprint: 'a'.repeat(64),
+        dataset_fingerprint_sha256: 'a'.repeat(64),
         label_column: 'label',
         run_dir: '.ml/runs/run-oldest',
         model_pkl: 'runs/run-oldest/model.pkl',
@@ -97,7 +99,7 @@ describe('browseRuns', () => {
       {
         run_id: 'run-middle',
         created_at: '2026-04-02T00:00:00Z',
-        dataset_fingerprint: 'b'.repeat(64),
+        dataset_fingerprint_sha256: 'b'.repeat(64),
         label_column: 'label',
         run_dir: '.ml/runs/run-middle',
         model_pkl: 'runs/run-middle/model.pkl',
@@ -105,7 +107,7 @@ describe('browseRuns', () => {
       {
         run_id: 'run-newest',
         created_at: '2026-04-03T00:00:00Z',
-        dataset_fingerprint: 'c'.repeat(64),
+        dataset_fingerprint_sha256: 'c'.repeat(64),
         label_column: 'label',
         run_dir: '.ml/runs/run-newest',
         model_pkl: 'runs/run-newest/model.pkl',
@@ -113,7 +115,7 @@ describe('browseRuns', () => {
     ];
     await fs.writeFile(
       path.join(outputsDir, 'index.json'),
-      JSON.stringify({ runs })
+      JSON.stringify({ schema_version: '1.0.0', runs })
     );
 
     // Cancel at the first picker.
@@ -136,7 +138,7 @@ describe('browseRuns', () => {
       {
         run_id: 'r1',
         created_at: '2026-04-01T00:00:00Z',
-        dataset_fingerprint: 'a'.repeat(64),
+        dataset_fingerprint_sha256: 'a'.repeat(64),
         label_column: 'l',
         run_dir: '.ml/runs/r1',
         model_pkl: 'runs/r1/model.pkl',
@@ -144,7 +146,7 @@ describe('browseRuns', () => {
       {
         run_id: 'r2',
         created_at: '2026-04-02T00:00:00Z',
-        dataset_fingerprint: 'b'.repeat(64),
+        dataset_fingerprint_sha256: 'b'.repeat(64),
         label_column: 'l',
         run_dir: '.ml/runs/r2',
         model_pkl: 'runs/r2/model.pkl',
@@ -152,7 +154,7 @@ describe('browseRuns', () => {
     ];
     await fs.writeFile(
       path.join(outputsDir, 'index.json'),
-      JSON.stringify({ runs })
+      JSON.stringify({ schema_version: '1.0.0', runs })
     );
 
     showQuickPick.mockResolvedValueOnce(undefined);
@@ -186,7 +188,7 @@ describe('browseRuns', () => {
       {
         run_id: 'only-run',
         created_at: '2026-04-01T00:00:00Z',
-        dataset_fingerprint: 'a'.repeat(64),
+        dataset_fingerprint_sha256: 'a'.repeat(64),
         label_column: 'label',
         run_dir: '.ml/runs/only-run',
         model_pkl: 'runs/only-run/model.pkl',
@@ -194,7 +196,7 @@ describe('browseRuns', () => {
     ];
     await fs.writeFile(
       path.join(outputsDir, 'index.json'),
-      JSON.stringify({ runs })
+      JSON.stringify({ schema_version: '1.0.0', runs })
     );
 
     // First picker selects the only run; second picker is cancelled.
