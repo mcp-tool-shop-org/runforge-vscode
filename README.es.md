@@ -1,5 +1,5 @@
 <p align="center">
-  <strong>English</strong> | <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português</a>
+  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.md">English</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,32 +8,67 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode"><img src="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode/branch/main/graph/badge.svg" alt="Coverage"></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/visual-studio-marketplace/v/mcp-tool-shop.runforge.svg" alt="Marketplace"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/runforge-vscode/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
 
-Entrenamiento de modelos de aprendizaje automático con un solo clic, que ofrece un comportamiento determinista y basado en contratos.
+> **Aviso para usuarios de la tienda (marketplace) en la versión 1.0.1 (lanzamiento del 25 de marzo de 2026):** La versión 1.0.1 se lanzó con cinco errores
+> críticos que afectan los comandos de "Entrenamiento", la navegación y las vistas de
+> monitoreo (la causa raíz es una regresión en la invocación de subprocesos y una
+> discrepancia en la ruta/estructura entre el escritor y los lectores). Los cinco se
+> corrigieron en la versión **1.1.0**, que también incluye las funciones de la Fase 4
+> (cancelación en curso, recuperación, confianza del espacio de trabajo). Si instaló la
+> versión 1.0.1, actualice a la versión 1.1.0. Consulte las [notas de la versión 1.0.1](docs/MARKETPLACE_NOTE_v1.0.1.md)
+> y el [`CHANGELOG.md`](CHANGELOG.md#110---2026-04-25) para obtener más detalles.
 
-La fase 3 (capacidades e interpretabilidad) se ha completado con la versión 0.3.6.0.
-Los trabajos futuros se llevarán a cabo bajo los contratos de la fase 4.
+Entrenamiento de modelos de aprendizaje automático con un solo clic, con un comportamiento determinista y basado en contratos.
+
+> **La Fase 3 (Capacidades e Interpretabilidad) se fijó en la versión 0.3.6.0.
+> La Fase 4 (Ciclo de vida y recuperación) se lanzó en la versión 1.1.0**; consulte el [contrato de la Fase 4](CONTRACT-PHASE-4.md).
+
+## ¿Qué hay de nuevo en la versión 1.1.0?
+
+1. **Cancelar el entrenamiento en curso** (`RunForge: Cancelar entrenamiento activo`): cancele un
+entrenamiento en ejecución a través del panel de comandos o el botón de cancelación de notificación de progreso de VS Code. Se aplica una ventana de gracia de 5 segundos con SIGTERM, seguida de SIGKILL. Los entrenamientos cancelados reciben un marcador `.cancelled` para que la recuperación y el selector de ejecuciones puedan clasificarlos correctamente.
+2. **Recuperar índice** (`RunForge: Recuperar índice`): recorre `.ml/runs/` y vuelve a agregar cualquier ejecución
+que falte en `.ml/outputs/index.json`. Es idempotente. Útil después de un error de escritura o un movimiento del espacio de trabajo.
+3. **Protección de la confianza del espacio de trabajo**: la creación de subprocesos de Python ahora requiere
+`vscode.workspace.isTrusted`. Los espacios de trabajo no confiables muestran un error de seguridad que permite realizar una acción y que dirige a la interfaz de administración de la confianza del espacio de trabajo.
+4. **Notificaciones de progreso por época**: el entrenamiento muestra el progreso en tiempo real y expone un botón de
+cancelación a través de `vscode.window.withProgress`.
+5. **Mensajes de error de CSV mejorados**: los delimitadores que no son comas, las codificaciones que no son UTF-8, las
+etiquetas que son todos NaN, los archivos CSV de una sola columna y los archivos CSV que solo contienen encabezados generan diagnósticos específicos y que permiten realizar una acción, en lugar de rastreos opacos de pandas.
+6. **Reglas personalizadas de ESLint**: estas reglas hacen cumplir las doctrinas arquitectónicas codificadas en
+[`docs/CONTRACTS.md`](docs/CONTRACTS.md) (no hay duplicación de literales de valor canónico, no hay tipos ocultos en los módulos de consumidor).
+7. **Documentación de la doctrina**: [`docs/CONTRACTS.md`](docs/CONTRACTS.md) ahora codifica las
+seis reglas arquitectónicas + siete patrones operativos de cinco iteraciones de auditoría estructurada. Los patrones son innegociables para cualquier trabajo entre dominios (TS / Python / monitoreo).
+
+Además, la versión 1.1.0 corrige las cinco regresiones CRÍTICAS de la versión 1.0.1 (`F-COORD-003`, `F-COORD-004`,
+`F-COORD-008`, `F-COORD-010`, `F-COORD-011`). Consulte el [`CHANGELOG.md`](CHANGELOG.md) para obtener
+un desglose completo.
 
 ---
 
-## 🛡️ La garantía de RunForge
+## 🛡️ La Garantía de RunForge
 
-RunForge es un software diseñado para eliminar la frase "funciona en mi máquina" y reemplazarla con una certeza basada en análisis forenses.
+RunForge es un software con una opinión definida, diseñado para reemplazar la frase "funciona en mi máquina" con una certeza forense.
 
 ### Lo que garantizamos
-1.  **Determinismo:** Cada ejecución se inicia con una semilla específica. Ejecutar la misma configuración con la misma semilla y los mismos datos produce exactamente el mismo modelo.
-2.  **Trazabilidad:** Cada registro en el archivo `run.json` incluye el identificador SHA del commit de Git, la ruta del intérprete de Python y la versión de la extensión utilizada. Se puede rastrear cualquier modelo hasta el código que lo generó.
-3.  **Auditoría:** Los artefactos (modelos, métricas, registros) se guardan en el disco en formatos estándar (JSON, joblib). No hay bases de datos ocultas, ni dependencias de la nube.
+1.  **Determinismo**: Cada ejecución tiene una semilla. Volver a ejecutar la misma configuración con la misma semilla en los mismos datos produce el mismo modelo.
+2.  **Origen**: Cada registro de `run.json` incluye el SHA del commit de Git, la ruta del intérprete de Python y la versión de la extensión utilizados. Puede rastrear cualquier modelo hasta el código que lo creó.
+3.  **Auditoría**: Los artefactos (modelos, métricas, registros) se guardan en el disco en formatos estándar (JSON, joblib). No hay bases de datos ocultas, ni dependencias de la nube.
 
 ### Lo que esto no es
--   **No es una herramienta mágica de AutoML**: No intentamos adivinar lo que necesita. Ejecutamos configuraciones específicas y personalizables.
--   **No es una plataforma en la nube**: No enviamos sus datos a ningún lugar. Todo el proceso se realiza localmente, en su espacio de trabajo de VS Code.
+-   **No es una herramienta de AutoML mágica**: No adivinamos lo que quiere. Ejecutamos configuraciones específicas y ajustables.
+-   **No es una plataforma en la nube**: No enviamos sus datos a ningún lugar. Todo se ejecuta localmente en su espacio de trabajo de VS Code.
 
-Para obtener información completa sobre el modelo de confianza, consulte el documento [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
+Para obtener información completa sobre el modelo de confianza, consulte [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
+
+### Seguridad y alcance de los datos
+
+**Datos a los que se accede:** archivos CSV del espacio de trabajo (solo lectura para el entrenamiento), directorio `.ml/` (metadatos de la ejecución, artefactos del modelo, JSON de métricas), salida estándar/error estándar de los subprocesos de Python. **Datos a los que NO se accede:** ningún archivo fuera del espacio de trabajo, ningún dato del navegador, ninguna credencial del sistema operativo. **Permisos requeridos:** lectura/escritura en el sistema de archivos dentro del espacio de trabajo, ejecución de subprocesos de Python. **No hay salida de red:** todas las operaciones son locales. **No se recopila ni se envía telemetría.**
 
 ### Ciclo de vida de una ejecución
 
@@ -53,7 +88,7 @@ dataset.csv
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
-.runforge/runs/<run-id>/
+.ml/runs/<run-id>/
     ├── run.json                              ← Metadata + pointers
     ├── metrics.json                          ← Phase 2 metrics (3 keys)
     ├── metrics.v1.json                       ← Detailed metrics by profile
@@ -75,52 +110,52 @@ npm run compile
 
 ## Comandos
 
-| Comando. | Descripción. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. |
-| `RunForge: Train (Standard)` | Ejecutar el entrenamiento utilizando la configuración predefinida "std-train". |
-| `RunForge: Train (High Quality)` | Ejecutar el entrenamiento utilizando la configuración predefinida "hq-train". |
-| `RunForge: Open Runs` | Ver las sesiones de entrenamiento completadas. |
-| `RunForge: Inspect Dataset` | Validar el conjunto de datos antes del entrenamiento (versión 0.2.2.1 o superior). |
-| `RunForge: Open Latest Run Metadata` | Ver los metadatos de la última ejecución (versión 0.2.2.1 o superior). |
-| `RunForge: Inspect Model Artifact` | Ver la estructura de la tubería (pipeline) del modelo "model.pkl" (versión 0.2.2.2 o superior). |
-| `RunForge: Browse Runs` | Ver todas las ejecuciones con sus acciones (resumen, diagnósticos, artefactos) (versión 0.2.3 o superior). |
-| `RunForge: View Latest Metrics` | Consulte las métricas detalladas en el archivo metrics.v1.json (versión 0.3.3 o superior). |
-| `RunForge: View Latest Feature Importance` | Visualice la importancia de las características para los modelos de Random Forest (versión 0.3.4 y posteriores). |
-| `RunForge: View Latest Linear Coefficients` | Ver los coeficientes de los modelos lineales (versión 0.3.5 o superior). |
-| `RunForge: View Latest Interpretability Index` | Ver el índice unificado de todos los elementos relacionados con la interpretabilidad (versión 0.3.6 o superior). |
-| `RunForge: Export Latest Run as Markdown` | Guardar un resumen formateado en Markdown de la última ejecución (versión 0.4.3 o superior). |
+| Comando | Descripción |
+|---------|-------------|
+| `RunForge: Train (Standard)` | Ejecutar el entrenamiento con la configuración predefinida "std-train" |
+| `RunForge: Train (High Quality)` | Ejecutar el entrenamiento con la configuración predefinida "hq-train" |
+| `RunForge: Open Runs` | Ver las ejecuciones de entrenamiento completadas |
+| `RunForge: Inspect Dataset` | Validar el conjunto de datos antes del entrenamiento (v0.2.2.1+) |
+| `RunForge: Open Latest Run Metadata` | Ver los metadatos de la ejecución más reciente (v0.2.2.1+) |
+| `RunForge: Inspect Model Artifact` | Ver la estructura del pipeline del archivo "model.pkl" (v0.2.2.2+) |
+| `RunForge: Browse Runs` | Explorar todas las ejecuciones con acciones (resumen, diagnóstico, artefacto) (v0.2.3+) |
+| `RunForge: View Latest Metrics` | Ver métricas detalladas del archivo "metrics.v1.json" (v0.3.3+) |
+| `RunForge: View Latest Feature Importance` | Ver la importancia de las características para los modelos RandomForest (v0.3.4+) |
+| `RunForge: View Latest Linear Coefficients` | Ver los coeficientes para los modelos lineales (v0.3.5+) |
+| `RunForge: View Latest Interpretability Index` | Ver el índice unificado de todos los artefactos de interpretabilidad (v0.3.6+) |
+| `RunForge: Export Latest Run as Markdown` | Guardar un resumen formateado en Markdown de la última ejecución (v0.4.3+) |
 
 ## Uso
 
-1. Establezca la variable de entorno `RUNFORGE_DATASET` con la ruta a su archivo CSV.
+1. Establecer la variable de entorno `RUNFORGE_DATASET` con la ruta a su archivo CSV.
 2. El archivo CSV debe tener una columna llamada `label`.
-3. Inicie el entrenamiento a través del panel de comandos.
+3. Ejecutar el entrenamiento a través del panel de comandos.
 
 ---
 
-## Garantías (versión 0.2.1 o superior)
+## Garantías (v0.2.1+)
 
-RunForge para VS Code ofrece un entrenamiento de modelos de aprendizaje automático determinista y basado en contratos. Las garantías que se indican a continuación son intencionales y se verifican mediante pruebas.
+RunForge para VS Code proporciona un entrenamiento de aprendizaje automático determinista y basado en contratos. Las garantías a continuación son intencionales y se hacen cumplir mediante pruebas.
 
 ### Determinismo
 
 Dado el mismo conjunto de datos, configuración y versión de RunForge:
 
-- Las divisiones de entrenamiento y validación son idénticas en todas las ejecuciones.
-- Los resultados generados son reproducibles.
-- Los resultados de las métricas son estables.
+- Las divisiones de entrenamiento/validación son idénticas en todas las ejecuciones.
+- Los artefactos generados son reproducibles.
+- Las salidas de las métricas son estables.
 
-No existe aleatoriedad fuera de los comportamientos que se definen explícitamente.
+No hay aleatoriedad fuera del comportamiento explícitamente definido.
 
 ### Manejo de etiquetas
 
-- La columna que contiene las etiquetas se especifica explícitamente.
-- La etiqueta nunca se deduce de la posición de la columna.
-- Las etiquetas mal configuradas o ausentes generan errores de forma temprana.
+- La columna de etiquetas se especifica explícitamente.
+- La etiqueta nunca se infiere por la posición de la columna.
+- Las etiquetas mal configuradas o faltantes provocan errores tempranos.
 
-### Contrato de medición
+### Contrato de métricas
 
-El entrenamiento produce exactamente tres métricas:
+El entrenamiento genera exactamente tres métricas:
 
 ```json
 {
@@ -130,14 +165,14 @@ El entrenamiento produce exactamente tres métricas:
 }
 ```
 
-No se añaden campos adicionales de forma implícita.
-La ampliación del esquema requiere un cambio en el contrato que se gestione mediante versiones.
+No se agregan campos adicionales implícitamente.
+La expansión del esquema requiere un cambio de contrato versionado.
 
 ### Artefactos del modelo
 
-- `model.pkl` siempre es una instancia serializada de `sklearn.Pipeline`.
-- Todo el preprocesamiento (por ejemplo, la normalización) está integrado.
-- El archivo es autónomo y está listo para su uso en inferencia.
+- `model.pkl` es siempre un objeto serializado de `sklearn.Pipeline`.
+- Todo el preprocesamiento (por ejemplo, escalamiento) está incluido.
+- El artefacto es autocontenido y listo para la inferencia.
 
 No se requieren pasos de preprocesamiento externos.
 
@@ -145,95 +180,93 @@ No se requieren pasos de preprocesamiento externos.
 
 - Las filas que contienen valores faltantes se eliminan de forma determinista.
 - Se registra el número de filas eliminadas.
-- No se realiza ninguna imputación implícita.
+- No se realiza ninguna imputación silenciosa.
 
-### Fuente de información confiable
+### Fuente de la verdad
 
-- Toda la lógica de ejecución de Python se encuentra en el directorio `python/ml_runner/`.
-- No existen implementaciones duplicadas ni alternativas.
-- Las pruebas garantizan la coherencia entre el comportamiento de TypeScript y el de Python.
+- Toda la lógica de ejecución de Python se encuentra en `python/ml_runner/`.
+- No hay implementaciones duplicadas ni alternativas.
+- Las pruebas garantizan la coherencia entre el comportamiento de TypeScript y Python.
 
 ### Política de estabilidad
 
-- El comportamiento en la versión v0.2.1 está fijado y no se modificarán sus características.
+- El comportamiento de la versión v0.2.1 está congelado.
 - Los cambios que rompen la compatibilidad requieren un aumento explícito de la versión principal.
-- Los cambios en el comportamiento que no se anuncian se consideran errores.
+- Los cambios de comportamiento silenciosos se consideran errores.
 
 ---
 
-## Goles anulados (intencionales)
+## Objetivos no alcanzados (intencionales)
 
-Actualmente, RunForge no intenta:
+RunForge actualmente no intenta:
 
-- Selección automática de modelos (el usuario debe elegir explícitamente).
-- Ajuste de hiperparámetros (los valores predeterminados son fijos para cada configuración).
-- Realización de entrenamiento en línea o incremental.
-- Ocultamiento del comportamiento del entrenamiento mediante heurísticas.
+- Seleccionar modelos automáticamente (el usuario debe elegir explícitamente).
+- Ajustar hiperparámetros (los valores predeterminados están fijos para cada configuración).
+- Realizar entrenamiento en línea o incremental.
+- Ocultar el comportamiento del entrenamiento detrás de heurísticas.
 
-La precisión y la transparencia son prioritarias, incluso por encima de la automatización.
-
----
+La corrección y la transparencia tienen prioridad sobre la automatización.
 
 ---
 
-## Observabilidad (versión 0.2.2.1 o superior)
+---
 
-La fase 2.2.1 proporciona información detallada sobre las ejecuciones de entrenamiento sin modificar el comportamiento del proceso de entrenamiento.
+## Observabilidad (v0.2.2.1+)
 
-### Ejecutar metadatos
+La versión 2.2.1 agrega visibilidad a las ejecuciones de entrenamiento sin cambiar el comportamiento del entrenamiento.
+
+### Metadatos de la ejecución
 
 Cada ejecución de entrenamiento genera un archivo `run.json` que contiene:
 
-- Identificador de la ejecución y marca de tiempo.
-- Huella digital del conjunto de datos (SHA-256).
-- Columna de etiquetas y número de características.
-- Número de filas eliminadas.
-- Captura de métricas.
-- Rutas de los archivos generados.
+- ID de la ejecución y marca de tiempo
+- Huella digital del conjunto de datos (SHA-256)
+- Columna de etiquetas y número de características
+- Número de filas eliminadas
+- Instantánea de las métricas
+- Rutas de los artefactos
 
 ### Inspección del conjunto de datos
 
-Inspeccione los conjuntos de datos antes de comenzar el entrenamiento:
+Inspeccione los conjuntos de datos antes del entrenamiento:
 
 ```bash
 python -m ml_runner inspect --dataset data.csv --label label
 ```
 
-Devuelve los nombres de las columnas, el número de filas, el número de características y la validación de las etiquetas.
+Devuelve los nombres de las columnas, el número de filas, el número de características y la validación de la etiqueta.
 
-### Seguimiento del origen.
-Rastreabilidad del origen.
-Control de la procedencia
+### Seguimiento del origen
 
-Todas las ejecuciones están indexadas en el archivo `.runforge/index.json` para facilitar el seguimiento:
+Todas las ejecuciones están indexadas en `.ml/outputs/index.json` para facilitar el seguimiento:
 
-- A partir de un archivo `model.pkl`, rastrear hasta los metadatos de la ejecución.
-- Encontrar todas las ejecuciones correspondientes a una huella digital específica de un conjunto de datos.
-- Índice de solo escritura (nunca se reordena ni se eliminan elementos).
+- Dado un archivo `model.pkl`, rastree la información de la ejecución.
+- Encuentre todas las ejecuciones para una huella digital de conjunto de datos determinada.
+- Índice de solo escritura (nunca se reordena ni se elimina).
 
 ---
 
-## Introspección de artefactos (versión 0.2.2.2 o superior)
+## Inspección de artefactos (v0.2.2.2+)
 
-La fase 2.2.2 introduce la posibilidad de inspeccionar los elementos generados durante el entrenamiento, pero solo en modo de lectura.
+La fase 2.2.2 agrega la inspección de solo lectura de los artefactos entrenados.
 
-La función de inspección es de solo lectura y no permite volver a entrenar ni modificar los elementos.
+**La inspección es de solo lectura y no vuelve a entrenar ni modifica los artefactos.**
 
-### Inspección de tuberías
+### Inspección del flujo de trabajo
 
-Inspeccione el contenido de un archivo `model.pkl` sin necesidad de volver a entrenar el modelo:
+Inspeccione el contenido de un archivo `model.pkl` sin volver a entrenar:
 
 ```bash
 python -m ml_runner inspect-artifact --artifact model.pkl
 ```
 
-Devuelve una estructura JSON que contiene:
+Devuelve un JSON estructurado con:
 
-- Pasos del proceso (en orden).
-- Tipos de pasos y módulos.
-- Detección de preprocesamiento.
+- Pasos del flujo de trabajo (en orden)
+- Tipos de pasos y módulos
+- Detección de preprocesamiento
 
-Okay, I understand. Please provide the English text you would like me to translate.
+Ejemplo de salida:
 
 ```json
 {
@@ -252,63 +285,61 @@ Okay, I understand. Please provide the English text you would like me to transla
 
 Los diagnósticos estructurados explican por qué una ejecución se comportó de la manera en que lo hizo:
 
-| Code | Descripción. |
-| Por favor, proporciona el texto en inglés que deseas que traduzca al español. | Por favor, proporcione el texto que desea que traduzca. |
-| `MISSING_VALUES_DROPPED` | Filas eliminadas debido a valores faltantes. |
-| `LABEL_NOT_FOUND` | La columna "etiqueta" no está presente en el conjunto de datos. |
-| `LABEL_TYPE_INVALID` | La columna "Etiqueta" tiene un tipo de dato inválido. |
-| `ZERO_ROWS` | El conjunto de datos tiene cero filas después del procesamiento. |
-| `ZERO_FEATURES` | El conjunto de datos no tiene columnas de características. |
-| `LABEL_ONLY_DATASET` | El conjunto de datos contiene únicamente la columna de etiquetas. |
+| Código | Descripción |
+|------|-------------|
+| `MISSING_VALUES_DROPPED` | Filas eliminadas debido a valores faltantes |
+| `LABEL_NOT_FOUND` | La columna de etiquetas no está presente en el conjunto de datos |
+| `LABEL_TYPE_INVALID` | La columna de etiquetas tiene un tipo de datos inválido |
+| `ZERO_ROWS` | El conjunto de datos tiene cero filas después del procesamiento |
+| `ZERO_FEATURES` | El conjunto de datos no tiene columnas de características |
+| `LABEL_ONLY_DATASET` | El conjunto de datos contiene solo la columna de etiquetas |
 
-Todos los diagnósticos están en formato JSON, que es legible por máquina (no es necesario realizar ningún análisis de registros).
+Todos los diagnósticos son JSON legibles por máquina (no se requiere análisis de registros).
 
 ---
 
-## Explorar rutas (versión 0.2.3 o superior)
+## Explorar ejecuciones (v0.2.3+)
 
-La fase 2.3 introduce un navegador de ejecuciones unificado con funciones de acceso rápido.
+La fase 2.3 agrega un explorador de ejecuciones unificado con acciones rápidas.
 
-### Utilizando las funciones de exploración
+### Cómo usar el explorador de ejecuciones
 
-1. Abra el panel de comandos (`Ctrl+Shift+P`).
-2. Ejecute `RunForge: Explorar ejecuciones`.
-3. Seleccione una ejecución de la lista (mostrando primero las más recientes).
+1. Abra la paleta de comandos (`Ctrl+Shift+P`)
+2. Ejecute `RunForge: Explorar ejecuciones`
+3. Seleccione una ejecución de la lista (la más reciente primero)
 4. Elija una acción:
-- **Abrir resumen de la ejecución** — Ver los metadatos de la ejecución en formato Markdown legible.
-- **Ver diagnósticos** — Consultar los eventos que ocurrieron durante la ejecución.
-- **Inspeccionar el artefacto del modelo** — Ver la estructura del flujo de trabajo.
-- **Copiar la huella digital del conjunto de datos** — Copiar el valor SHA-256 al portapapeles.
+- **Ver resumen de la ejecución** — Vea los metadatos de la ejecución en formato Markdown legible
+- **Ver diagnósticos** — Vea lo que sucedió durante la ejecución
+- **Inspeccionar artefacto del modelo** — Vea la estructura del flujo de trabajo
+- **Copiar huella digital del conjunto de datos** — Copie el SHA-256 al portapapeles
 
-### Diagnósticos integrados
+### Diagnósticos sintetizados
 
-Los diagnósticos se obtienen a partir de los campos del archivo "run.json":
+Los diagnósticos se derivan de los campos del archivo `run.json`:
 
-| Condición. | Diagnóstico. |
-| Por favor, proporciona el texto que deseas que traduzca. | Sure, here is the Spanish translation of the English text:
-
-"Please provide the text you would like me to translate." |
+| Condición | Diagnóstico |
+|-----------|------------|
 | `dropped_rows_missing_values > 0` | `MISSING_VALUES_DROPPED` |
 
-Se prevé que en futuras fases se implementen diagnósticos de emisiones más completos y estructurados.
+Se planea una emisión completa de diagnósticos estructurados para futuras fases.
 
 ---
 
-## Selección de modelo (versión 0.3.1 o superior)
+## Selección de modelo (v0.3.1+)
 
-La fase 3.1 introduce la selección explícita del modelo, al tiempo que mantiene todas las garantías de la fase 2.
+La fase 3.1 agrega la selección explícita de modelos, al tiempo que conserva todas las garantías de la fase 2.
 
-### Modelos compatibles
+### Modelos soportados
 
-| Model | Valor de la interfaz de línea de comandos (CLI). | Descripción. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| Regresión logística. | `logistic_regression` | Predeterminado, rápido, interpretable. |
-| Bosque aleatorio. | `random_forest` | Ensemble permite analizar patrones no lineales. |
-| SVC lineal. | `linear_svc` | Clasificador de vectores de soporte, basado en el margen. |
+| Modelo | Valor de la CLI | Descripción |
+|-------|-----------|-------------|
+| Regresión logística | `logistic_regression` | Predeterminado, rápido, interpretable |
+| Bosque aleatorio | `random_forest` | Conjunto, maneja patrones no lineales |
+| SVC lineal | `linear_svc` | Clasificador de vectores de soporte, basado en el margen |
 
 ### Configuración
 
-Configure la familia de modelos en la configuración de VS Code:
+Establezca la familia de modelos en la configuración de VS Code:
 
 ```json
 {
@@ -316,26 +347,19 @@ Configure la familia de modelos en la configuración de VS Code:
 }
 ```
 
-O bien, utilice la interfaz de configuración: busque "Familia de modelos RunForge" y selecciónela en el menú desplegable.
+O use la interfaz de usuario de configuración: Busque "Familia de modelos de RunForge" y seleccione de la lista desplegable.
 
-### Uso de la línea de comandos
+### Uso de la CLI
 
 ```bash
 python -m ml_runner train --preset std-train --out ./run --device cpu --model random_forest
 ```
 
-El argumento `--model` es opcional. El valor predeterminado es: `logistic_regression`.
+El argumento `--model` es opcional. Predeterminado: `logistic_regression`.
 
-### Origen.
-Procedencia.
-Antecedentes.
-Historia.
-Procedimiento.
-Fuente.
-Orígenes.
-Procedencia (de una obra de arte, por ejemplo)
+### Origen
 
-El modelo específico utilizado se registra en el archivo `run.json`:
+La familia de modelos seleccionada se registra en el archivo `run.json`:
 
 ```json
 {
@@ -346,45 +370,26 @@ El modelo específico utilizado se registra en el archivo `run.json`:
 
 ### Compatibilidad con versiones anteriores
 
-- Todas las ejecuciones de la Fase 2 siguen siendo legibles.
-- El comportamiento predeterminado no ha cambiado (regresión logística).
-- No se requiere ninguna migración.
-- El preprocesamiento se mantiene sin cambios (StandardScaler para todos los modelos).
+- Todas las ejecuciones de la fase 2 siguen siendo legibles
+- El comportamiento predeterminado no cambia (regresión logística)
+- No se requiere migración
+- El preprocesamiento permanece fijo (StandardScaler para todos los modelos)
 
 ---
 
-## Hiperparámetros y perfiles de entrenamiento (versión 0.3.2 y posteriores)
+## Hiperparámetros y perfiles de entrenamiento (v0.3.2+)
 
-La fase 3.2 introduce un control explícito de los hiperparámetros y perfiles de entrenamiento.
+La fase 3.2 agrega el control explícito de hiperparámetros y perfiles de entrenamiento.
 
-### Perfiles de formación
+### Perfiles de entrenamiento
 
-Los perfiles predefinidos ofrecen hiperparámetros configurados previamente.
+Los perfiles predefinidos proporcionan hiperparámetros preconfigurados:
 
-| Perfil. | Descripción. | Modelo de familia. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "The company is committed to providing high-quality products and services."
-
-"We are looking for a motivated and experienced candidate."
-
-"The meeting will be held on Tuesday at 10:00 AM."
-
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
--------------
-
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." | Por favor, proporcione el texto que desea que traduzca. |
-| `default` | No existen opciones para anular los hiperparámetros. | (utiliza la configuración) |
-| `fast` | Menos iteraciones para ejecuciones rápidas. | regresión_logística |
-| `thorough` | Más árboles/iteraciones para una mejor calidad. | bosque aleatorio |
+| Perfil | Descripción | Familia de modelos |
+|---------|-------------|--------------|
+| `default` | Sin anulaciones de hiperparámetros | (utiliza la configuración) |
+| `fast` | Menos iteraciones para ejecuciones rápidas | regresión_logística |
+| `thorough` | Más árboles/iteraciones para mejor calidad | bosque_aleatorio |
 
 Configure en la configuración de VS Code:
 ```json
@@ -393,9 +398,9 @@ Configure en la configuración de VS Code:
 }
 ```
 
-### Hiperparámetros de la interfaz de línea de comandos
+### Hiperparámetros de la línea de comandos
 
-Sobreescribir los hiperparámetros individuales a través de la línea de comandos:
+Anule hiperparámetros individuales a través de la línea de comandos:
 
 ```bash
 python -m ml_runner train --preset std-train --out ./run --device cpu --param C=0.5 --param max_iter=200
@@ -403,20 +408,15 @@ python -m ml_runner train --preset std-train --out ./run --device cpu --param C=
 
 ### Reglas de precedencia
 
-Cuando tanto los parámetros del perfil como los parámetros de la línea de comandos están configurados:
+Cuando tanto el perfil como los parámetros de la línea de comandos están definidos:
 
-1. **Parámetros especificados en la línea de comandos (`--param`)** (mayor prioridad)
-2. **Parámetros expandidos a partir del perfil**
+1. **`--param` de la línea de comandos** (mayor prioridad)
+2. **Parámetros expandidos del perfil**
 3. **Valores predeterminados del modelo** (menor prioridad)
 
-### Origen.
-Procedencia.
-Antecedentes.
-Historia.
-Procedimiento.
-(Dependiendo del contexto, también podría traducirse como: Linaje, Herencia, Origen geográfico, etc.)
+### Origen
 
-Los hiperparámetros y los perfiles se registran en el archivo `run.json`:
+Los hiperparámetros y los perfiles se registran en `run.json`:
 
 ```json
 {
@@ -431,57 +431,41 @@ Los hiperparámetros y los perfiles se registran en el archivo `run.json`:
 }
 ```
 
-Cuando no se utiliza un perfil, los campos del perfil se omiten por completo (no se establecen como valores nulos).
+Cuando no se utiliza ningún perfil, los campos del perfil se omiten por completo (no se establecen como nulos).
 
 ---
 
-## Métricas específicas para cada modelo (versión 0.3.3 y posteriores)
+## Métricas específicas del modelo (v0.3.3+)
 
-La fase 3.3 introduce métricas detalladas y específicas para cada modelo, con la posibilidad de seleccionar perfiles basados en las capacidades.
+La versión 3.3 agrega métricas detalladas y específicas del modelo, con selección de perfil basada en capacidades.
 
 ### Perfiles de métricas
 
-Los perfiles de métricas se seleccionan automáticamente en función de las capacidades del modelo:
+Los perfiles de métricas se seleccionan automáticamente según las capacidades del modelo:
 
-| Perfil. | Descripción. | Métricas. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| `classification.base.v1` | Todos los clasificadores. | precisión, exactitud, exhaustividad, F1, matriz de confusión. |
-| `classification.proba.v1` | Binario + probabilidad de predicción. | base + ROC-AUC, pérdida de logaritmo. |
-| `classification.multiclass.v1` | 3 clases o más. | base + precisión/exhaustividad/f1 por clase. |
+| Perfil | Descripción | Métricas |
+|---------|-------------|---------|
+| `classification.base.v1` | Todos los clasificadores | precisión, exactitud, exhaustividad, f1, matriz de confusión |
+| `classification.proba.v1` | Binario + predict_proba | básico + ROC-AUC, pérdida logarítmica |
+| `classification.multiclass.v1` | 3 o más clases | básico + precisión/exhaustividad/f1 por clase |
 
-### Lógica de selección de perfiles
+### Lógica de selección de perfil
 
 - Clasificación binaria + `predict_proba` → `classification.proba.v1`
-- Clasificación multiclase (3 o más clases) → `classification.multiclass.v1`
-- En cualquier otro caso → `classification.base.v1`
+- Multiclase (3 o más clases) → `classification.multiclass.v1`
+- De lo contrario → `classification.base.v1`
 
 ### Capacidades del modelo
 
-| Model | predict_proba | función de decisión. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the English text you would like me to translate." | Sure, here is the translation:
-
-**English:**
-
-You are a professional English (en) to Spanish (es) translator. Your goal is to accurately convey the meaning and nuances of the original English text while adhering to Spanish grammar, vocabulary, and cultural sensitivities.
-Produce only the Spanish translation, without any additional explanations or commentary. Please translate the following English text into Spanish:
-
--------------------
-
-**over**
-
-**Spanish:**
-
-Usted es un traductor profesional de inglés (en) a español (es). Su objetivo es transmitir con precisión el significado y los matices del texto original en inglés, respetando la gramática, el vocabulario y las sensibilidades culturales del español.
-Por favor, produzca únicamente la traducción al español, sin explicaciones ni comentarios adicionales. Traduzca el siguiente texto en inglés al español:
-
-------------------- |
+| Modelo | predict_proba | decision_function |
+|-------|---------------|-------------------|
 | RegresiónLogística | ✅ | ✅ |
-| Bosque Aleatorio. | ✅ | ❌ |
-| LinearSVC | ❌ | ✅ (Solo para la métrica ROC-AUC) |
+| BosqueAleatorio | ✅ | ❌ |
+| LinearSVC | ❌ | ✅ (solo ROC-AUC) |
 
 ### Artefacto de métricas
 
-Actualmente, el proceso de entrenamiento genera tanto el archivo `metrics.v1.json` como el archivo `metrics.json`.
+Ahora, el entrenamiento produce `metrics.v1.json` junto con `metrics.json`:
 
 ```json
 {
@@ -498,13 +482,13 @@ Actualmente, el proceso de entrenamiento genera tanto el archivo `metrics.v1.jso
 }
 ```
 
-### Ejecutar metadatos
+### Metadatos de la ejecución
 
-El archivo `run.json` ahora incluye un puntero a `metrics_v1`:
+`run.json` ahora incluye un puntero a `metrics_v1`:
 
 ```json
 {
-  "schema_version": "run.v0.3.3",
+  "schema_version": "run.v0.3.6",
   "metrics_v1": {
     "schema_version": "metrics.v1",
     "metrics_profile": "classification.proba.v1",
@@ -519,49 +503,31 @@ El archivo `run.json` ahora incluye un puntero a `metrics_v1`:
 
 ### Compatibilidad con versiones anteriores
 
-- El archivo `metrics.json` (Fase 2) permanece sin cambios.
-- Todas las herramientas existentes siguen funcionando.
-- Los campos del perfil en `run.json` se muestran juntos o no se muestran en absoluto.
+- `metrics.json` (versión 2) permanece sin cambios
+- Todas las herramientas existentes siguen funcionando
+- Los campos del perfil en `run.json` aparecen juntos o no aparecen en absoluto.
 
 ---
 
-## Importancia de las características (versión 0.3.4 y posteriores)
+## Importancia de las características (v0.3.4+)
 
-La fase 3.4 introduce una función de extracción de la importancia de las características que solo permite la lectura, y que está disponible para los modelos compatibles.
+La versión 3.4 agrega la extracción de la importancia de las características solo de lectura para los modelos compatibles.
 
-### Modelos compatibles
+### Modelos soportados
 
-La importancia de las características solo está disponible para los modelos que tienen señales de importancia integradas.
+La importancia de las características solo está disponible para los modelos con señales de importancia nativas:
 
-| Model | Soportado. | Tipo de importancia. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the text you would like me to translate." | "The company is committed to providing high-quality products and services."
+| Modelo | Compatible | Tipo de importancia |
+|-------|-----------|-----------------|
+| BosqueAleatorio | ✅ | Importancia de Gini |
+| RegresiónLogística | ❌ | No disponible en v1 |
+| LinearSVC | ❌ | No disponible en v1 |
 
-"We are looking for a motivated and experienced candidate."
+**Sin aproximaciones**: Si el modelo no admite la importancia nativa, no se genera ningún artefacto.
 
-"The meeting will be held on Tuesday at 10:00 AM."
+### Artefacto de importancia de las características
 
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
------------------
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
-| Bosque Aleatorio. | ✅ | Importancia del coeficiente de Gini. |
-| RegresiónLogística | ❌ | No disponible en la versión 1. |
-| LinearSVC | ❌ | No disponible en la versión 1. |
-
-**Sin aproximaciones:** Si el modelo no admite la importancia nativa, no se genera ningún resultado.
-
-### Importancia de las características
-
-Las ejecuciones de RandomForest generan el archivo `artifacts/feature_importance.v1.json`:
+Las ejecuciones de BosqueAleatorio producen `artifacts/feature_importance.v1.json`:
 
 ```json
 {
@@ -581,9 +547,9 @@ Las ejecuciones de RandomForest generan el archivo `artifacts/feature_importance
 }
 ```
 
-### Ejecutar metadatos
+### Metadatos de la ejecución
 
-El archivo `run.json` incluye información sobre la importancia de las características, cuando está disponible.
+`run.json` incluye una referencia a la importancia de las características cuando está disponible:
 
 ```json
 {
@@ -596,90 +562,76 @@ El archivo `run.json` incluye información sobre la importancia de las caracter�
 }
 ```
 
-Cuando la importancia de las características no está disponible, estos campos se omiten por completo (no se incluyen valores nulos).
+Cuando la importancia de las características no está disponible, estos campos se omiten por completo (no se establecen como nulos).
 
 ### Diagnósticos
 
-Los modelos no soportados emiten diagnósticos estructurados:
+Los modelos no compatibles emiten diagnósticos estructurados:
 
-| Code | Descripción. |
-| Translate the following English text into Spanish:
+| Código | Descripción |
+|------|-------------|
+| `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | El modelo no admite la importancia nativa de las características |
+| `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características |
 
-"The company is committed to providing high-quality products and services. We strive to meet and exceed customer expectations. Our team is dedicated to innovation and continuous improvement. We value integrity, transparency, and respect in all our interactions."
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad. Nos esforzamos por satisfacer y superar las expectativas de nuestros clientes. Nuestro equipo está dedicado a la innovación y la mejora continua. Valoramos la integridad, la transparencia y el respeto en todas nuestras interacciones." | Por favor, proporciona el texto que deseas que traduzca. |
-| `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | El modelo no admite la función nativa de cálculo de la importancia de las variables. |
-| `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características. |
+### No compatible en v1
 
-### No compatible en la versión 1
+Los siguientes elementos están explícitamente fuera del alcance de la versión 1:
 
-A continuación, se enumeran explícitamente los elementos que no están incluidos en el alcance de la versión 1:
+- Importancia basada en coeficientes para modelos lineales
+- Explicaciones SHAP/LIME
+- Importancia por permutación
+- Gráficos de dependencia parcial
 
-- Importancia basada en coeficientes para modelos lineales.
-- Explicaciones mediante SHAP/LIME.
-- Importancia por permutación.
-- Gráficos de dependencia parcial.
+### Hiperparámetros compatibles
 
-### Hiperparámetros soportados
-
-**Regresión Logística:**
-- `C` (flotante, > 0): Intensidad de la regularización.
-- `max_iter` (entero, > 0): Número máximo de iteraciones.
-- `solver` (cadena de texto): Algoritmo de optimización.
-- `warm_start` (booleano): Reutilizar la solución anterior.
+**Regresión logística:**
+- `C` (float, > 0): Fuerza de regularización
+- `max_iter` (int, > 0): Número máximo de iteraciones
+- `solver` (str): Solucionador de optimización
+- `warm_start` (bool): Reutilizar la solución anterior
 
 **Bosque Aleatorio:**
 - `n_estimators` (entero, > 0): Número de árboles.
-- `max_depth` (entero o None): Profundidad máxima de los árboles.
-- `min_samples_split` (entero, >= 2): Número mínimo de muestras para dividir un nodo.
+- `max_depth` (entero o None): Profundidad máxima del árbol.
+- `min_samples_split` (entero, >= 2): Número mínimo de muestras para dividir.
 - `min_samples_leaf` (entero, > 0): Número mínimo de muestras por hoja.
 
 **SVC Lineal:**
-- `C` (flotante, > 0): Intensidad de la regularización.
+- `C` (flotante, > 0): Intensidad de regularización.
 - `max_iter` (entero, > 0): Número máximo de iteraciones.
 
 ---
 
-## Coeficientes lineales (versión 0.3.5 y posteriores)
+## Coeficientes Lineales (v0.3.5+)
 
-La fase 3.5 introduce la extracción de coeficientes de solo lectura para clasificadores lineales.
+La fase 3.5 agrega la extracción de coeficientes de solo lectura para clasificadores lineales.
 
-### Modelos compatibles
+### Modelos soportados
 
-Los coeficientes lineales están disponibles para los modelos que tienen un atributo nativo llamado `coef_`:
+Los coeficientes lineales están disponibles para modelos con el atributo nativo `coef_`:
 
-| Model | Soportado.
-Apoyado.
-Respaldado.
-Asistido.
-Validado.
-Habilitado.
-Permitido.
-Autorizado.
-Contenido.
-Sostenido. | Tipo de coeficiente. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Por favor, proporciona el texto que deseas que traduzca. | Sure, here is the Spanish translation of the English text:
+| Modelo | Compatible | Tipo de Coeficiente |
+|-------|-----------|------------------|
+| RegresiónLogística | ✅ | Coeficientes de log-odds |
+| LinearSVC | ✅ | Coeficientes de SVM |
+| BosqueAleatorio | ❌ | Utilice Importancia de Características en su lugar. |
 
-"Please provide the English text you would like me to translate." |
-| RegresiónLogística | ✅ | Coeficientes de log-odds. |
-| LinearSVC | ✅ | Coeficientes de la Máquina de Vectores de Soporte (SVM). |
-| Bosque Aleatorio. | ❌ | Utilice la función de importancia de las características en su lugar. |
+**Sin aproximaciones**: Si el modelo no admite coeficientes nativos, no se genera ningún artefacto.
 
-**Sin aproximaciones:** Si el modelo no admite coeficientes nativos, no se genera ningún artefacto.
+### Espacio de Coeficientes (IMPORTANTE)
 
-### Espacio de coeficientes (IMPORTANTE)
-
-Todos los coeficientes están expresados en un espacio de características normalizado.
+**Todos los coeficientes están en el espacio de características ESTANDARIZADO.**
 
 Esto significa:
 - Los coeficientes corresponden a las características DESPUÉS de la aplicación de StandardScaler.
-- Los valores representan la influencia por cada aumento de una desviación estándar.
+- Los valores representan la influencia por cada desviación estándar.
 - No se intenta "invertir" la escala para volver a las unidades originales de las características.
-- La comparación de coeficientes entre diferentes características es significativa (mismo rango).
-- La comparación de coeficientes con los valores originales de las características NO es significativa.
+- Comparar coeficientes entre diferentes características es significativo (misma escala).
+- Comparar coeficientes con los valores originales de las características NO es significativo.
 
-### Artefacto debido a los coeficientes lineales
+### Artefacto de Coeficientes Lineales
 
-Las ejecuciones del modelo lineal generan el archivo `artifacts/linear_coefficients.v1.json`:
+Las ejecuciones de modelos lineales producen `artifacts/linear_coefficients.v1.json`:
 
 ```json
 {
@@ -707,17 +659,17 @@ Las ejecuciones del modelo lineal generan el archivo `artifacts/linear_coefficie
 }
 ```
 
-### Soporte para múltiples clases
+### Soporte para Clasificación Multiclase
 
-Para la clasificación multiclase (con 3 o más clases), los coeficientes se agrupan por clase:
+Para la clasificación multiclase (3 o más clases), los coeficientes se agrupan por clase:
 
 - Cada clase tiene su propio conjunto de coeficientes.
-- Las etiquetas de las clases se ordenan de forma determinista.
-- No se realiza ninguna agregación entre clases en la versión 1.
+- Las etiquetas de clase se ordenan de forma determinista.
+- No hay agregación entre clases en la versión 1.
 
-### Ejecutar metadatos
+### Metadatos de la ejecución
 
-El archivo `run.json` incluye los coeficientes lineales de referencia, cuando están disponibles.
+`run.json` incluye una referencia a los coeficientes lineales cuando están disponibles:
 
 ```json
 {
@@ -730,86 +682,53 @@ El archivo `run.json` incluye los coeficientes lineales de referencia, cuando es
 }
 ```
 
-Cuando los coeficientes no están disponibles, estos campos se omiten por completo (no se dejan en blanco).
+Cuando los coeficientes no están disponibles, estos campos se omiten por completo (no se establecen como nulos).
 
 ### Diagnósticos
 
-Los modelos no soportados emiten diagnósticos estructurados:
+Los modelos no compatibles emiten diagnósticos estructurados:
 
-| Code | Descripción. |
-| Por favor, proporciona el texto que deseas que traduzca. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
+| Código | Descripción |
+|------|-------------|
 | `LINEAR_COEFFICIENTS_UNSUPPORTED_MODEL` | El modelo no admite la extracción de coeficientes. |
-| `COEFFICIENTS_MISSING_ON_ARTIFACT` | El clasificador no tiene el atributo "coef_". |
-| `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características. |
+| `COEFFICIENTS_MISSING_ON_ARTIFACT` | El clasificador no tiene el atributo `coef_`. |
+| `FEATURE_NAMES_UNAVAILABLE` | No se pudieron resolver los nombres de las características |
 
-### Importancia de las características frente a los coeficientes lineales
+### Importancia de Características vs. Coeficientes Lineales
 
-| Objeto antiguo. | Modelos compatibles. | Qué muestra. |
-| "Please provide the English text you would like me to translate into Spanish." | Sure, here is the translation:
+| Artefacto | Modelos soportados | Lo que Muestra |
+|----------|------------------|---------------|
+| Importancia de Características (v0.3.4) | BosqueAleatorio | Importancia de Gini (basada en árboles) |
+| Coeficientes Lineales (v0.3.5) | LogisticRegression, LinearSVC | Coeficientes del modelo |
 
-**English:**
+Estos son complementarios:
+- Utilice la Importancia de Características para modelos de conjunto.
+- Utilice los Coeficientes Lineales para modelos lineales interpretables.
 
-You are a professional English (en) to Spanish (es) translator. Your goal is to accurately convey the meaning and nuances of the original English text while adhering to Spanish grammar, vocabulary, and cultural sensitivities.
-Produce only the Spanish translation, without any additional explanations or commentary. Please translate the following English text into Spanish:
+### Guía de Interpretación
 
-------------------
+Para LogisticRegression (binaria):
+- Coeficiente positivo: Aumento de la característica → Mayor probabilidad de la clase positiva.
+- Coeficiente negativo: Aumento de la característica → Menor probabilidad de la clase positiva.
+- Magnitud: Valor absoluto mayor = Mayor influencia.
 
-**Spanish:**
-
-Eres un traductor profesional de inglés (en) a español (es). Tu objetivo es transmitir con precisión el significado y los matices del texto original en inglés, respetando la gramática, el vocabulario y las sensibilidades culturales del español.
-Por favor, proporciona únicamente la traducción al español, sin explicaciones ni comentarios adicionales. Traduce el siguiente texto en inglés al español:
-
------------------- | "The company is committed to providing high-quality products and services."
-
-"We are looking for a motivated and experienced candidate."
-
-"The meeting will be held on Tuesday at 10:00 AM."
-
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
----------------
-
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
-| Importancia de las características (versión 0.3.4). | Bosque Aleatorio. | Importancia de Gini (basada en árboles). |
-| Coeficientes lineales (versión 0.3.5). | LogisticRegression, LinearSVC. | Coeficientes del modelo. |
-
-Estos son métodos complementarios:
-- Utilice la importancia de las características para modelos de conjunto.
-- Utilice los coeficientes lineales para modelos lineales interpretables.
-
-### Guía de interpretación
-
-Para la regresión logística (binaria):
-- Coeficiente positivo: Un aumento en la característica implica una mayor probabilidad de pertenecer a la clase positiva.
-- Coeficiente negativo: Un aumento en la característica implica una menor probabilidad de pertenecer a la clase positiva.
-- Magnitud: Un valor absoluto mayor indica una mayor influencia.
-
-Ejemplo: `coeficiente = 2.0` significa +1 desviación estándar en esta característica → +2.0 en la escala log-odds.
+Ejemplo: `coeficiente = 2.0` significa +1 desviación estándar en esta característica → +2.0 en los log-odds.
 
 ---
 
-## Índice de interpretabilidad (versión 0.3.6 y posteriores)
+## Índice de Interpretación (v0.3.6+)
 
-La fase 3.6 introduce un índice unificado que relaciona todos los resultados de interpretabilidad para una ejecución específica.
+La fase 3.6 agrega un índice unificado que vincula todas las salidas de interpretación para una ejecución.
 
 ### Propósito
 
-El índice de interpretabilidad responde a las siguientes preguntas: "¿Qué resultados de interpretabilidad se han generado en esta ejecución, qué versiones tienen y dónde se encuentran?"
+El índice de interpretación responde a la pregunta: "¿Qué salidas de interpretación existen para esta ejecución, qué versiones son y dónde están?"
 
-No se realiza ningún cálculo nuevo; simplemente se vinculan y se resumen elementos ya existentes.
+No hay nuevos cálculos, solo se vinculan y resumen los artefactos existentes.
 
-### Índice de artefactos
+### Artefacto del Índice
 
-Cada ejecución genera el archivo `artifacts/interpretability.index.v1.json`:
+Cada ejecución produce `artifacts/interpretability.index.v1.json`:
 
 ```json
 {
@@ -847,101 +766,87 @@ Cada ejecución genera el archivo `artifacts/interpretability.index.v1.json`:
 }
 ```
 
-### Reglas de disponibilidad
+### Reglas de Disponibilidad
 
-- Los artefactos que no están disponibles se **omiten** de la lista `available_artifacts` (no se establecen como nulos o falsos).
-- El índice solo indica la disponibilidad si el archivo realmente existe.
-- Una ejecución básica (LogisticRegression) tendrá `metrics_v1` y `linear_coefficients_v1`.
+- Los artefactos ausentes se **omiten** de `available_artifacts` (no se establecen como nulos o falsos).
+- El índice solo afirma la disponibilidad si el archivo realmente existe.
+- Una ejecución mínima (LogisticRegression) tendrá `metrics_v1` y `linear_coefficients_v1`.
 - Una ejecución de RandomForest tendrá `metrics_v1` y `feature_importance_v1`.
 
-### Resumen del contenido
+### Contenido del Resumen
 
-Los resúmenes incluyen únicamente datos de referencia (sin valores numéricos repetidos).
+Los resúmenes incluyen solo datos de referencia (sin valores numéricos duplicados):
 
-| Objeto antiguo. | Resumen. Contiene. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "The company is committed to providing high-quality products and services."
-
-"We are looking for a motivated and experienced candidate."
-
-"The meeting will be held on Tuesday at 10:00 AM."
-
-"Please submit your application by the end of the week."
-
-"We offer a competitive salary and benefits package."
-------------------
-"La empresa está comprometida a ofrecer productos y servicios de alta calidad."
-
-"Estamos buscando un candidato motivado y con experiencia."
-
-"La reunión se llevará a cabo el martes a las 10:00 AM."
-
-"Por favor, envíe su solicitud antes de que finalice la semana."
-
-"Ofrecemos un salario competitivo y un paquete de beneficios." |
-| métricas_v1 | `metrics_profile`, `accuracy` (obtenidos del archivo run.json) |
-| importancia_de_las_características_v1 | `model_family`, `top_k` (solo los nombres, máximo 5). |
-| coeficientes_lineales_v1 | `model_family`, `num_classes`, `top_k_by_class` (solo los nombres) |
+| Artefacto | Contenido del resumen |
+|----------|------------------|
+| métricas_v1 | `metrics_profile`, `accuracy` (obtenidos de run.json) |
+| feature_importance_v1 | `model_family`, `top_k` (solo nombres, máximo 5) |
+| linear_coefficients_v1 | `model_family`, `num_classes`, `top_k_by_class` (solo nombres) |
 
 ### Comando de VS Code
 
-Utilice la opción "RunForge: Ver el índice de interpretabilidad más reciente" para ver un resumen formateado con enlaces directos para abrir cada elemento individualmente.
+Utilice `RunForge: Ver el índice de interpretabilidad más reciente` para ver un resumen formateado con enlaces rápidos para abrir los elementos individuales.
 
 ---
 
-## Comenzando
+## Cómo empezar
 
-Para una guía paso a paso, consulte [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md).
+Para obtener una guía paso a paso, consulte [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md).
 
 ---
 
-## Contratos y documentación
+## Contrato y documentación
 
-### Documentos esenciales
+### Documentos principales
 
-| Documento. | Propósito. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) | Cómo RunForge genera confianza. |
-| [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) | Visita guiada de 2 a 3 minutos. |
-| [CONTRACT.md](CONTRACT.md) | Contrato de conducta completo. |
-| [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) | Reglas de expansión para la fase 3. |
+| Documento | Propósito |
+|----------|---------|
+| [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md) | Cómo RunForge establece la confianza |
+| [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) | Recorrido guiado de 2 a 3 minutos |
+| [CONTRACT.md](CONTRACT.md) | Contrato de comportamiento completo |
+| [CONTRACT-PHASE-3.md](CONTRACT-PHASE-3.md) | Reglas de expansión de la fase 3 |
 
 ### Fase 2 (Congelada)
 
-| Documento. | Scope |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) | Observabilidad. |
-| [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) | Introspección. |
-| [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) | Mejoras en la experiencia de usuario. |
+| Documento | Alcance |
+|----------|-------|
+| [docs/PHASE-2.2.1-ACCEPTANCE.md](docs/PHASE-2.2.1-ACCEPTANCE.md) | Observabilidad |
+| [docs/PHASE-2.2.2-ACCEPTANCE.md](docs/PHASE-2.2.2-ACCEPTANCE.md) | Introspección |
+| [docs/PHASE-2.3-ACCEPTANCE.md](docs/PHASE-2.3-ACCEPTANCE.md) | Mejoras de la experiencia de usuario |
 
-### Fase 3 (congelada a partir de la versión 0.3.6.0)
+### Fase 3 (Congelada a partir de la versión v0.3.6.0)
 
-| Documento. | Scope |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. |
-| [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) | Selección de modelos. |
-| [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) | Hiperparámetros y perfiles. |
-| [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) | Métricas específicas para cada modelo. |
-| [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) | Importancia de las características. |
-| [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) | Coeficientes lineales. |
-| [docs/PHASE-3.6-ACCEPTANCE.md](docs/PHASE-3.6-ACCEPTANCE.md) | Índice de interpretabilidad. |
+| Documento | Alcance |
+|----------|-------|
+| [docs/PHASE-3.1-ACCEPTANCE.md](docs/PHASE-3.1-ACCEPTANCE.md) | Selección de modelos |
+| [docs/PHASE-3.2-ACCEPTANCE.md](docs/PHASE-3.2-ACCEPTANCE.md) | Hiperparámetros y perfiles |
+| [docs/PHASE-3.3-ACCEPTANCE.md](docs/PHASE-3.3-ACCEPTANCE.md) | Métricas específicas del modelo |
+| [docs/PHASE-3.4-ACCEPTANCE.md](docs/PHASE-3.4-ACCEPTANCE.md) | Importancia de las características |
+| [docs/PHASE-3.5-ACCEPTANCE.md](docs/PHASE-3.5-ACCEPTANCE.md) | Coeficientes lineales |
+| [docs/PHASE-3.6-ACCEPTANCE.md](docs/PHASE-3.6-ACCEPTANCE.md) | Índice de interpretabilidad |
 
 ### Futuro
 
-Consulte el documento [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) para conocer las mejoras planificadas.
+Consulte [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) para ver las mejoras planificadas.
 
 ---
 
 ## Estado de la fase
 
-| Phase | Focus | Estado. |
-| Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | Please provide the English text you would like me to translate. I am ready to translate it into Spanish. | "Please provide the English text you would like me to translate." |
-| **Phase 2** | Formación fundamental, capacidad de monitorización. | Congelado. |
-| **Phase 3** | Selección de modelos, interpretabilidad. | **Frozen (v0.3.6.0)** |
-| **Phase 4** | TBD | Requiere un nuevo contrato. |
+| Fase | Enfoque | Estado |
+|-------|-------|--------|
+| **Phase 2** | Entrenamiento principal, observabilidad | Congelada |
+| **Phase 3** | Selección de modelos, interpretabilidad | **Frozen (v0.3.6.0)** |
+| **Phase 4** | Ciclo de vida, recuperación, doctrina | **Lanzada (v1.1.0)** — consulte [`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) |
 
-Todas las garantías correspondientes a las fases 2 y 3 están fijadas. Los trabajos futuros requerirán contratos de la fase 4.
+**Todas las interfaces de contrato de las fases 2, 3 y 4 están bloqueadas. El trabajo futuro requiere un contrato de la fase 5.**
 
 ---
 
 ## Licencia
 
-MIT.
+MIT
+
+---
+
+Creado por <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a
