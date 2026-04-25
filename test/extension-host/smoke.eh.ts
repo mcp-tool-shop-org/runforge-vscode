@@ -254,9 +254,8 @@ suite('RunForge Extension Host smoke (FT-TEST-001)', () => {
         vscode.commands.executeCommand('runforge.trainStandard')
       );
 
-      // Wait for OUR run dir to appear (one not in the before-snapshot)
-      // with a request.json. This avoids races with scenario 1's runs
-      // and guarantees we cancel mid-OUR-run, not pre-spawn.
+      // Stage A: wait for OUR run dir to appear (one not in the
+      // before-snapshot) with a request.json. Captures run_id.
       let myRunId: string | undefined;
       await waitFor(
         () => {
@@ -270,9 +269,24 @@ suite('RunForge Extension Host smoke (FT-TEST-001)', () => {
           }
           return false;
         },
-        { timeoutMs: 30_000, description: "this scenario's Python subprocess to spawn" }
+        { timeoutMs: 30_000, description: "this scenario's run dir + request.json" }
       );
       assert.ok(myRunId, 'must have captured this scenario\'s run_id');
+
+      // Stage B: wait for logs.txt to appear under OUR run dir. logs.txt
+      // is created by run-manager's stderr handler (run-manager.ts:455
+      // appendLog) on the FIRST stderr line from Python. Python emits its
+      // run_start event right AFTER _register_sigterm_handler (runner.py
+      // :594 register → :600 emit). So logs.txt existence proves Python
+      // is alive AND past handler registration — firing cancel before
+      // this point races against Python's bootstrap and produces no
+      // marker (root cause of fix-up commit 1's failure).
+      const myLogsPath = path.join(runsDir, myRunId!, 'logs.txt');
+      await waitFor(() => fs.existsSync(myLogsPath), {
+        timeoutMs: 30_000,
+        intervalMs: 200,
+        description: 'logs.txt to confirm Python signal handler is registered',
+      });
 
       // Fire programmatic cancel via the new runforge.cancelActiveRun command
       // (Phase 4 FT-BACK-001 surface — calls killActiveRun under the hood,
