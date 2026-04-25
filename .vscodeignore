@@ -1,7 +1,10 @@
 .vscode/**
 .vscode-test/**
+.vscode-test.mjs
+.vscode-test.js
 src/**
 test/**
+out/**
 node_modules/**
 .git/**
 .github/**
@@ -20,6 +23,7 @@ docs/**
 resources/**
 CONTRACT.md
 CONTRACT-PHASE-3.md
+CONTRACT-PHASE-4.md
 CONTRIBUTING.md
 CLAUDE.md
 SHIP_GATE.md
