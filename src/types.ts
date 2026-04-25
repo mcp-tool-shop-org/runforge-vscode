@@ -98,6 +98,22 @@ export interface RunSummary {
   device: DeviceType;
 }
 
+/**
+ * Canonical on-disk shape of `.ml/outputs/index.json`.
+ *
+ * SHARED TYPE — both the workspace writer (`src/workspace/index-manager.ts`)
+ * and the observability reader (`src/observability/fs-safe.ts`) MUST import
+ * this single definition. Drift between writer and reader was F-COORD-010:
+ * writer wrote a bare `[entry, ...]` array while reader parsed `{runs: [...]}`,
+ * silently breaking every observability command after train.
+ *
+ * Wrapped object form is forward-compat: future top-level fields (e.g.
+ * `version`, `last_updated`) can be added without restructuring.
+ */
+export interface RunIndex {
+  runs: IndexEntry[];
+}
+
 /** Metrics output from trainer (written to metrics.json) - Phase 2.1: Strict Schema */
 export interface TrainingMetrics {
   /** Classification accuracy (0.0 - 1.0) on validation set */

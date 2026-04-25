@@ -5,7 +5,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { IndexEntry } from '../types.js';
+import type { IndexEntry, RunIndex } from '../types.js';
 import { WORKSPACE_PATHS } from '../types.js';
 
 /**
@@ -18,31 +18,44 @@ export async function ensureIndex(workspaceRoot: string): Promise<void> {
   // Create outputs directory
   await fs.mkdir(outputsDir, { recursive: true });
 
-  // Create index file if missing
+  // Create index file if missing — canonical shape is {runs:[]} (see types.ts:RunIndex)
   try {
     await fs.access(indexPath);
   } catch {
-    await fs.writeFile(indexPath, '[]', 'utf-8');
+    await fs.writeFile(indexPath, JSON.stringify({ runs: [] }, null, 2), 'utf-8');
   }
 }
 
 /**
- * Read all index entries
+ * Read all index entries.
+ *
+ * On-disk shape is the canonical `RunIndex` (`{runs: IndexEntry[]}`) shared with
+ * the observability reader. This function intentionally returns the inner
+ * `IndexEntry[]` so internal callers (`appendToIndex`, `getRecentRuns`,
+ * `findRunById`) stay unchanged — the wrap/unwrap boundary lives here.
  */
 export async function readIndex(workspaceRoot: string): Promise<IndexEntry[]> {
   const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
 
   try {
     const content = await fs.readFile(indexPath, 'utf-8');
-    const entries = JSON.parse(content);
+    const parsed = JSON.parse(content);
 
-    if (!Array.isArray(entries)) {
-      throw new Error('Index file is not an array');
+    // Migration shim: v1.0.1 wrote a bare `[entry,...]` array. If we encounter
+    // that legacy shape, wrap it on the fly and rewrite the file in canonical form.
+    if (Array.isArray(parsed)) {
+      const migrated: RunIndex = { runs: parsed as IndexEntry[] };
+      await fs.writeFile(indexPath, JSON.stringify(migrated, null, 2), 'utf-8');
+      return migrated.runs;
     }
 
-    return entries as IndexEntry[];
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as RunIndex).runs)) {
+      throw new Error('Index file is not a valid RunIndex ({runs: IndexEntry[]})');
+    }
+
+    return (parsed as RunIndex).runs;
   } catch (error) {
-    // If file doesn't exist or is invalid, return empty array
+    // If file doesn't exist, return empty array
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return [];
     }
@@ -51,15 +64,16 @@ export async function readIndex(workspaceRoot: string): Promise<IndexEntry[]> {
 }
 
 /**
- * Append a new entry to the index (append-only)
- * IMPORTANT: Never reorders or deletes existing entries
+ * Append a new entry to the index (append-only).
+ * IMPORTANT: Never reorders or deletes existing entries.
+ * Writes canonical `{runs: IndexEntry[]}` shape (shared `RunIndex` type).
  */
 export async function appendToIndex(workspaceRoot: string, entry: IndexEntry): Promise<void> {
   await ensureIndex(workspaceRoot);
 
   const indexPath = path.join(workspaceRoot, WORKSPACE_PATHS.INDEX_FILE);
 
-  // Read existing entries
+  // Read existing entries (handles legacy migration internally)
   const entries = await readIndex(workspaceRoot);
 
   // Validate entry has required fields
@@ -68,8 +82,9 @@ export async function appendToIndex(workspaceRoot: string, entry: IndexEntry): P
   // Append new entry
   entries.push(entry);
 
-  // Write back (pretty-printed)
-  await fs.writeFile(indexPath, JSON.stringify(entries, null, 2), 'utf-8');
+  // Write back in canonical {runs:[]} shape
+  const wrapped: RunIndex = { runs: entries };
+  await fs.writeFile(indexPath, JSON.stringify(wrapped, null, 2), 'utf-8');
 }
 
 /**
