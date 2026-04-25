@@ -369,6 +369,42 @@ shape.
 
 ---
 
+## Pattern #17 — Snapshot tests on rendered paths must use POSIX separators
+
+> Path strings emitted into user-facing output must be built with
+> `path.posix.join` (or `/`-string concatenation), not `path.join`.
+
+**Why.** `path.join` returns OS-native separators. A snapshot test captured
+on Windows records `'\runs\test\metrics.v1.json'`; the same code on Linux
+CI produces `'/runs/test/metrics.v1.json'` and the snapshot mismatches.
+This is a member of the same "no environment-dependent values" family as
+frozen timestamps and fixed run_ids, but it tends to slip past audits
+because the producing call (`path.join`) looks innocuous.
+
+**Anti-example (Phase 4 Wave 4 fix-up).** `formatInterpretabilityIndex`
+rendered quick-link paths into markdown via
+`path.join(runDir, artifacts.X.path)`. Wave 4's snapshot tests passed
+locally on Windows and failed on Linux CI on exactly the path-separator
+boundary. Fixed by switching the three render-output calls to
+`path.posix.join`; the remaining filesystem-IO `path.join` calls were left
+untouched (OS-native separators are correct for IO). Same fix applied
+preventively to `export-markdown-command.ts:185,193` for the
+artifact-listing table.
+
+**Pattern.**
+- `path.join` for filesystem I/O (`fs.statSync`, `fs.readdirSync`,
+  `readJsonSafe`, etc.).
+- `path.posix.join` (or template literals with `/`) for paths rendered to
+  the user — markdown output, log lines, error messages, anywhere a string
+  ends up in a snapshot or in user-visible UI.
+
+**Reinforces:** Rule 5. The snapshot test exercises the real renderer, so
+any env-dependent value in the renderer trips the snapshot. Adjacent to
+Pattern #15: both are about subtle environment contamination in the test
+surface.
+
+---
+
 ## Closing — violations are CRITICAL
 
 These six rules are not lint suggestions. Every CRITICAL in the iter #1–#5a

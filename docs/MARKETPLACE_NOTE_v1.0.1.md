@@ -5,8 +5,8 @@ on 2026-03-25) shipped with five production-CRITICAL bugs that break the core
 `Train (Standard)` and `Train (High Quality)` commands, run browsing, and the
 observability views. The bugs were discovered during a structured audit of
 the codebase on 2026-04-24 and 2026-04-25 and are fully fixed on the
-`swarm/dogfood` development branch; the fixes ship in **v1.0.2**, the next
-release. If you installed v1.0.1, please upgrade to v1.0.2 as soon as it is
+`swarm/dogfood` development branch; the fixes ship in **v1.1.0**, the next
+release. If you installed v1.0.1, please upgrade to v1.1.0 as soon as it is
 published.
 
 **What's broken in v1.0.1.** Training never completes on a fresh install
@@ -21,7 +21,7 @@ additionally corrupted because the spawn environment doesn't pin UTF-8. In
 short: the v1.0.1 Marketplace build cannot be relied on as a working tool —
 please treat it as a deprecated release.
 
-**What to do.** Upgrade to **v1.0.2** when it lands (imminent). v1.0.2
+**What to do.** Upgrade to **v1.1.0** when it lands (imminent). v1.1.0
 includes all five CRITICAL fixes plus the start of Phase 4 (cancel-in-progress
 training via VS Code's `CancellationToken`, structured event-stream
 observability, and the `RunForge: Recover Index` command). Full release

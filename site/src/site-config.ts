@@ -25,6 +25,42 @@ export const config: SiteConfig = {
   sections: [
     {
       kind: 'features',
+      id: 'whats-new',
+      title: 'What’s New in v1.1.0',
+      subtitle: 'Phase 4 ships lifecycle, recovery, and doctrine. Plus closes all five v1.0.1 CRITICAL regressions.',
+      features: [
+        {
+          title: 'Cancel In-Progress Training',
+          desc: 'New "RunForge: Cancel Active Training" command. Or hit the cancel button on the live progress notification. 5s graceful SIGTERM window, then SIGKILL. Cancelled runs land a .cancelled marker so the run picker can classify them.',
+        },
+        {
+          title: 'Recover Index',
+          desc: 'New "RunForge: Recover Index" command walks .ml/runs/ and re-appends any run missing from index.json. Idempotent. Useful after a crashed write or a workspace move.',
+        },
+        {
+          title: 'Workspace Trust Guard',
+          desc: 'Python subprocess spawn now requires vscode.workspace.isTrusted. Untrusted workspaces get an actionable SafeError pointing at the Manage Workspace Trust UI.',
+        },
+        {
+          title: 'Live Progress Notifications',
+          desc: 'Training surfaces per-epoch progress through VS Code’s native progress notification API, with a built-in cancel button.',
+        },
+        {
+          title: 'Hardened CSV Errors',
+          desc: 'Non-comma delimiters, non-UTF-8 encodings, all-NaN labels, single-column CSVs, and header-only CSVs each surface specific, actionable diagnostics instead of opaque pandas tracebacks.',
+        },
+        {
+          title: 'Custom ESLint Rules',
+          desc: 'The architectural doctrines in docs/CONTRACTS.md are now mechanized as ESLint rules. No canonical-value literal duplication. No shadow types in consumer modules. Catches what humans miss.',
+        },
+        {
+          title: 'Doctrine Documentation',
+          desc: 'docs/CONTRACTS.md codifies six architectural rules plus seven operational patterns surfaced by five waves of structured audit. Non-negotiable for any cross-domain work.',
+        },
+      ],
+    },
+    {
+      kind: 'features',
       id: 'features',
       title: 'The RunForge Guarantee',
       subtitle: 'Opinionated software designed to replace "it works on my machine" with reproducible, traceable results.',
@@ -75,6 +111,8 @@ export const config: SiteConfig = {
       rows: [
         ['RunForge: Train (Standard)', 'Train with the std-train preset'],
         ['RunForge: Train (High Quality)', 'Train with the hq-train preset'],
+        ['RunForge: Cancel Active Training', 'Cancel an in-progress run (v1.1.0+) — 5s graceful, then SIGKILL'],
+        ['RunForge: Recover Index', 'Re-append any runs missing from index.json (v1.1.0+) — idempotent'],
         ['RunForge: Browse Runs', 'Browse all runs with summary, diagnostics, and artifact actions'],
         ['RunForge: Inspect Dataset', 'Validate dataset columns and label before training'],
         ['RunForge: View Latest Metrics', 'View detailed model-aware metrics (v0.3.3+)'],

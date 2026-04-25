@@ -1,7 +1,7 @@
-# v1.0.1 known issues + upgrade path to v1.0.2
+# v1.0.1 known issues + upgrade path to v1.1.0
 
 > **Suggested category:** Announcements
-> **Suggested labels:** `release`, `known-issue`, `v1.0.1`, `v1.0.2`
+> **Suggested labels:** `release`, `known-issue`, `v1.0.1`, `v1.1.0`
 > **Posting URL:** https://github.com/mcp-tool-shop-org/runforge-vscode/discussions
 
 ## TL;DR
@@ -9,13 +9,13 @@
 RunForge **v1.0.1** (published to the VS Code Marketplace on 2026-03-25)
 shipped with five production-CRITICAL bugs that break the `Train` commands,
 run browsing, and the observability views. All five are fixed on
-`swarm/dogfood` and ship in **v1.0.2**, the next release.
+`swarm/dogfood` and ship in **v1.1.0**, the next release.
 
-If you have v1.0.1 installed: please upgrade to v1.0.2 as soon as it lands.
+If you have v1.0.1 installed: please upgrade to v1.1.0 as soon as it lands.
 Until then, the `Train` commands and most observability views will not work
 as intended.
 
-This post explains what went wrong, how it was caught, what's in v1.0.2, and
+This post explains what went wrong, how it was caught, what's in v1.1.0, and
 how to verify which version you have.
 
 ---
@@ -69,16 +69,16 @@ extension-host smoke test would have caught at CI time. v1.0.1 had no
 extension-host smoke coverage; the test surface was unit-only, so a writer
 and a reader that disagreed on shape never ran in the same process during CI.
 
-The lesson taken from this — and the work landing in v1.0.2 — is that
+The lesson taken from this — and the work landing in v1.1.0 — is that
 Phase 4 introduces an `@vscode/test-cli` + `@vscode/test-electron` extension
 host smoke harness that exercises the full call chain (activation → command
 dispatch → Python subprocess → run.json → observability read → markdown
 export) on every CI run. See
 [`CONTRACT-PHASE-4.md` §3.4](../CONTRACT-PHASE-4.md) for the contract.
 
-## What's in v1.0.2
+## What's in v1.1.0
 
-v1.0.2 closes all five CRITICAL items above and starts the Phase 4 surface:
+v1.1.0 closes all five CRITICAL items above and starts the Phase 4 surface:
 
 **Critical fixes (the v1.0.1 regression set):**
 - `spawnRunnerScript` rewritten to use `python -m ml_runner` via the canonical
@@ -93,7 +93,7 @@ v1.0.2 closes all five CRITICAL items above and starts the Phase 4 surface:
   `LinearCoefficients`, and `InterpretabilityIndex` now live exclusively in
   `src/types.ts`. The observability shadow types are deleted.
 
-**New in v1.0.2 (Phase 4 start):**
+**New in v1.1.0 (Phase 4 start):**
 - `RunForge: Cancel Run` — user-initiated cancel of an in-progress training
   run via VS Code's `CancellationToken`, with a 5-second graceful shutdown
   window before SIGKILL. A `.cancelled` marker lands on disk so cancelled
@@ -113,9 +113,9 @@ Full Phase 4 contract:
 [`CONTRACT-PHASE-4.md`](../CONTRACT-PHASE-4.md). Score and gate status:
 [`SCORECARD.md`](../SCORECARD.md) (post-Stage-A note at the top).
 
-## When does v1.0.2 ship?
+## When does v1.1.0 ship?
 
-Imminent — v1.0.2 is queued behind the Phase 4 implementation waves landing
+Imminent — v1.1.0 is queued behind the Phase 4 implementation waves landing
 on `swarm/dogfood` over the next few sessions. We're not promising a date
 because the gate is the SHIP_GATE checklist passing, not the calendar. Watch
 the [Releases page](https://github.com/mcp-tool-shop-org/runforge-vscode/releases)
@@ -141,10 +141,10 @@ Get-Content "$env:USERPROFILE\.vscode\extensions\mcp-tool-shop.runforge-*\packag
 ```
 
 If the output shows `"version": "1.0.1"`, you are on the affected build and
-should upgrade to v1.0.2 once it is published. If you are on v1.0.0 or
+should upgrade to v1.1.0 once it is published. If you are on v1.0.0 or
 earlier, none of the five regressions above apply to you (they were
 introduced as part of v1.0.1's packaging/refactor pass), but you'll still
-want v1.0.2 for the Phase 4 features.
+want v1.1.0 for the Phase 4 features.
 
 ## Apologies + thanks
 
@@ -154,7 +154,7 @@ problem; we're sorry for the rough first impression.
 
 Thanks to anyone who hit one of these and didn't have a way to report it
 yet — please use this Discussion or open an issue if you see anything else
-amiss in v1.0.2. The Phase 4 smoke harness is specifically designed so this
+amiss in v1.1.0. The Phase 4 smoke harness is specifically designed so this
 class of regression cannot ship again.
 
 — The RunForge team @ MCP Tool Shop

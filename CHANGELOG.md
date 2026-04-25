@@ -2,31 +2,51 @@
 
 All notable changes to the RunForge VS Code extension will be documented in this file.
 
-## [1.0.2] - pending
+## [1.1.0] - 2026-04-25
 
 ### Added
-- **`runforge.cancelActiveRun` command** — user-initiated cancel of an
-  in-progress training run via VS Code's `CancellationToken` API. TS arms a
+- **Cancel in-progress training** — new `runforge.cancelActiveRun` command
+  cancels an in-flight run via VS Code's `CancellationToken` API. TS arms a
   5s SIGKILL trigger the moment SIGTERM is sent; if Python has not exited by
   t+5s, SIGKILL fires regardless of cleanup state. The 5s timer is a SIGKILL
   trigger only — it is NOT a graceful detector. Terminal cancel state is
   determined by ARTIFACTS ON DISK + EVENTS OBSERVED (`.cancelled` marker
   present OR `run_cancelled` event observed → "Cancelled (graceful)"; else
   → "Cancelled (forced)"). See `CONTRACT-PHASE-4.md` §3.1.1.
-- **`.cancelled` marker contract** (`cancelled.schema.v1.0.0.json`) —
-  Python writes the marker atomically (`os.replace()` on `.cancelled.tmp`
-  → `.cancelled`) so partial markers cannot exist. Even if SIGKILL fires
-  at t+5s, a marker that was atomically written before t+5s still wins.
-- **`runforge.recoverIndex` command** — walks `.ml/runs/`, re-reads each
-  `run.json`, re-appends missing runs to `.ml/outputs/index.json`.
-  Idempotent (keyed on `run_id`), read-only with respect to artifacts,
-  excludes cancelled runs explicitly. Returns a canonical `RecoveryReport`
-  (single TS type in `src/types.ts` consumed by both writer and markdown
-  render — prospective-contract pattern, lesson #11). See §3.1.2.
+- **Recover Index** — new `runforge.recoverIndex` command walks `.ml/runs/`,
+  re-reads each `run.json`, and re-appends missing runs to
+  `.ml/outputs/index.json`. Idempotent (keyed on `run_id`), read-only with
+  respect to artifacts, excludes cancelled runs explicitly. Returns a
+  canonical `RecoveryReport` (single TS type in `src/types.ts` consumed by
+  both writer and markdown render — prospective-contract pattern, lesson
+  #11). See §3.1.2.
 - **Workspace trust guard** for Python subprocess spawn. Training, version
   check, GPU probe, dataset inspect, and artifact inspect now require
   `vscode.workspace.isTrusted`. Untrusted workspaces receive a structured
   SafeError pointing to the Manage Workspace Trust UI.
+- **Per-epoch progress notifications** — training is wrapped in
+  `vscode.window.withProgress({cancellable: true})`. Progress notifications
+  surface live `train_progress` events from the Python event stream and
+  expose VS Code's built-in cancel button (wired through to
+  `runforge.cancelActiveRun`).
+- **CSV error actionability** — non-comma delimiters, non-UTF-8 encodings,
+  all-NaN labels, single-column CSVs, and header-only CSVs each raise
+  specific actionable diagnostics with file path + reason + remediation
+  hint. Replaces opaque pandas tracebacks.
+- **Custom ESLint rules** enforcing the architectural doctrines in
+  [`docs/CONTRACTS.md`](docs/CONTRACTS.md) — Rule 2 (no literal duplicating a
+  named constant) via `no-restricted-syntax` selectors, and Rule 3 (no
+  shadow types in consumer modules) via a custom rule in `eslint-rules/`.
+  Both run as part of `npm run lint`.
+- **Doctrine documentation** — [`docs/CONTRACTS.md`](docs/CONTRACTS.md)
+  gained a new "Operational patterns from swarm retros" section codifying
+  patterns #11–#17 alongside the original 6 architectural rules.
+
+### Infrastructure
+- **`.cancelled` marker contract** (`cancelled.schema.v1.0.0.json`) —
+  Python writes the marker atomically (`os.replace()` on `.cancelled.tmp`
+  → `.cancelled`) so partial markers cannot exist. Even if SIGKILL fires
+  at t+5s, a marker that was atomically written before t+5s still wins.
 - **Structured event stream** (`events.schema.v1.json`, FROZEN at v1.0.0).
   Python emits JSONL on stderr, one event per line. Nine event types:
   `run_start`, `dataset_loaded`, `train_started`, `train_progress`,
@@ -44,12 +64,8 @@ All notable changes to the RunForge VS Code extension will be documented in this
   state detector.
 - New handbook page **Cancel and Recovery** documenting the cancel state
   machine, recovery report shape, and workspace trust guard.
-
-### Internal
-- Pattern lessons #11–#16 appended to [`docs/CONTRACTS.md`](docs/CONTRACTS.md)
-  as a new "Operational patterns from swarm retros" section. Phase 4
-  produced 0 CRITICALs, validating pattern #11 (pre-defined contract
-  eliminates the F-COORD-011 drift class for parallel dispatch).
+- Phase 4 produced 0 CRITICALs, validating pattern #11 (pre-defined
+  contract eliminates the F-COORD-011 drift class for parallel dispatch).
 
 ### Dependencies
 - **Optional new Python dep:** `jsonschema` enables runtime validation of
@@ -120,7 +136,7 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [1.0.1] - 2026-03-25
 
-### Note (added 2026-04-25 — please upgrade to v1.0.2)
+### Note (added 2026-04-25 — please upgrade to v1.1.0)
 
 Marketplace v1.0.1 shipped with **5 production-CRITICAL bugs** that break the
 core training and run-browsing flow. All five were discovered during the
@@ -149,12 +165,12 @@ The five issues:
   diverging field names (`dataset_fingerprint` vs `dataset_fingerprint_sha256`,
   etc.). **Effect:** silent field-undefined renders in run summaries.
 
-All five are fixed on `swarm/dogfood` and queued for the next release (v1.0.2),
-which also adds **cancel-in-progress** and **`runforge.recoverIndex`**
-(see [`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) for the full Phase 4
-contract). If you installed v1.0.1 from the Marketplace, please upgrade to
-v1.0.2 as soon as it lands. Until then, training and run browsing will not
-work.
+All five are fixed in **v1.1.0**, which also delivers the full Phase 4
+feature surface (cancel-in-progress, `runforge.recoverIndex`, workspace-trust
+guard, structured event stream, hardened CSV errors). See
+[`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) for the full Phase 4 contract.
+If you installed v1.0.1 from the Marketplace, please upgrade to v1.1.0.
+Until then, training and run browsing will not work.
 
 Full context:
 [GitHub Discussion](docs/GITHUB_DISCUSSION_v1.0.1.md) ·

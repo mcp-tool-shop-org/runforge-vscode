@@ -17,15 +17,44 @@
 > **Notice for v1.0.1 Marketplace users (2026-03-25 release):** v1.0.1 shipped with five
 > production-CRITICAL bugs that break the `Train` commands, run browsing, and observability
 > views (root cause: a subprocess invocation regression and a path/shape mismatch between
-> writer and readers). All five are fixed on the `swarm/dogfood` branch and ship in
-> **v1.0.2** (next release). If you installed v1.0.1, please upgrade to v1.0.2 once
-> available. See the [v1.0.1 release note](docs/MARKETPLACE_NOTE_v1.0.1.md) and
-> [`CHANGELOG.md`](CHANGELOG.md#101---2026-03-25) for details.
+> writer and readers). All five are fixed in **v1.1.0**, which also delivers the Phase 4
+> feature surface (cancel-in-progress, recovery, workspace trust). If you installed v1.0.1,
+> please upgrade to v1.1.0. See the [v1.0.1 release note](docs/MARKETPLACE_NOTE_v1.0.1.md)
+> and [`CHANGELOG.md`](CHANGELOG.md#110---2026-04-25) for details.
 
 Push-button ML training with deterministic, contract-driven behavior.
 
-> **Phase 3 (Capabilities & Interpretability) is complete as of v0.3.6.0.**
-> Future work proceeds under Phase 4 contracts.
+> **Phase 3 (Capabilities & Interpretability) frozen at v0.3.6.0.
+> Phase 4 (Lifecycle & Recovery) shipped in v1.1.0** — see the [Phase 4 contract](CONTRACT-PHASE-4.md).
+
+## What's New in v1.1.0
+
+1. **Cancel in-progress training** (`RunForge: Cancel Active Training`) — cancel a running
+   train via the Command Palette or VS Code's progress-notification cancel button. 5s
+   graceful SIGTERM window, then SIGKILL. Cancelled runs land a `.cancelled` marker so
+   recovery and the run picker can classify them correctly.
+2. **Recover Index** (`RunForge: Recover Index`) — walks `.ml/runs/` and re-appends any run
+   missing from `.ml/outputs/index.json`. Idempotent. Useful after a crashed write or a
+   workspace move.
+3. **Workspace trust guard** — Python subprocess spawn now requires
+   `vscode.workspace.isTrusted`. Untrusted workspaces get an actionable SafeError
+   pointing at the Manage Workspace Trust UI.
+4. **Per-epoch progress notifications** — training shows live progress and exposes a cancel
+   button via `vscode.window.withProgress`.
+5. **Hardened CSV error messages** — non-comma delimiters, non-UTF-8 encodings, all-NaN
+   labels, single-column CSVs, and header-only CSVs each surface specific, actionable
+   diagnostics instead of opaque pandas tracebacks.
+6. **Custom ESLint rules** enforce the architectural doctrines codified in
+   [`docs/CONTRACTS.md`](docs/CONTRACTS.md) (no canonical-value literal duplication, no
+   shadow types in consumer modules).
+7. **Doctrine documentation** — [`docs/CONTRACTS.md`](docs/CONTRACTS.md) now codifies the
+   six architectural rules + seven operational patterns from five waves of structured
+   audit. The patterns are non-negotiable for any cross-domain (TS / Python / observability)
+   work.
+
+Plus a v1.1.0 closes all five v1.0.1 CRITICAL regressions (`F-COORD-003`, `F-COORD-004`,
+`F-COORD-008`, `F-COORD-010`, `F-COORD-011`). See [`CHANGELOG.md`](CHANGELOG.md) for the
+full breakdown.
 
 ---
 
@@ -815,9 +844,9 @@ See [docs/DEFERRED_UX_ENHANCEMENTS.md](docs/DEFERRED_UX_ENHANCEMENTS.md) for pla
 |-------|-------|--------|
 | **Phase 2** | Core training, observability | Frozen |
 | **Phase 3** | Model selection, interpretability | **Frozen (v0.3.6.0)** |
-| **Phase 4** | TBD | Requires new contract |
+| **Phase 4** | Lifecycle, recovery, doctrine | **Released (v1.1.0)** — see [`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) |
 
-**All Phase 2 and Phase 3 guarantees are locked. Future work requires Phase 4 contracts.**
+**All Phase 2, Phase 3, and Phase 4 contract surfaces are locked. Future work requires a Phase 5 contract.**
 
 ---
 
