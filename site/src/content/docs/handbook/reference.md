@@ -23,6 +23,10 @@ All commands are available via the VS Code Command Palette (`Ctrl+Shift+P`).
 | `RunForge: View Latest Linear Coefficients` | View coefficients for linear models |
 | `RunForge: View Latest Interpretability Index` | View unified index of all interpretability artifacts |
 | `RunForge: Export Latest Run as Markdown` | Save a formatted markdown summary of the latest run |
+| `RunForge: Cancel Active Training` | Cancel the currently in-progress training run (5s SIGTERM grace, then SIGKILL) |
+| `RunForge: Recover Index` | Walk `.ml/runs/` and re-append missing entries to `index.json`; returns a structured `RecoveryReport` |
+
+For the full lifecycle behaviour — state machine, source-of-truth detector, partial artifacts, and the recovery report shape — see [Cancel and Recovery](../cancel-and-recovery/).
 
 ## Settings
 
@@ -155,13 +159,35 @@ Structured diagnostics explain run behavior as machine-readable codes:
 | `FEATURE_IMPORTANCE_UNSUPPORTED_MODEL` | Model doesn't support native feature importance |
 | `LINEAR_COEFFICIENTS_UNSUPPORTED_MODEL` | Model doesn't support coefficient extraction |
 
+## Event Stream
+
+Phase 4 ships a structured event stream (`events.schema.v1.json`) that Python emits as JSONL on stderr, one event per line. The schema is frozen at v1.0.0 and covers nine event types:
+
+| Event | When emitted |
+|---|---|
+| `run_start` | Run begins |
+| `dataset_loaded` | CSV parsed and validated |
+| `train_started` | Pipeline fit begins |
+| `train_progress` | Per epoch (Phase 4 cardinality) |
+| `train_finished` | Pipeline fit complete |
+| `metrics_computed` | Validation metrics computed |
+| `artifacts_written` | All artifacts flushed to disk |
+| `cancelling` | SIGTERM received; emits per-second `seconds_remaining` countdown |
+| `run_cancelled` | Graceful cancel cleanup complete |
+
+Event emission **order** is deterministic across re-runs of the same configuration; **timestamps** naturally vary. Non-JSONL stderr is treated as free-form log lines. The TS Bridge validates each event against the schema and drops malformed events without throwing.
+
+## Workspace Trust
+
+Python subprocess spawn (training, version check, GPU probe, dataset inspect, artifact inspect) is gated by VS Code **workspace trust**. RunForge runs user-controlled Python from a workspace-settable path; the trust guard prevents an untrusted workspace from inducing arbitrary Python execution. Untrusted workspaces receive a structured error pointing to the **Manage Workspace Trust** UI.
+
 ## Security and Data Scope
 
 **Data touched:** workspace CSV files (read-only for training), `.ml/` directory (run metadata, model artifacts, metrics). Python subprocess stdout/stderr.
 
 **Data NOT touched:** no files outside the open workspace, no browser data, no OS credentials.
 
-**Permissions:** filesystem read/write within workspace only, Python subprocess execution.
+**Permissions:** filesystem read/write within workspace only, Python subprocess execution (gated by workspace trust).
 
 **No network egress.** All operations are local. **No telemetry** is collected or sent.
 

@@ -94,6 +94,14 @@ Profiles provide pre-configured hyperparameter overrides:
 
 Available profiles: `default`, `fast`, `thorough`. See [Reference](../reference/) for details.
 
+## Workspace Trust
+
+RunForge spawns Python from `runforge.pythonPath` (a workspace-settable path). To prevent an untrusted workspace from inducing RunForge to execute arbitrary Python, every spawn goes through VS Code's **workspace trust** guard. Grant trust via the **Manage Workspace Trust** UI when prompted; without it, training and other Python-spawning commands return a structured error.
+
+## Cancel a Run
+
+While training is running, fire **`RunForge: Cancel Active Training`** from the Command Palette. RunForge sends `SIGTERM` to Python and gives it a 5-second window to write a durable `.cancelled` marker before falling back to `SIGKILL`. See [Cancel and Recovery](../cancel-and-recovery/) for the full state machine.
+
 ## Inspect Results
 
 After training, use these commands from the Command Palette:
@@ -104,7 +112,8 @@ After training, use these commands from the Command Palette:
 - **`RunForge: View Latest Linear Coefficients`** — see model coefficients (linear models)
 - **`RunForge: Inspect Model Artifact`** — see pipeline structure
 - **`RunForge: Export Latest Run as Markdown`** — save a formatted summary
+- **`RunForge: Recover Index`** — re-append orphaned runs into `index.json` if a write failed (see [Cancel and Recovery](../cancel-and-recovery/))
 
 ## Next Steps
 
-See the [Reference](../reference/) for the full list of commands, settings, and the interpretability framework.
+See the [Reference](../reference/) for the full list of commands, settings, and the interpretability framework. For lifecycle controls (cancel, recovery, workspace trust), see [Cancel and Recovery](../cancel-and-recovery/).

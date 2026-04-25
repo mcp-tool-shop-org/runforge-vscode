@@ -4,6 +4,53 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [1.0.2] - pending
 
+### Added
+- **`runforge.cancelActiveRun` command** — user-initiated cancel of an
+  in-progress training run via VS Code's `CancellationToken` API. TS arms a
+  5s SIGKILL trigger the moment SIGTERM is sent; if Python has not exited by
+  t+5s, SIGKILL fires regardless of cleanup state. The 5s timer is a SIGKILL
+  trigger only — it is NOT a graceful detector. Terminal cancel state is
+  determined by ARTIFACTS ON DISK + EVENTS OBSERVED (`.cancelled` marker
+  present OR `run_cancelled` event observed → "Cancelled (graceful)"; else
+  → "Cancelled (forced)"). See `CONTRACT-PHASE-4.md` §3.1.1.
+- **`.cancelled` marker contract** (`cancelled.schema.v1.0.0.json`) —
+  Python writes the marker atomically (`os.replace()` on `.cancelled.tmp`
+  → `.cancelled`) so partial markers cannot exist. Even if SIGKILL fires
+  at t+5s, a marker that was atomically written before t+5s still wins.
+- **`runforge.recoverIndex` command** — walks `.ml/runs/`, re-reads each
+  `run.json`, re-appends missing runs to `.ml/outputs/index.json`.
+  Idempotent (keyed on `run_id`), read-only with respect to artifacts,
+  excludes cancelled runs explicitly. Returns a canonical `RecoveryReport`
+  (single TS type in `src/types.ts` consumed by both writer and markdown
+  render — prospective-contract pattern, lesson #11). See §3.1.2.
+- **Workspace trust guard** for Python subprocess spawn. Training, version
+  check, GPU probe, dataset inspect, and artifact inspect now require
+  `vscode.workspace.isTrusted`. Untrusted workspaces receive a structured
+  SafeError pointing to the Manage Workspace Trust UI.
+- **Structured event stream** (`events.schema.v1.json`, FROZEN at v1.0.0).
+  Python emits JSONL on stderr, one event per line. Nine event types:
+  `run_start`, `dataset_loaded`, `train_started`, `train_progress`,
+  `train_finished`, `metrics_computed`, `artifacts_written`, `cancelling`,
+  `run_cancelled`. Emission order is deterministic; timestamps naturally
+  vary. TS Bridge validates each event; malformed events are dropped
+  without throwing. See §3.2.
+- Orphan banner extended to all 7 observability commands (Stage C banner
+  was a single command). Banner offers `Recover Index` as one-click
+  remediation.
+- Source-of-truth doctrine generalized to crash + success paths
+  (§3.1.3): every terminal run state is determined by artifacts on disk
+  + events observed during the run lifetime, never by process-exit
+  timing alone. Process-exit timing is a control-flow trigger, NOT a
+  state detector.
+- New handbook page **Cancel and Recovery** documenting the cancel state
+  machine, recovery report shape, and workspace trust guard.
+
+### Internal
+- Pattern lessons #11–#16 appended to [`docs/CONTRACTS.md`](docs/CONTRACTS.md)
+  as a new "Operational patterns from swarm retros" section. Phase 4
+  produced 0 CRITICALs, validating pattern #11 (pre-defined contract
+  eliminates the F-COORD-011 drift class for parallel dispatch).
+
 ### Dependencies
 - **Optional new Python dep:** `jsonschema` enables runtime validation of
   the structured event stream emitted by `ml_runner` to stderr (Phase 4

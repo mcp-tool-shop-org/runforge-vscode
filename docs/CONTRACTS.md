@@ -190,6 +190,185 @@ One test, one journey, no stubs. Every link in the chain is real.
 
 ---
 
+## Operational patterns from swarm retros
+
+The six rules above are the foundational contract. The patterns below extend
+them — operational lessons accumulated through Phase 4's iter sweep (Waves
+1–4 of the dogfood swarm). They reinforce specific rules where applicable
+and document one new pattern (lesson #16) that lives adjacent to the
+production-call-chain doctrine.
+
+**Phase 4 produced 0 CRITICALs**, validating pattern #11 (pre-defined
+contract eliminates the F-COORD-011 drift class for parallel dispatch). The
+existing 7-row CRITICAL ledger above is therefore unchanged.
+
+---
+
+## Pattern #11 — Pre-defined contract eliminates the drift class for parallel dispatch
+
+> Author the canonical type FIRST in a Wave 0 commit, THEN dispatch
+> consumers in parallel.
+
+**Why.** The F-COORD-011 anti-pattern is "two writers, two conventions, one
+file" — a drift surface that appears whenever multiple agents write toward
+the same data structure without a shared canonical declaration. The
+mitigation is to make the canonical declaration *prerequisite* to dispatch:
+when parallel work shares a data structure, write the type first
+(`src/types.ts` for TS surface, `python/ml_runner/contracts/*.json` for
+Python surface), commit it, and only then fan out the consumers.
+
+**Pattern (Phase 4 Wave 0).** `RecoveryReport`, `RecoveryReportEntry`,
+`RecoveryReportSkip` were declared in `src/types.ts` before
+`FT-BACK-002` (recovery command writer) and `FT-BRIDGE-009` (recovery UI
+render reader) dispatched in parallel. Result: zero shadow-type findings
+across the three Wave 3 agents that touched the recovery surface.
+
+**Reinforces:** Rule 1 (canonical home), Rule 3 (no shadow types), Rule 4
+(cross-domain shapes flow through shared TS types).
+
+---
+
+## Pattern #12 — Grep ALL doc surfaces when fixing path drift
+
+> When updating a path, constant, or version, grep `docs/`, `site/`,
+> `README*.md`, `CHANGELOG.md`, and every `*.md` — not just the obvious
+> ones.
+
+**Why.** Documentation drift compounds. A path constant updated in code but
+left stale in `site/src/content/docs/handbook/reference.md` looks correct to
+the developer who is reading code; it misleads the user who is reading the
+handbook. The handbook, README, CHANGELOG, and every contract doc are
+*authority* surfaces — divergence between them and the code is a quiet
+trust failure.
+
+**Pattern.** When changing any value that has a name in the canonical types
+module (Rule 2), follow the change with a grep across all documentation
+surfaces and update every reference in the same commit.
+
+```bash
+git grep "<old-value>" -- '*.md' 'docs/' 'site/' README.md CHANGELOG.md
+```
+
+**Reinforces:** Rule 1 (canonical values live in one place — including in
+prose).
+
+---
+
+## Pattern #13 — Tests exercise production CALL CHAIN (already encoded as Rule 5)
+
+> Cross-reference only — see Rule 5 above.
+
+This pattern is already canonical doctrine. Listed here only to anchor the
+numbering and acknowledge the operational reinforcement Phase 4 surfaced.
+Patterns #14 and #15 below extend Rule 5 with two specific failure modes.
+
+---
+
+## Pattern #14 — Production CALL CHAIN passes locally with incidental dev deps
+
+> A test that imports a production module which transitively imports a dev
+> dependency will pass on the developer's machine and fail on CI.
+
+**Why.** When a production module imports `jsonschema` (or any optional
+runtime dep), the import succeeds on the developer's machine because dev
+deps are installed locally. CI installs ONLY declared production deps —
+the import fails, the test fails, and the developer is surprised. The test
+itself was honest (Rule 5 — production call chain), but the production
+dependency declaration was incomplete.
+
+**Anti-example (Phase 4 FT-PY-005).** `ml_runner.events` imported
+`jsonschema` for runtime validation of emitted events. Developers had
+`jsonschema` installed via `requirements-dev.txt`; CI installed only
+`requirements.txt`. The events module imported successfully in the test
+suite locally and failed at import time on CI.
+
+**Correct shape.** Soft-import production dependencies that are optional
+(catch `ImportError`, skip validation, log a warning), OR add the dep to
+the declared production deps. The CHANGELOG must document the soft-import
+policy so users know what they get without the optional dep installed.
+
+**Reinforces:** Rule 5 (the test imported the production module; the
+production module's dep was the silent gap).
+
+---
+
+## Pattern #15 — Cancel-firing tests need handler-registration evidence
+
+> A subprocess that has spawned but not yet registered its signal handler
+> will silently drop signals. Tests must wait for first-event-on-stream
+> or marker-file as the gate, not just spawn-success.
+
+**Why.** Spawning a Python subprocess and immediately sending it `SIGTERM`
+is a race — the OS delivers the signal before Python's `signal.signal()`
+call has registered the handler. Default `SIGTERM` behaviour is "exit
+silently with no cleanup," which means the `.cancelled` marker is never
+written and the test sees a "forced" cancel where it expected "graceful."
+The test passed in 95% of CI runs; the 5% flakes were the race.
+
+**Anti-example (Phase 4 FT-PY-004).** Initial cancel test spawned the
+runner and called `process.kill('SIGTERM')` 50ms later. The handler
+registered at ~80ms. Result: intermittent flake where the marker was
+never written.
+
+**Correct shape.** The test waits for the FIRST `run_start` (or any
+post-handler) event on the stderr event stream, OR for a sentinel marker
+file written immediately after handler registration. Only after that gate
+is the cancel signal fired.
+
+**Reinforces:** Rule 5 (production call chain). The test exercised the
+real subprocess; the gap was treating "spawn returned" as equivalent to
+"handler registered." Rule 5 is robust only when the gate is the
+production *signal* (event observed, marker present), not the production
+*scaffold* (process exists).
+
+---
+
+## Pattern #16 — Library-function injection beats command-wrapper injection
+
+> When the natural injection point is a registered VS Code command
+> wrapping a library function, inject at the library function — not at
+> the command.
+
+**Why.** A registered VS Code command (e.g.
+`runforge.recoverIndex`) is a thin wrapper that pulls dependencies from
+the activation context, calls a library function, and routes the result
+to a UI surface. Tests that inject at the command boundary must:
+
+1. Stand up a fake `vscode.commands` registration.
+2. Wait for `activate()` to complete.
+3. Fire the command and intercept the UI side effect.
+
+That coupling tests *the registration timing of VS Code commands*, not
+the recovery logic. Tests that inject at the library function — the
+function the command wraps — call the function directly with a workspace
+path argument, assert against the returned `RecoveryReport`, and skip
+all of the above scaffolding.
+
+**Anti-example (early FT-BACK-002 design).** First sketch of the recover-
+index test wrapped `vscode.commands.executeCommand('runforge.recoverIndex')`
+and asserted on the resulting QuickPick state. Three layers of mocks; flaky
+on CI. Refactored to call `recoverIndex(workspacePath)` (the library
+function) directly. Test is now a single import + assertion. The command
+registration is verified separately by Extension Host smoke (§3.4 of
+`CONTRACT-PHASE-4.md`).
+
+**Pattern.** For any command that wraps a pure or near-pure library
+function:
+
+1. Export the library function from `src/<domain>/<feature>.ts`.
+2. The command file is a 5-line wrapper: pull deps from context, call the
+   library function, route the return to a UI surface.
+3. Unit/integration tests target the library function.
+4. The Extension Host smoke (one test per command) covers the wrapper
+   registration end-to-end.
+
+**Adjacent to Rules 1–6** (no direct reinforcement). This is a NEW
+pattern surfacing from Phase 4's recovery + cancel work; document it here
+so future Phase work that introduces new VS Code commands inherits the
+shape.
+
+---
+
 ## Closing — violations are CRITICAL
 
 These six rules are not lint suggestions. Every CRITICAL in the iter #1–#5a

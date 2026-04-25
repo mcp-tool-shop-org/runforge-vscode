@@ -21,6 +21,12 @@ RunForge is a VS Code extension for push-button machine learning training. It pr
 
 - **[Getting Started](/runforge-vscode/handbook/getting-started/)** — Install, configure, and run your first training session
 - **[Reference](/runforge-vscode/handbook/reference/)** — Presets, run lifecycle, artifacts, interpretability, and settings
+- **[Cancel and Recovery](/runforge-vscode/handbook/cancel-and-recovery/)** — Cancel an active training run, recover an orphaned index, and grant workspace trust
+
+## Lifecycle commands
+
+- **`RunForge: Cancel Active Training`** — fire VS Code's `CancellationToken`; Python gets a 5s grace window to write a durable `.cancelled` marker before `SIGKILL`
+- **`RunForge: Recover Index`** — walk `.ml/runs/`, re-append missing entries to `.ml/outputs/index.json`, return a structured `RecoveryReport`
 
 ## Quick links
 
