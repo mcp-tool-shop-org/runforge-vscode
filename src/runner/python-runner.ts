@@ -4,6 +4,7 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
+import * as path from 'node:path';
 import type { RunnerOptions, RunResult, RunStatus } from '../types.js';
 
 /** Result of checking Python availability */
@@ -75,9 +76,9 @@ function runIdFromDir(p: string): string {
 }
 
 /**
- * Build environment with optional dataset path
+ * Build environment with optional dataset path and PYTHONPATH
  */
-function buildEnv(datasetPath?: string): NodeJS.ProcessEnv {
+function buildEnv(datasetPath?: string, pythonPath?: string): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     PYTHONUNBUFFERED: '1', // Extra insurance for unbuffered output
@@ -88,18 +89,29 @@ function buildEnv(datasetPath?: string): NodeJS.ProcessEnv {
     env.RUNFORGE_DATASET = datasetPath;
   }
 
+  // Prepend PYTHONPATH so `python -m <moduleName>` resolves bundled package
+  if (pythonPath) {
+    env.PYTHONPATH = process.env.PYTHONPATH
+      ? `${pythonPath}${path.delimiter}${process.env.PYTHONPATH}`
+      : pythonPath;
+  }
+
   return env;
 }
 
 /**
  * Spawn the Python training runner
- * Runs: python -m ml_runner train --preset <id> --out <run_dir> --device <device> [--seed <n>]
+ * Runs: python -m <moduleName> train --preset <id> --out <run_dir> --device <device> [--seed <n>]
+ *
+ * If `runnerParent` is provided, it is prepended to PYTHONPATH so the bundled
+ * package directory can be imported even when cwd is not the package parent.
  */
 export function spawnRunner(
   pythonPath: string,
   moduleName: string,
   options: RunnerOptions,
-  callbacks: RunnerCallbacks
+  callbacks: RunnerCallbacks,
+  runnerParent?: string
 ): ChildProcess {
   const args = [
     '-u', // Unbuffered output
@@ -114,112 +126,10 @@ export function spawnRunner(
     args.push('--seed', String(options.seed));
   }
 
-  const startTime = Date.now();
-  const runId = runIdFromDir(options.run_dir);
-
-  const proc = spawn(pythonPath, args, {
-    cwd: options.cwd,
-    shell: false,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: buildEnv(options.dataset_path),
-  });
-
-  // One-shot exit guard to prevent double onExit calls
-  let exited = false;
-  const exitOnce = (result: RunResult) => {
-    if (exited) return;
-    exited = true;
-    callbacks.onExit(result);
-  };
-
-  // Handle stdout line by line
-  let stdoutBuffer = '';
-  proc.stdout?.on('data', (data: Buffer) => {
-    stdoutBuffer += data.toString();
-    const lines = stdoutBuffer.split('\n');
-    stdoutBuffer = lines.pop() || ''; // Keep incomplete line in buffer
-    for (const line of lines) {
-      if (line) callbacks.onStdout(line);
-    }
-  });
-
-  // Handle stderr line by line
-  let stderrBuffer = '';
-  proc.stderr?.on('data', (data: Buffer) => {
-    stderrBuffer += data.toString();
-    const lines = stderrBuffer.split('\n');
-    stderrBuffer = lines.pop() || '';
-    for (const line of lines) {
-      if (line) callbacks.onStderr(line);
-    }
-  });
-
-  // Handle process exit
-  proc.on('close', (code) => {
-    // Flush any remaining buffered output
-    if (stdoutBuffer) callbacks.onStdout(stdoutBuffer);
-    if (stderrBuffer) callbacks.onStderr(stderrBuffer);
-
-    const duration_ms = Date.now() - startTime;
-    const status: RunStatus = code === 0 ? 'succeeded' : 'failed';
-
-    exitOnce({
-      run_id: runId,
-      status,
-      exit_code: code ?? -1,
-      duration_ms,
-      error: status === 'failed' ? `Process exited with code ${code}` : undefined,
-    });
-  });
-
-  // Handle spawn errors
-  proc.on('error', (error) => {
-    const duration_ms = Date.now() - startTime;
-
-    exitOnce({
-      run_id: runId,
-      status: 'failed',
-      exit_code: -1,
-      duration_ms,
-      error: error.message,
-    });
-  });
-
-  return proc;
-}
-
-/**
- * Spawn the Python training runner using bundled script path
- * Runs: python <script_path> train --preset <id> --out <run_dir> --device <device> [--seed <n>]
- *
- * This is the preferred method - uses the bundled ml_runner package
- * rather than relying on a global module.
- */
-export function spawnRunnerScript(
-  pythonPath: string,
-  scriptPath: string,
-  options: RunnerOptions,
-  callbacks: RunnerCallbacks
-): ChildProcess {
-  const args = [
-    '-u', // Unbuffered output
-    scriptPath, // Run as script (directory with __main__.py)
-    'train',
-    '--preset', options.preset_id,
-    '--out', options.run_dir,
-    '--device', options.device, // Extension decides device, runner must respect
-  ];
-
-  if (options.seed !== undefined) {
-    args.push('--seed', String(options.seed));
-  }
-
-  // Phase 3.1: Model selection
   if (options.model_family) {
     args.push('--model', options.model_family);
   }
 
-  // Phase 3.2: Training profile
   if (options.profile) {
     args.push('--profile', options.profile);
   }
@@ -231,7 +141,7 @@ export function spawnRunnerScript(
     cwd: options.cwd,
     shell: false,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: buildEnv(options.dataset_path),
+    env: buildEnv(options.dataset_path, runnerParent),
   });
 
   // One-shot exit guard to prevent double onExit calls
@@ -297,3 +207,4 @@ export function spawnRunnerScript(
 
   return proc;
 }
+

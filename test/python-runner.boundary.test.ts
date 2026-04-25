@@ -14,7 +14,6 @@ import * as os from 'node:os';
 import {
   checkPython,
   spawnRunner,
-  spawnRunnerScript,
   type RunnerCallbacks,
 } from '../src/runner/python-runner.js';
 import type { RunResult } from '../src/types.js';
@@ -22,7 +21,6 @@ import type { RunResult } from '../src/types.js';
 const PYTHON_BIN = process.env.RUNFORGE_TEST_PYTHON || 'python';
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PYTHON_PKG_DIR = path.join(REPO_ROOT, 'python');
-const RUNNER_SCRIPT = path.join(PYTHON_PKG_DIR, 'ml_runner');
 const FIXTURE_CSV = path.join(REPO_ROOT, 'test', 'fixtures', 'iris-tiny.csv');
 
 let pythonProbe: { available: boolean; checked: boolean } = { available: false, checked: false };
@@ -147,32 +145,4 @@ describe('python-runner boundary (real subprocess)', () => {
     }
   }, 10_000);
 
-  it('spawnRunnerScript reports failure when python binary is bogus', async () => {
-    const bogus = path.join(os.tmpdir(), 'no-python-script-' + Date.now());
-    const outDir = await makeTmpDir();
-    try {
-      const result: RunResult = await new Promise((resolve) => {
-        spawnRunnerScript(
-          bogus,
-          RUNNER_SCRIPT,
-          {
-            preset_id: 'std-train',
-            run_dir: outDir,
-            device: 'cpu',
-            cwd: REPO_ROOT,
-            dataset_path: FIXTURE_CSV,
-          },
-          {
-            onStdout: () => {},
-            onStderr: () => {},
-            onExit: (r) => resolve(r),
-          }
-        );
-      });
-      expect(result.status).toBe('failed');
-      expect(result.exit_code).toBe(-1);
-    } finally {
-      await fs.rm(outDir, { recursive: true, force: true });
-    }
-  }, 10_000);
 });

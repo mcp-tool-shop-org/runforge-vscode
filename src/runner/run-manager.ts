@@ -7,7 +7,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
 import type { PresetId, RunRequest, RunResult, IndexEntry, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
-import { checkPython, spawnRunnerScript, type RunnerCallbacks } from './python-runner.js';
+import { checkPython, spawnRunner, type RunnerCallbacks } from './python-runner.js';
 import { detectGpu, selectDevice, getCpuFallbackMessage, formatBytes } from './gpu-probe.js';
 import {
   generateRunId,
@@ -35,12 +35,16 @@ export function setExtensionPath(extPath: string): void {
   extensionPath = extPath;
 }
 
+/** Bundled module name (the ml_runner Python package) */
+const BUNDLED_RUNNER_MODULE = 'ml_runner';
+
 /**
- * Get the bundled runner script path
+ * Get the parent directory of the bundled runner package, used as PYTHONPATH
+ * so `python -m ml_runner` resolves the bundled package.
  */
-function getBundledRunnerPath(): string | undefined {
+function getBundledRunnerParent(): string | undefined {
   if (!extensionPath) return undefined;
-  return path.join(extensionPath, 'python', 'ml_runner');
+  return path.join(extensionPath, 'python');
 }
 
 /**
@@ -134,8 +138,8 @@ export async function executeRun(
   channel.appendLine(`Found: ${pythonCheck.version}`);
 
   // Check for bundled runner
-  const bundledRunnerPath = getBundledRunnerPath();
-  if (!bundledRunnerPath) {
+  const bundledRunnerParent = getBundledRunnerParent();
+  if (!bundledRunnerParent) {
     channel.appendLine('ERROR: Extension path not set. Cannot find bundled runner.');
     void vscode.window.showErrorMessage('RunForge extension error: bundled runner not found.');
     return;
@@ -276,9 +280,9 @@ export async function executeRun(
     },
   };
 
-  // Spawn the runner with explicit device using bundled script
+  // Spawn the runner with explicit device using bundled module
   try {
-    const proc = spawnRunnerScript(pythonPath, bundledRunnerPath, {
+    const proc = spawnRunner(pythonPath, BUNDLED_RUNNER_MODULE, {
       preset_id: presetId,
       run_dir: runDir,
       seed,
@@ -287,7 +291,7 @@ export async function executeRun(
       dataset_path: datasetPath,
       model_family: modelFamily,
       profile: profile || undefined,
-    }, callbacks);
+    }, callbacks, bundledRunnerParent);
 
     // Store process handle for potential kill
     if (activeRun && activeRun.token === runToken) {
