@@ -2,5 +2,32 @@
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  "ignorePatterns": ["dist/", "node_modules/", "site/", "python/", "test/", "*.test.ts"]
+  "ignorePatterns": ["dist/", "node_modules/", "site/", "python/", "test/", "*.test.ts"],
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Literal[value=/^\\.runforge(\\/|$)/]",
+        "message": "Literal '.runforge/...' duplicates a canonical path. RunForge writes under '.ml/' (use WORKSPACE_PATHS.ML_ROOT from src/types.ts). CONTRACTS.md Rule 2 — root cause of F-COORD-008."
+      },
+      {
+        "selector": "Literal[value=/^\\.ml\\/outputs\\/index/]",
+        "message": "Literal '.ml/outputs/index...' duplicates WORKSPACE_PATHS.INDEX_FILE in src/types.ts. Import the constant. CONTRACTS.md Rule 2."
+      },
+      {
+        "selector": "TemplateElement[value.cooked=/^\\.runforge(\\/|$)/]",
+        "message": "Template literal starting with '.runforge/' duplicates a canonical path. Use WORKSPACE_PATHS.ML_ROOT from src/types.ts. CONTRACTS.md Rule 2 — root cause of F-COORD-008."
+      }
+    ],
+    "no-shadow-canonical-types": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/types.ts"],
+      "rules": {
+        "no-restricted-syntax": "off",
+        "no-shadow-canonical-types": "off"
+      }
+    }
+  ]
 }

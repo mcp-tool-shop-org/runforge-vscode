@@ -178,7 +178,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
     "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src --ext ts --rulesdir eslint-rules",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

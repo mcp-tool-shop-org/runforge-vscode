@@ -11,6 +11,7 @@ node_modules/**
 .gitignore
 .vscodeignore
 .eslintrc.json
+eslint-rules/**
 tsconfig.json
 vitest.config.ts
 **/*.map
