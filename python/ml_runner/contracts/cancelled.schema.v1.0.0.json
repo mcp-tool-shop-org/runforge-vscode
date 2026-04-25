@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "cancelled.v1.0.0",
+  "title": "RunForge Cancellation Marker",
+  "description": "Marker file written under a run directory when training is cancelled via SIGTERM and Python catches the signal + completes graceful cleanup before exit. Mirrors the .index-orphan marker shape (single writer = Python provenance/cancel module; single reader = TS Bridge run-manager + observability). Pairs with the run_cancelled event in events.schema.v1. Filename: <run_dir>/.cancelled. Absence of this marker after a cancel-then-non-zero-exit indicates SIGKILL or crash-during-cancel; TS Bridge surfaces accordingly.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "run_dir",
+    "cancelled_at",
+    "step"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "cancelled.v1.0.0",
+      "description": "Versioned schema id. Increment on shape changes."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "description": "The run id whose training was cancelled. Permissive identifier shape (matches both TS run-folder.ts 4-segment form and Python metadata.generate_run_id 3-segment form per F-COORD-012 — to be unified in Phase 5+)."
+    },
+    "run_dir": {
+      "type": "string",
+      "description": "Workspace-relative path to the run directory. Forward slashes only (Windows backslashes normalized at write time)."
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when graceful cleanup completed and marker was atomically written."
+    },
+    "step": {
+      "type": "string",
+      "enum": [
+        "dataset_loading",
+        "training",
+        "metrics_computation",
+        "artifact_writing",
+        "shutdown"
+      ],
+      "description": "Which run phase the cancel was caught during. UI uses this to surface what work was lost (e.g. 'cancelled during training — no metrics' vs 'cancelled during artifact writing — partial artifacts may exist')."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Optional human-readable trigger (e.g., 'user cancelled via VS Code progress UI', 'workspace closed', 'timeout')."
+    },
+    "partial_artifacts": {
+      "type": "array",
+      "description": "Workspace-relative paths to any artifacts that were partially or fully written before cancellation completed. Lets the UI offer 'Open partial artifacts' affordance instead of treating the run dir as empty.",
+      "items": { "type": "string" }
+    }
+  }
+}

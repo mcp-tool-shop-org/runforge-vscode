@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "events.v1",
+  "title": "RunForge Structured Event Stream (v1)",
+  "description": "Discriminated-union schema for structured events emitted by Python ml_runner to stderr as JSONL during a training run. One event per line. Non-JSONL stderr lines are treated by the TS Bridge as free-form log lines (not events). All timestamps are ISO 8601 UTC. Single writer: python/ml_runner/runner.py emit_event helper. Single reader: TS Bridge (src/observability/ event consumer to be added in Wave 2). Schema is FROZEN at v1.0.0 once Phase 4 Wave 0 lands; new event types or payload fields require schema bump (v1.1, v2).",
+  "oneOf": [
+    { "$ref": "#/definitions/run_start" },
+    { "$ref": "#/definitions/dataset_loaded" },
+    { "$ref": "#/definitions/train_started" },
+    { "$ref": "#/definitions/train_progress" },
+    { "$ref": "#/definitions/train_finished" },
+    { "$ref": "#/definitions/metrics_computed" },
+    { "$ref": "#/definitions/artifacts_written" },
+    { "$ref": "#/definitions/cancelling" },
+    { "$ref": "#/definitions/run_cancelled" }
+  ],
+  "definitions": {
+    "_base": {
+      "type": "object",
+      "required": ["event", "timestamp"],
+      "properties": {
+        "event": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "run_start": {
+      "description": "Emitted ONCE at the start of run_training(), after CLI args resolve and before dataset loading. Existing emission shipped in Stage C (F-PY-B004).",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "preset_id", "model_family"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "run_start" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "preset_id": { "type": "string", "enum": ["std-train", "hq-train"] },
+        "model_family": { "type": "string", "enum": ["logistic_regression", "random_forest", "linear_svc"] },
+        "out_dir": { "type": "string", "description": "Workspace-relative path to run dir. May appear if run_id is not yet finalized at emission time." }
+      }
+    },
+    "dataset_loaded": {
+      "description": "Emitted after CSV is loaded, validated, and split. Carries shape + dropped row count.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "num_samples", "num_features", "rows_dropped"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "dataset_loaded" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "num_samples": { "type": "integer", "minimum": 0 },
+        "num_features": { "type": "integer", "minimum": 0 },
+        "rows_dropped": { "type": "integer", "minimum": 0, "description": "Rows dropped due to missing values (deterministic count)." },
+        "label_column": { "type": "string" },
+        "dataset_fingerprint_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "train_started": {
+      "description": "Emitted before model.fit() begins. Phase 4 cardinality is once per fit (not per hyperparameter candidate; Phase 5+ tuning may emit per-fit-iteration).",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "model_family"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "train_started" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "model_family": { "type": "string" }
+      }
+    },
+    "train_progress": {
+      "description": "Emitted per-epoch (NOT per-batch) for iterative models; once per fit for non-iterative models. Phase 4 cardinality decision: per-epoch only. Per-batch granularity is reserved for Phase 5+ streaming UI work.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "epoch", "total_epochs"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "train_progress" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "epoch": { "type": "integer", "minimum": 0 },
+        "total_epochs": { "type": "integer", "minimum": 1 },
+        "loss": { "type": "number", "description": "Current training loss if available; absent for non-iterative or non-loss-based models." },
+        "val_accuracy": { "type": "number", "minimum": 0, "maximum": 1, "description": "Current validation accuracy if computed at this epoch boundary." }
+      }
+    },
+    "train_finished": {
+      "description": "Emitted after model.fit() returns successfully. Pairs with train_started.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "train_finished" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "metrics_computed": {
+      "description": "Emitted after metrics.v1.json is written. Rider on F-PY-B001.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "metrics_profile"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "metrics_computed" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "metrics_profile": { "type": "string", "description": "Profile name from metrics.v1 (classification.base.v1, classification.proba.v1, classification.multiclass.v1)." },
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "artifacts_written": {
+      "description": "Emitted after all artifact files (model.pkl, metrics.v1.json, feature_importance.v1.json or linear_coefficients.v1.json, interpretability.index.v1.json) are written and run.json is finalized. The last successful event before exit code 0.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "artifact_count"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "artifacts_written" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "artifact_count": { "type": "integer", "minimum": 1 },
+        "run_dir": { "type": "string" }
+      }
+    },
+    "cancelling": {
+      "description": "Emitted by Python signal handler IMMEDIATELY when SIGTERM is caught. Carries seconds_remaining countdown so the TS Bridge UI can render 'Cancelling... 3s' instead of an apparent freeze. Python emits one cancelling event per second of grace until either the run exits gracefully (followed by run_cancelled event + .cancelled marker) or the TS Bridge SIGKILLs (no further events). Grace window default is 5 seconds (configurable in Phase 4).",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "seconds_remaining"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "cancelling" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "seconds_remaining": { "type": "integer", "minimum": 0, "maximum": 60 },
+        "step": { "type": "string", "enum": ["dataset_loading", "training", "metrics_computation", "artifact_writing", "shutdown"], "description": "Which run phase the cancel was caught during." }
+      }
+    },
+    "run_cancelled": {
+      "description": "Emitted by Python signal handler AFTER graceful cleanup completes (artifacts flushed, partial state recorded). Pairs with the .cancelled marker file written under the run directory. Final event before graceful Python exit. If Python is SIGKILLed before this event lands, the .cancelled marker is also absent — TS Bridge interprets as 'cancelled but ungraceful' via timeout.",
+      "type": "object",
+      "required": ["event", "timestamp", "run_id", "step"],
+      "additionalProperties": false,
+      "properties": {
+        "event": { "const": "run_cancelled" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" },
+        "step": { "type": "string", "enum": ["dataset_loading", "training", "metrics_computation", "artifact_writing", "shutdown"] },
+        "reason": { "type": "string", "description": "Optional human-readable trigger (e.g., 'user cancelled via VS Code progress UI', 'workspace closed')." },
+        "graceful": { "type": "boolean", "const": true, "description": "Always true for this event type. The presence of run_cancelled implies graceful cleanup. Absence of run_cancelled + non-zero exit = SIGKILL'd or crashed during cancel; UI infers via run.json absence + run-manager state." }
+      }
+    }
+  }
+}
