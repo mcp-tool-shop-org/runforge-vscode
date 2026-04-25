@@ -19,7 +19,7 @@ import { viewLatestFeatureImportance } from './observability/feature-importance-
 import { viewLatestLinearCoefficients } from './observability/linear-coefficients-command.js';
 import { viewLatestInterpretabilityIndex } from './observability/interpretability-index-command.js';
 import { exportLatestRunAsMarkdown } from './observability/export-markdown-command.js';
-import type { PresetId } from './types.js';
+import { WORKSPACE_PATHS, type PresetId } from './types.js';
 
 /** Extension path for bundled runner */
 let extensionPath: string | undefined;
@@ -261,7 +261,7 @@ async function runInspectArtifact(): Promise<void> {
       'All Files': ['*'],
     },
     title: 'Select Model Artifact to Inspect',
-    defaultUri: vscode.Uri.file(path.join(workspaceRoot, '.runforge')),
+    defaultUri: vscode.Uri.file(path.join(workspaceRoot, WORKSPACE_PATHS.ML_ROOT)),
   });
 
   if (!fileUri || fileUri.length === 0) {
