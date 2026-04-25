@@ -29,7 +29,7 @@ import os
 import pickle
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, List, NamedTuple
+from typing import Any, Dict, Optional, List, NamedTuple
 
 import numpy as np
 
@@ -492,90 +492,6 @@ def load_csv(path: Path) -> LoadResult:
     num_samples = X.shape[0]
 
     return LoadResult(X, y, num_samples, num_features, rows_dropped)
-
-
-def train_logistic_regression(
-    X: np.ndarray,
-    y: np.ndarray,
-    regularization: float,
-    solver: str,
-    max_iter: int,
-    epochs: int,
-    seed: int,
-) -> Tuple[object, float]:
-    """
-    Train a Logistic Regression classifier using sklearn Pipeline.
-
-    Uses deterministic 80/20 train/val split.
-    Accuracy is computed on validation set only.
-
-    Args:
-        X: Feature matrix
-        y: Labels
-        regularization: Regularization strength (C = 1/regularization)
-        solver: Solver to use (lbfgs, etc.)
-        max_iter: Maximum iterations per solver call
-        epochs: Number of training epochs (for progress output)
-        seed: Random seed
-
-    Returns:
-        pipeline: Trained sklearn Pipeline (scaler + classifier)
-        accuracy: Validation accuracy
-    """
-    # Import sklearn here to defer import until needed
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.model_selection import train_test_split
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
-
-    # Deterministic 80/20 train/val split
-    try:
-        # Try stratified split first
-        X_train, X_val, y_train, y_val = train_test_split(
-            X, y, test_size=0.2, random_state=seed, stratify=y
-        )
-    except ValueError:
-        # Fall back to non-stratified if stratify fails (e.g., too few samples per class)
-        X_train, X_val, y_train, y_val = train_test_split(
-            X, y, test_size=0.2, random_state=seed
-        )
-
-    print(f"  Train samples: {len(X_train)}, Val samples: {len(X_val)}")
-
-    # C is inverse of regularization strength
-    C = 1.0 / regularization if regularization > 0 else 1e6
-
-    # Create pipeline with scaler and classifier
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('clf', LogisticRegression(
-            C=C,
-            solver=solver,
-            max_iter=max_iter,
-            random_state=seed,
-            warm_start=True,
-        ))
-    ])
-
-    # Simulate epochs for progress output
-    for epoch in range(1, epochs + 1):
-        # Adjust max_iter for intermediate epochs
-        clf = pipeline.named_steps['clf']
-        if epoch == epochs:
-            clf.max_iter = max_iter
-        else:
-            clf.max_iter = max(1, max_iter // epochs)
-
-        pipeline.fit(X_train, y_train)
-
-        # Compute validation accuracy for progress
-        val_accuracy = pipeline.score(X_val, y_val)
-        print(f"  Epoch {epoch}/{epochs} - val_accuracy: {val_accuracy:.4f}")
-
-    # Final validation accuracy
-    accuracy = pipeline.score(X_val, y_val)
-
-    return pipeline, accuracy
 
 
 def train_model(

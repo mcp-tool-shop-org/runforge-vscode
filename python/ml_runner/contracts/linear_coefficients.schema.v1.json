@@ -97,7 +97,8 @@
         "required": ["class", "features"],
         "additionalProperties": false
       },
-      "description": "Coefficients grouped by class, each sorted by absolute magnitude"
+      "minItems": 1,
+      "description": "Coefficients grouped by class, each sorted by absolute magnitude. ASYMMETRY CONTRACT: For binary classification (num_classes == 2) the array contains exactly ONE entry — the positive class — because sklearn stores a single coefficient row for binary linear classifiers; the negative class coefficients are the negation. For multiclass (num_classes >= 3) the array contains one entry per class. Consumers must therefore not assume len(coefficients_by_class) == num_classes."
     },
     "top_k_by_class": {
       "type": "array",

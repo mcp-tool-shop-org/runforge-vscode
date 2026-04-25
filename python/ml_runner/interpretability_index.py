@@ -1,12 +1,13 @@
 """
 Interpretability index builder for RunForge Phase 3.6.
 
-Creates a unified index artifact that references existing Phase 3 artifacts:
-- metrics.v1.json (Phase 3.3)
-- feature_importance.v1.json (Phase 3.4, conditional)
-- linear_coefficients.v1.json (Phase 3.5, conditional)
-
-Read-only linking and summarization only - no new computation.
+Entry point ``build_interpretability_index`` consumes a parsed ``run.json``
+plus the run directory and emits a unified ``interpretability.index.v1.json``
+that links to the Phase 3.3 metrics artifact and (when present) the Phase 3.4
+feature_importance and Phase 3.5 linear_coefficients artifacts. The index is
+read-only and additive — no new metrics are computed and existing artifacts
+are not modified; companion ``write_interpretability_index`` writes the result
+canonically (sorted keys, LF newlines) for deterministic builds.
 """
 
 import json

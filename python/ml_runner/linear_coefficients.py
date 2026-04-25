@@ -158,8 +158,8 @@ def _extract_coefficients(
     # For binary classification, coef_ shape is (1, n_features)
     # The single row represents the coefficients for the positive class
     if coef.shape[0] == 1 and num_classes == 2:
-        # Binary case: duplicate coefficients for both classes (with opposite sign for class 0)
-        # Actually, we'll report for both classes to be explicit
+        # Binary asymmetry: len(coefficients_by_class) == 1 by contract
+        # (see linear_coefficients.schema.v1.json coefficients_by_class.description)
         coef_by_class = _build_binary_coefficients(coef[0], classes_list, feature_names, intercept)
     else:
         # Multiclass case: one row per class

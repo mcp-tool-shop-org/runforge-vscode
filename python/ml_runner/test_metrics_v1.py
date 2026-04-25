@@ -475,3 +475,35 @@ class TestGetClassifierFromPipeline:
         extracted = get_classifier_from_pipeline(clf)
 
         assert extracted is clf
+
+
+class TestSingleClassFoldEdge:
+    """F-PY-005: validation set ending up with only one class must not crash."""
+
+    def test_single_class_validation_metrics_defined(self):
+        """compute_base_metrics + compute_multiclass_metrics produce sensible output
+        when y_true and y_pred each contain only one class label.
+
+        This simulates a pathological fold (small dataset, unstratified split)
+        where validation collapses to a single class. Metrics must be defined
+        (no exception, numeric values, accuracy reachable) — undefined per-class
+        scores fall back to 0.0 via zero_division=0.
+        """
+        y_true = np.array([1, 1, 1, 1])
+        y_pred = np.array([1, 1, 1, 1])
+        class_labels = [0, 1]
+
+        base = compute_base_metrics(y_true, y_pred, class_labels)
+        assert base["accuracy"] == 1.0
+        assert base["precision_macro"] >= 0.0
+        assert base["recall_macro"] >= 0.0
+        assert base["f1_macro"] >= 0.0
+        assert len(base["confusion_matrix"]) == len(class_labels)
+
+        multi = compute_multiclass_metrics(y_true, y_pred, class_labels)
+        assert len(multi["per_class_precision"]) == len(class_labels)
+        assert len(multi["per_class_recall"]) == len(class_labels)
+        assert len(multi["per_class_f1"]) == len(class_labels)
+        assert all(0.0 <= v <= 1.0 for v in multi["per_class_precision"])
+        assert all(0.0 <= v <= 1.0 for v in multi["per_class_recall"])
+        assert all(0.0 <= v <= 1.0 for v in multi["per_class_f1"])
