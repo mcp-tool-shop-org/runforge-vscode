@@ -355,6 +355,76 @@ class TestComputeMetricsV1:
         assert "per_class_f1" in metrics
         assert "class_labels" in metrics
 
+    def test_random_forest_multiclass_writes_per_class_metrics(self, multiclass_data):
+        """FT-PY-010: RandomForestClassifier multiclass → multiclass.v1 with all
+        schema-required per-class fields. Closes the 3rd-family coverage gap."""
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.model_selection import train_test_split
+
+        X, y = multiclass_data
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.3, random_state=42
+        )
+
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('clf', RandomForestClassifier(n_estimators=10, random_state=42))
+        ])
+        pipeline.fit(X_train, y_train)
+
+        metrics = compute_metrics_v1(pipeline, X_val, y_val, "random_forest")
+
+        assert metrics["metrics_profile"] == PROFILE_MULTICLASS
+        assert metrics["num_classes"] >= 2
+        # Schema-required multiclass fields per metrics.schema.v1.json:134
+        assert "per_class_precision" in metrics
+        assert "per_class_recall" in metrics
+        assert "per_class_f1" in metrics
+        assert "class_labels" in metrics
+        # Per-class arrays align with class_labels
+        n = len(metrics["class_labels"])
+        assert len(metrics["per_class_precision"]) == n
+        assert len(metrics["per_class_recall"]) == n
+        assert len(metrics["per_class_f1"]) == n
+
+    def test_linear_svc_multiclass_writes_per_class_metrics(self, multiclass_data):
+        """FT-PY-010: LinearSVC multiclass → multiclass.v1 with all schema-required
+        per-class fields. LinearSVC lacks predict_proba, so this verifies the
+        multiclass branch does not depend on probability support."""
+        from sklearn.svm import LinearSVC
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.model_selection import train_test_split
+
+        X, y = multiclass_data
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.3, random_state=42
+        )
+
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('clf', LinearSVC(random_state=42, max_iter=2000))
+        ])
+        pipeline.fit(X_train, y_train)
+
+        metrics = compute_metrics_v1(pipeline, X_val, y_val, "linear_svc")
+
+        assert metrics["metrics_profile"] == PROFILE_MULTICLASS
+        # Schema-required multiclass fields
+        assert "per_class_precision" in metrics
+        assert "per_class_recall" in metrics
+        assert "per_class_f1" in metrics
+        assert "class_labels" in metrics
+        # log_loss must NOT appear (no probabilities)
+        assert "log_loss" not in metrics
+        # Per-class arrays align
+        n = len(metrics["class_labels"])
+        assert len(metrics["per_class_precision"]) == n
+        assert len(metrics["per_class_recall"]) == n
+        assert len(metrics["per_class_f1"]) == n
+
     def test_metrics_has_required_fields(self, binary_data):
         """All metrics have schema_version, metrics_profile, num_classes."""
         from sklearn.linear_model import LogisticRegression
