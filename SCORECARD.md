@@ -6,17 +6,48 @@
 **Date:** 2026-02-27
 **Type tags:** `[all]` `[npm]` `[vsix]`
 
-## 2026-04-25 Status — Post-Stage-A
+## 2026-04-25 Post-Phase-4 Re-score
 
-The 50/50 score in this document was assessed at v1.0.1 release (2026-02-27). It predates the discovery of 5 production-CRITICAL bugs that shipped in Marketplace v1.0.1 and were surfaced + fixed during the 2026-04-24/25 Dogfood Swarm Stage A:
+A full Phase 10 re-score, **not inherited** from the 2026-02-27 50/50 figure
+in this document. The 2026-02-27 score was assessed at v1.0.0 release and
+predates the discovery of 5 production-CRITICAL bugs that shipped in
+Marketplace v1.0.1 (`F-COORD-003`, `F-COORD-004`, `F-COORD-008`,
+`F-COORD-010`, `F-COORD-011`). All five are closed in v1.1.0; the Phase 4
+contract surface is frozen; pattern lessons #11–#17 are codified in
+[`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 
-- F-COORD-003 — Python subprocess `spawnRunnerScript` ImportError
-- F-COORD-004 — PYTHONIOENCODING/PYTHONUNBUFFERED unset
-- F-COORD-008 — Observability path mismatch (`.runforge/` vs `.ml/`)
-- F-COORD-010 — index.json shape divergence (bare-array writer vs `{runs:[]}` reader)
-- F-COORD-011 — IndexEntry shape divergence (TS shadow type vs Python writer)
+**Source of record:** `npx @mcptoolshop/shipcheck audit` run at commit
+`f480aef` on branch `swarm/dogfood`, version `1.1.0`.
 
-All five are closed on `swarm/dogfood`. A full SCORECARD re-score will land as part of Phase 10 (Full Treatment). Until that re-score, treat the 50/50 figure above as historical context, not current state.
+| Result | Count |
+|--------|-------|
+| Checked | 19 |
+| Unchecked | 0 |
+| Skipped (N/A) | 16 |
+| **Pass rate** | **100%** |
+
+**Verdict:** All hard gates pass. Ship.
+
+| Category | Score | Evidence |
+|----------|-------|----------|
+| A. Security | 10/10 | SECURITY.md current; threat-model paragraph in README; **NEW**: workspace-trust guard for Python subprocess spawn (Phase 4); no telemetry; no network egress |
+| B. Error Handling | 10/10 | SafeError shape (`code`, `message`, `hint`, `retryable`); VS Code notifications used; **NEW**: hardened CSV error actionability (5 specific failure modes) |
+| C. Operator Docs | 10/10 | README current with v1.1.0 features; CHANGELOG (Keep a Changelog format); 8 translations; landing page; Starlight handbook (5 pages incl. Cancel & Recovery); 7 contract surfaces documented |
+| D. Shipping Hygiene | 10/10 | `verify` script (test + lint + compile + vsce package); package.json @ 1.1.0; dep-audit job in CI; matrix CI (Node 20 + 22); EH smoke harness on Linux Xvfb; **NEW**: custom ESLint rules enforce CONTRACTS.md doctrines 2 + 3 |
+| E. Identity (soft) | 10/10 | Logo, 8 translations, landing page, GitHub metadata, repo-knowledge DB |
+| **Overall** | **50/50** | **All hard gates pass** |
+
+**Phase 4 evidence carried forward:**
+
+- 871+ total tests (388 vitest passing on Linux + 483 pytest + 6 EH smoke scenarios)
+- 0 CRITICALs surfaced during Phase 4 (validates pattern #11 — pre-defined contract eliminates F-COORD-011 drift class)
+- 35/35 contract guarantees hold across [`CONTRACT.md`](CONTRACT.md), [`CONTRACT-PHASE-3.md`](CONTRACT-PHASE-3.md), [`CONTRACT-PHASE-4.md`](CONTRACT-PHASE-4.md) per Phase 9 audit ([Phase 9 receipts](../dogfood-labs/swarms/mcp-tool-shop-org--runforge-vscode/phase-9/phase-9-receipts.json))
+- VSIX `runforge-1.1.0.vsix` at 126 files / 2.95 MB
+
+The 50/50 result below ("Post-Remediation" — historical, 2026-02-27) is
+preserved for audit trail; the Phase 4 re-score above is the current state.
+
+---
 
 ## Pre-Remediation Assessment
 

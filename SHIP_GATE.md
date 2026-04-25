@@ -44,7 +44,7 @@
 ## D. Shipping Hygiene
 
 - [x] `[all]` `verify` script exists (test + build + smoke in one command) (2026-02-27)
-- [x] `[all]` Version in manifest matches git tag (2026-02-27) — package.json version = "1.0.0"
+- [x] `[all]` Version in manifest matches git tag (2026-04-25) — package.json version = "1.1.0", tag pending Mike's `vsce publish` step
 - [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) (2026-02-27)
 - [x] `[all]` Automated dependency update mechanism exists (2026-02-27)
 - [ ] `[npm]` SKIP: published as VSIX, not npm package
