@@ -2,7 +2,7 @@
   "name": "runforge",
   "displayName": "RunForge — ML Training, Reproducible",
   "description": "Deterministic, contract-driven ML training inside VS Code. Same dataset, same seed, same version — identical model, every time. Run, browse, inspect — all in-editor.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "mcp-tool-shop",
   "author": {
     "name": "mcp-tool-shop",

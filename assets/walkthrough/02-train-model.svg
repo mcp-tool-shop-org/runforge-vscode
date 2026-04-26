@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Step 2: Train a model — RunForge runs the training loop">
+  <!--
+    Walkthrough step 2: Train.
+    Anvil (forge metaphor) + a small loss curve descending into it (training).
+  -->
+
+  <!-- Loss curve descending into the anvil -->
+  <path d="M10 14 Q22 14 28 24 Q34 34 40 38" stroke-opacity="0.85" fill="none"/>
+
+  <!-- Spark above anvil -->
+  <path d="M48 16 L50 19 L53 20 L50 21 L48 24 L46 21 L43 20 L46 19 Z" fill="currentColor" fill-opacity="0.85" stroke="none"/>
+
+  <!-- Anvil top with horn -->
+  <path d="M14 48
+           L60 48
+           Q70 48 70 42
+           Q70 38 64 39
+           L60 39
+           L60 42
+           L14 42 Z"
+        fill="currentColor" fill-opacity="0.08"/>
+  <path d="M14 48
+           L60 48
+           Q70 48 70 42
+           Q70 38 64 39
+           L60 39
+           L60 42
+           L14 42 Z"/>
+
+  <!-- Anvil waist -->
+  <rect x="30" y="48" width="22" height="6" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="30" y="48" width="22" height="6"/>
+
+  <!-- Anvil base -->
+  <rect x="20" y="54" width="42" height="8" rx="1" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="20" y="54" width="42" height="8" rx="1"/>
+</svg>

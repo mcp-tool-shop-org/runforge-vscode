@@ -4,27 +4,85 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [Unreleased]
 
-Stage D dogfood polish — Wave 3a (CI/Docs).
+## [1.2.0] - 2026-04-26
+
+Stage D dogfood polish — full Wave 3a (Frontend + Branding + CI/Docs) plus
+the painterly hero asset suite.
 
 ### Added
-- `.github/ISSUE_TEMPLATE/` — `bug_report.yml`, `feature_request.yml`, `question.yml`,
-  plus `config.yml` routing to handbook / Discussions / SECURITY.md.
-- `.github/PULL_REQUEST_TEMPLATE.md` — contract-impact + verification checklist.
+
+**Frontend / in-extension UX**
+- New `src/status-bar.ts` — VS Code status-bar item subscribed to
+  `EventStreamConsumer.train_progress`, debounced once per epoch. Shows
+  `RunForge: Epoch N/M` while training, brief success-flash on completion,
+  hidden when idle.
+- New `src/notifications.ts` — centralized helper module seeded for the 51
+  inline `vscode.window.show*Message` sites (FE F-006 prep). Eliminates
+  ad-hoc toast plumbing across the runner.
+- New `runforge.datasetPath` workspace setting — explicit dataset path
+  configuration replacing implicit env-var fallback. Surfaces in Settings UI
+  with `markdownDescription`.
+- Settings UI grouping — `markdownDescription`, `scope`, and `order` on all
+  4 settings; settings now group under "RunForge" with a coherent ordering.
+- `runforge:hasActiveRun` context key — wired through the run lifecycle so
+  command palette items can gate visibility on training state.
+- Trust-guard error toast now exposes a "Manage Workspace Trust" action
+  button that opens the Trust panel directly instead of just naming it.
+
+**Branding / brand assets**
+- New `assets/glyph.svg` — primary brand mark (faceted ingot, 2.1 KB,
+  256x256 viewBox). Strategic positioning per the 2026 brand-language
+  doctrine: faceted-solid replaces the generic 4-point-sparkle that the
+  AI-tool cohort has saturated.
+- New `assets/glyph-spark.svg` — accent companion for hover-state /
+  feature-badge use (single-arm spark, 732 B, 64x64).
+- New `assets/glyph-256.png` — raster fallback for SVG-incompatible
+  surfaces.
+- New `assets/hero-spark.{webp,png,master.png}` — painterly hero
+  illustration (forge spark, captured-moment idiom, atmospheric-
+  impressionist subgenre). Generated via non-Turbo DreamShaperXL +
+  ClassipeintXL @ 0.4 + Scribble ControlNet @ 0.75 strength on a procedural
+  SVG seed. Recipe codified at
+  `F:/AI-Models/registry/examples/hero-painterly-spark.md`.
+- Replaced `assets/icon.png` with the new faceted-anvil marketplace icon
+  (1.6 MB → 6.6 KB, 99.6% smaller; same visual identity, marketplace-spec
+  128x128).
+- New `assets/marketplace/` and `assets/walkthrough/` directories scaffolded
+  for future marketplace listing visuals + walkthrough media.
+- New `assets/activity-icon.svg` — 24x24 monochrome activity-bar icon
+  contribution candidate.
+- `package.json` marketplace meta tightened — leads with determinism in
+  the description, version + installs + rating badges added to README.
+
+**CI / Docs**
+- `.github/ISSUE_TEMPLATE/` — `bug_report.yml`, `feature_request.yml`,
+  `question.yml`, plus `config.yml` routing to handbook / Discussions /
+  SECURITY.md.
+- `.github/PULL_REQUEST_TEMPLATE.md` — contract-impact + verification
+  checklist.
 - `.github/CODEOWNERS` — frozen-contract surfaces gated for review.
-- Starlight `:::caution` / `:::tip` / `:::note` asides on the Cancel & Recovery
-  handbook page (5s SIGKILL, atomic marker, partial artifacts, workspace-trust
-  guard).
+- Starlight `:::caution` / `:::tip` / `:::note` asides on the Cancel &
+  Recovery handbook page (5s SIGKILL, atomic marker, partial artifacts,
+  workspace-trust guard).
 
 ### Changed
 - Handbook sidebar: explicit grouping (Start here / Operations / Reference /
   Contracts) replacing `autogenerate`. Frontmatter `sidebar.order` removed
   from each handbook page (now redundant).
 - Tagged plain-text state-machine and lifecycle code blocks with the `text`
-  language hint so they render with monospace + horizontal scroll instead of
-  soft-wrap (`cancel-and-recovery.md`, `reference.md`).
+  language hint so they render with monospace + horizontal scroll instead
+  of soft-wrap (`cancel-and-recovery.md`, `reference.md`).
 - README: deduplicated horizontal rule between Non-Goals and Observability.
 - README badge row: added VS Code Marketplace rating badge alongside the
   existing auto-tracking version + installs badges.
+
+### Notes
+
+The painterly hero asset suite ships in `assets/` for marketplace + brand
+use. The Astro landing page (`site/`) still uses the existing site-theme
+hero shape; porting the painterly hero to the Astro site is tracked as a
+separate roadmap (`F:/AI/runforge-vscode/.stage-d/SITE_THEME_ROADMAP.md`)
+and not part of this release.
 
 ## [1.1.0] - 2026-04-25
 

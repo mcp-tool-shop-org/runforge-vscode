@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Step 3: Inspect results — metrics, feature importance, interpretability">
+  <!--
+    Walkthrough step 3: Inspect results.
+    Bar chart (metrics) + magnifier (interpretability hint).
+  -->
+
+  <!-- Axis -->
+  <line x1="14" y1="60" x2="62" y2="60"/>
+  <line x1="14" y1="60" x2="14" y2="20"/>
+
+  <!-- Bars (metrics — feature importance / coefficients vibe) -->
+  <rect x="20" y="44" width="6" height="16" fill="currentColor" fill-opacity="0.18"/>
+  <rect x="20" y="44" width="6" height="16"/>
+
+  <rect x="30" y="32" width="6" height="28" fill="currentColor" fill-opacity="0.32"/>
+  <rect x="30" y="32" width="6" height="28"/>
+
+  <rect x="40" y="38" width="6" height="22" fill="currentColor" fill-opacity="0.24"/>
+  <rect x="40" y="38" width="6" height="22"/>
+
+  <rect x="50" y="50" width="6" height="10" fill="currentColor" fill-opacity="0.12"/>
+  <rect x="50" y="50" width="6" height="10"/>
+
+  <!-- Magnifier (interpretability hint) -->
+  <circle cx="56" cy="22" r="8" fill="currentColor" fill-opacity="0.08"/>
+  <circle cx="56" cy="22" r="8"/>
+  <line x1="62" y1="28" x2="68" y2="34"/>
+</svg>

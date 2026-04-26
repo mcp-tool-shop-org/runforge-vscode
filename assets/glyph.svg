@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>RunForge glyph — faceted ingot</title>
+
+  <defs>
+    <linearGradient id="top-face" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFE9B0"/>
+      <stop offset="60%" stop-color="#F0A030"/>
+      <stop offset="100%" stop-color="#7A4810"/>
+    </linearGradient>
+    <linearGradient id="left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0A030"/>
+      <stop offset="100%" stop-color="#7A4810"/>
+    </linearGradient>
+    <linearGradient id="right-face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7A4810"/>
+      <stop offset="100%" stop-color="#3A1E08"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#FFE9B0" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#F0A030" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ambient halo -->
+  <circle cx="128" cy="128" r="120" fill="url(#halo)"/>
+
+  <g transform="translate(128 128)">
+    <!-- top face: rhombus -->
+    <path d="M 0 -65 L 55 -33 L 0 -1 L -55 -33 Z"
+          fill="url(#top-face)"/>
+
+    <!-- left face -->
+    <path d="M -55 -33 L 0 -1 L 0 69 L -55 37 Z"
+          fill="url(#left-face)"/>
+
+    <!-- right face: shadow side -->
+    <path d="M 0 -1 L 55 -33 L 55 37 L 0 69 Z"
+          fill="url(#right-face)"/>
+
+    <!-- back-top edge highlight (where light hits the upper rim) -->
+    <path d="M -55 -33 L 0 -65 L 55 -33"
+          fill="none" stroke="#FFE9B0" stroke-width="1.5" stroke-linejoin="round" opacity="0.85"/>
+
+    <!-- front-top edge highlight (light catching the leading edge) -->
+    <path d="M -55 -33 L 0 -1"
+          fill="none" stroke="#FFE9B0" stroke-width="1.5" stroke-linejoin="round" opacity="0.6"/>
+
+    <!-- front-vertical seam: subtle bevel highlight where left/right meet -->
+    <path d="M 0 -1 L 0 69"
+          stroke="#FFC766" stroke-width="1.5" opacity="0.45"/>
+  </g>
+
+</svg>

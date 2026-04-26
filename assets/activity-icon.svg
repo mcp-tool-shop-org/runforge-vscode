@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-label="RunForge activity bar icon">
+  <!--
+    RunForge activity-bar icon.
+    24x24 monochrome, uses currentColor so VS Code recolors per active/inactive state.
+    Anvil silhouette (forge metaphor) + small spark above it (training-in-progress hint).
+  -->
+
+  <!-- Spark above anvil (forge spark / training-active glyph) -->
+  <path d="M11 2 L12 4 L14 4.5 L12 5 L11 7 L10 5 L8 4.5 L10 4 Z" opacity="0.9"/>
+
+  <!-- Anvil top platform with rounded leading horn -->
+  <path d="M2 13
+           L18 13
+           Q22 13 22 11
+           Q22 9.5 19 10
+           L18 10
+           L18 11
+           L2 11 Z"/>
+
+  <!-- Anvil body (waist) -->
+  <rect x="8" y="13" width="8" height="3"/>
+
+  <!-- Anvil base (footprint) -->
+  <rect x="4" y="16" width="16" height="3" rx="0.5"/>
+</svg>

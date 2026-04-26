@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Step 1: Open a workspace with a CSV dataset">
+  <!--
+    Walkthrough step 1: Open workspace + dataset.
+    Theme-aware via currentColor (stroke + fill where used).
+    Folder + dataset rows + arrow-into hint.
+  -->
+
+  <!-- Folder back panel -->
+  <path d="M14 22 L30 22 L34 27 L66 27 L66 60 Q66 62 64 62 L16 62 Q14 62 14 60 Z" fill="currentColor" fill-opacity="0.08"/>
+
+  <!-- Folder front edge -->
+  <path d="M14 22 L30 22 L34 27 L66 27 L66 60 Q66 62 64 62 L16 62 Q14 62 14 60 Z"/>
+
+  <!-- Dataset rows (tabular hint) -->
+  <line x1="22" y1="38" x2="58" y2="38"/>
+  <line x1="22" y1="44" x2="58" y2="44"/>
+  <line x1="22" y1="50" x2="58" y2="50"/>
+  <line x1="22" y1="56" x2="58" y2="56"/>
+
+  <!-- Column separators -->
+  <line x1="34" y1="34" x2="34" y2="58" stroke-opacity="0.5"/>
+  <line x1="46" y1="34" x2="46" y2="58" stroke-opacity="0.5"/>
+
+  <!-- "Open" arrow (action hint) -->
+  <path d="M70 14 L74 18 L70 22" stroke-opacity="0.7"/>
+  <line x1="62" y1="18" x2="74" y2="18" stroke-opacity="0.7"/>
+</svg>

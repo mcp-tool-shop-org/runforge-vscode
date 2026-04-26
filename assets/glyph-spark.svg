@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>RunForge spark — feature-badge accent</title>
+
+  <defs>
+    <radialGradient id="spark-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE9B0" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#F0A030" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#spark-glow)"/>
+  <!-- single tapered arm, top-right diagonal (suggests strike trajectory) -->
+  <path d="M 14 50 L 30 30 L 32 32 L 50 14 L 34 34 L 32 32 Z" fill="#F0A030"/>
+  <!-- pearl center -->
+  <circle cx="32" cy="32" r="4" fill="#FFE9B0"/>
+
+</svg>
