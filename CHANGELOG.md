@@ -4,6 +4,19 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-04-26
+
+### Fixed
+- **`.vscodeignore` parity** — site/brand assets that were inadvertently
+  bundled in v1.2.0 (`hero-spark.{webp,png,master.png}`, `glyph.svg`,
+  `glyph-spark.svg`, `glyph-256.png`, `activity-icon.svg`,
+  `walkthrough/`, `marketplace/`, `logo.png`) are now excluded from the
+  `.vsix`. They stay in `assets/` in the repo for the future site port
+  (see `.stage-d/SITE_THEME_ROADMAP.md`) but no longer bloat the
+  marketplace package. Drops `.vsix` size by ~1.1 MB.
+- The marketplace icon (`assets/icon.png`, referenced by `package.json`
+  `"icon"` field) is unaffected — still ships with the extension.
+
 ## [1.2.0] - 2026-04-26
 
 Stage D dogfood polish — full Wave 3a (Frontend + Branding + CI/Docs) plus

@@ -43,3 +43,19 @@ coverage/**
 **/*.egg-info/**
 .polyglot-cache.json
 .stage-d/**
+# v1.2.1 — site/brand assets, NOT consumed by the extension code. They live
+# in assets/ for the future site port (see .stage-d/SITE_THEME_ROADMAP.md)
+# but should NOT bloat the .vsix. The marketplace icon (assets/icon.png) IS
+# consumed by package.json and stays in the package.
+assets/hero-spark.png
+assets/hero-spark.webp
+assets/hero-spark-master.png
+assets/glyph.svg
+assets/glyph-spark.svg
+assets/glyph-256.png
+assets/activity-icon.svg
+assets/walkthrough/**
+assets/marketplace/**
+# logo.png is also unused by the extension; trim while we're here
+assets/logo.png
+
