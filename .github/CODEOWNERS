@@ -1,0 +1,13 @@
+# Default owner for all paths.
+*       @mcp-tool-shop
+
+# Frozen contracts — touch requires an amendment doc per CONTRACT.md §Amendment Process.
+/CONTRACT.md           @mcp-tool-shop
+/CONTRACT-PHASE-3.md   @mcp-tool-shop
+/CONTRACT-PHASE-4.md   @mcp-tool-shop
+/docs/CONTRACTS.md     @mcp-tool-shop
+/docs/TRUST_MODEL.md   @mcp-tool-shop
+
+# Security-sensitive surfaces.
+/SECURITY.md            @mcp-tool-shop
+/.github/workflows/     @mcp-tool-shop

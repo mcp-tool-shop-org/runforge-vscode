@@ -1,0 +1,34 @@
+name: Question
+description: Ask a question. For richer back-and-forth, prefer GitHub Discussions.
+title: "[question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For open-ended discussion (design, what-if, "is this how I should…"), prefer [GitHub Discussions](https://github.com/mcp-tool-shop-org/runforge-vscode/discussions). Use this form for short, focused questions that do not yet warrant a thread.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What specifically is unclear?
+    validations:
+      required: true
+
+  - type: input
+    id: handbook-page
+    attributes:
+      label: Handbook page consulted
+      description: Which handbook page (if any) you read before asking.
+      placeholder: "https://mcp-tool-shop-org.github.io/runforge-vscode/handbook/cancel-and-recovery/"
+
+  - type: checkboxes
+    id: pre-flight
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched [existing issues](https://github.com/mcp-tool-shop-org/runforge-vscode/issues?q=) and [discussions](https://github.com/mcp-tool-shop-org/runforge-vscode/discussions) for this question.
+          required: true
+        - label: I read the relevant [handbook](https://mcp-tool-shop-org.github.io/runforge-vscode/handbook/) section.
+          required: true

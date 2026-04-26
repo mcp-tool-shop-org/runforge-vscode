@@ -1,0 +1,49 @@
+name: Feature request
+description: Propose a new capability for RunForge. Note Phase 2/3/4 are FROZEN — features land via a Phase 5 contract.
+title: "[feature] "
+labels: ["enhancement", "phase-5-candidate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        RunForge's behavioral surface is split across frozen contracts ([CONTRACT.md](https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/CONTRACT.md), [CONTRACT-PHASE-3.md](https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/CONTRACT-PHASE-3.md), [CONTRACT-PHASE-4.md](https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/CONTRACT-PHASE-4.md)). New features land as a Phase 5 contract amendment, not a patch to a frozen surface.
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario / use-case
+      description: What are you trying to do? Concrete is better than abstract.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-pain
+    attributes:
+      label: What's painful today
+      description: How do you work around the absence of this feature now?
+    validations:
+      required: true
+
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art
+      description: Other tools (Jupyter, Continue, Data Wrangler, MLflow, …) that solve this. Links welcome.
+
+  - type: dropdown
+    id: phase-5-candidate
+    attributes:
+      label: Phase 5 scope?
+      description: Does this require new behavior, or is it a polish on an existing surface?
+      options:
+        - "New behavior — Phase 5 contract candidate"
+        - "Polish — fits inside an existing frozen contract"
+        - "Unsure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any approaches you tried or rejected, and why.

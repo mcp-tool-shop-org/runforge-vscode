@@ -1,0 +1,100 @@
+name: Bug report
+description: Report a defect in RunForge. Please read the handbook first — most "doesn't work" reports are workspace-trust or Python-path issues covered there.
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please include enough detail that the issue is reproducible without a follow-up round-trip. Security-sensitive reports should NOT use this form — see [SECURITY.md](https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/SECURITY.md) for the disclosure path.
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: RunForge version
+      description: VS Code → Extensions → RunForge → version (e.g. `1.1.0`).
+      placeholder: "1.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: vscode-version
+    attributes:
+      label: VS Code version
+      description: Help → About (e.g. `1.95.2`).
+      placeholder: "1.95.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: `python --version` (or whatever `runforge.pythonPath` points at).
+      placeholder: "3.11.6"
+    validations:
+      required: true
+
+  - type: input
+    id: dataset-shape
+    attributes:
+      label: Dataset shape (rows × cols)
+      description: Approximate shape of the CSV that triggered the bug. Skip if not dataset-related.
+      placeholder: "1500 × 12"
+
+  - type: input
+    id: run-id
+    attributes:
+      label: Run ID
+      description: From `.ml/runs/<run-id>/run.json` if a run produced the issue.
+      placeholder: "20260425-104533-1a2b"
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Reproduction steps
+      description: Numbered, minimal, copy-pasteable. Include any settings overrides.
+      placeholder: |
+        1. Open workspace `…`
+        2. Set `runforge.modelFamily` to `random_forest`
+        3. Run `RunForge: Train (Standard)`
+        4. Observe …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. actual
+      description: What did you expect to happen, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: run-json
+    attributes:
+      label: run.json (if available)
+      description: Paste the contents of `.ml/runs/<run-id>/run.json`. Strip absolute paths if they reveal anything sensitive.
+      render: json
+
+  - type: checkboxes
+    id: pre-flight
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I read the [handbook](https://mcp-tool-shop-org.github.io/runforge-vscode/handbook/) — including the cancel/recovery and workspace-trust pages.
+          required: true
+        - label: I confirmed I'm on **v1.1.0 or later** (v1.0.1 shipped with five known production-CRITICAL bugs).
+          required: true

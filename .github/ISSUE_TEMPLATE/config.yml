@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Handbook
+    url: https://mcp-tool-shop-org.github.io/runforge-vscode/handbook/
+    about: Read the handbook before filing — it covers cancel/recovery, workspace trust, and the 14 commands.
+  - name: GitHub Discussions
+    url: https://github.com/mcp-tool-shop-org/runforge-vscode/discussions
+    about: For questions and design discussions.
+  - name: Security disclosure
+    url: https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/SECURITY.md
+    about: Report a security vulnerability privately. Do NOT file a public issue.
