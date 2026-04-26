@@ -6,6 +6,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import type { ChildProcess } from 'node:child_process';
 import type { PresetId, RunRequest, RunResult, DeviceType, ModelFamily, TrainingProfile } from '../types.js';
 import { ARTIFACT_FILENAMES } from '../types.js';
@@ -29,6 +30,7 @@ import {
 } from '../observability/event-stream-consumer.js';
 import { readCancelledMarker } from '../observability/cancelled-marker-reader.js';
 import type { SafeError } from '../observability/fs-safe.js';
+import { RunForgeStatusBar } from '../status-bar.js';
 
 /**
  * Phase 4 (FT-BACK-005): canonical workspace-trust-guard error message.
@@ -49,11 +51,54 @@ export const WORKSPACE_NOT_TRUSTED_MESSAGE =
 export const WORKSPACE_NOT_TRUSTED_RECOVERY_HINT =
   "Trust the workspace via VS Code's workspace trust UI, then re-run training.";
 
+/**
+ * Wave 3a (Bridge F-001 path (a)): canonical missing-dataset error.
+ *
+ * Surfaced when `runforge.datasetPath` is set in config but the file does
+ * not exist at training time. Message shape per the D1 implementation
+ * contract — both action surfaces are named (Update setting, pick file).
+ *
+ * Loss-of-fallback would erode v1.0.1 audience trust; this guard FIRES only
+ * when the user has explicitly opted into a stored path. Empty string and
+ * unset both fall through to the file picker.
+ *
+ * Exported so tests can assert on the verbatim text without duplicating it.
+ */
+export function buildDatasetNotFoundMessage(configuredPath: string): string {
+  return `Dataset not found at ${configuredPath}. Update runforge.datasetPath or pick a file.`;
+}
+
 /** Output channel for training logs */
 let outputChannel: vscode.OutputChannel | undefined;
 
 /** Extension path (for bundled runner) */
 let extensionPath: string | undefined;
+
+/**
+ * Wave 3a (FE F-002): module-singleton status-bar controller.
+ *
+ * Lazy: created on first run start so vitest workers that import run-manager
+ * for pure-helper tests (e.g. isOomError) never instantiate a StatusBarItem.
+ * Disposed by `disposeOutputChannel` (called on extension deactivate) so the
+ * status-bar item is released alongside the output channel.
+ */
+let statusBar: RunForgeStatusBar | undefined;
+
+function getStatusBar(): RunForgeStatusBar {
+  if (!statusBar) {
+    statusBar = new RunForgeStatusBar();
+  }
+  return statusBar;
+}
+
+/**
+ * Dispose the status-bar singleton. Called by `disposeOutputChannel` so
+ * extension deactivate cleans both surfaces in one shot. Idempotent.
+ */
+function disposeStatusBar(): void {
+  statusBar?.dispose();
+  statusBar = undefined;
+}
 
 /**
  * Set the extension path (called from extension.ts activate)
@@ -85,11 +130,15 @@ export function getOutputChannel(): vscode.OutputChannel {
 }
 
 /**
- * Dispose the output channel
+ * Dispose the output channel and status-bar singleton.
+ *
+ * Wave 3a: extended to also dispose the status-bar controller — same
+ * deactivate hook (`extension.ts:deactivate`) drops both surfaces.
  */
 export function disposeOutputChannel(): void {
   outputChannel?.dispose();
   outputChannel = undefined;
+  disposeStatusBar();
 }
 
 /** Active run state with token for callback safety */
@@ -287,6 +336,12 @@ export async function executeRun(
   // `requestWorkspaceTrust()` — that pops a modal and yanks the user out of
   // their flow. Instead the user clicks the workspace-trust banner or the
   // trust badge in the status bar, then re-invokes the command.
+  //
+  // Wave 3a: append an "Open Trust Settings" action button to the toast so
+  // the user can navigate to the trust UI without leaving the keyboard.
+  // The exported message constant is unchanged — the action is added on
+  // top of the canonical text so existing test assertions on
+  // `WORKSPACE_NOT_TRUSTED_MESSAGE` remain stable.
   if (!vscode.workspace.isTrusted) {
     const safeError: SafeError = {
       code: 'WORKSPACE_NOT_TRUSTED',
@@ -295,7 +350,16 @@ export async function executeRun(
       recoveryHint: WORKSPACE_NOT_TRUSTED_RECOVERY_HINT,
       retryable: true,
     };
-    void vscode.window.showErrorMessage(safeError.message);
+    void vscode.window
+      .showErrorMessage(safeError.message, 'Open Trust Settings')
+      .then((action) => {
+        if (action === 'Open Trust Settings') {
+          // `workbench.trust.manage` opens the Workspace Trust editor —
+          // the surface VS Code itself directs users to from the trust
+          // banner / status-bar badge.
+          void vscode.commands.executeCommand('workbench.trust.manage');
+        }
+      });
     const channel = getOutputChannel();
     channel.appendLine('');
     channel.appendLine(`ERROR: ${safeError.message}`);
@@ -318,6 +382,68 @@ export async function executeRun(
   const modelFamily = config.get<ModelFamily>('modelFamily', 'logistic_regression');
   // Phase 3.2: Training profile from settings
   const profile = config.get<TrainingProfile>('profile', '');
+
+  // Wave 3a (Bridge F-001 path (a)): resolve dataset path with explicit
+  // precedence:
+  //   1. caller-provided `datasetPath` arg (currently always undefined from
+  //      the command path; reserved for programmatic invocations).
+  //   2. `runforge.datasetPath` setting (when non-empty).
+  //   3. unset → fall through to existing file-picker / env var behavior.
+  //
+  // Per the D1 implementation contract: when (2) fires and the file does
+  // NOT exist, abort with an actionable SafeError. No auto-detect, no
+  // fuzzy-match — explicit over magic.
+  let resolvedDatasetPath = datasetPath;
+  if (resolvedDatasetPath === undefined) {
+    const configuredDatasetPath = config.get<string>('datasetPath', '');
+    if (configuredDatasetPath && configuredDatasetPath.length > 0) {
+      if (!existsSync(configuredDatasetPath)) {
+        const message = buildDatasetNotFoundMessage(configuredDatasetPath);
+        const safeError: SafeError = {
+          code: 'NOT_FOUND',
+          message,
+          path: configuredDatasetPath,
+          recoveryHint:
+            'Update runforge.datasetPath in settings or clear it to be prompted with a file picker.',
+          retryable: true,
+        };
+        // Dual-action toast: jump to the setting, OR open the file picker
+        // and inline-update the setting on selection. Mirrors the trust-
+        // guard action pattern. The error message constant itself remains
+        // unchanged so test assertions on `buildDatasetNotFoundMessage()`
+        // stay stable.
+        void vscode.window
+          .showErrorMessage(safeError.message, 'Open Setting', 'Pick File')
+          .then(async (action) => {
+            if (action === 'Open Setting') {
+              void vscode.commands.executeCommand(
+                'workbench.action.openSettings',
+                'runforge.datasetPath'
+              );
+            } else if (action === 'Pick File') {
+              const fileUri = await vscode.window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: false,
+                canSelectMany: false,
+                filters: { 'CSV Files': ['csv'], 'All Files': ['*'] },
+                title: 'Select Dataset CSV',
+              });
+              if (fileUri && fileUri[0]) {
+                await config.update(
+                  'datasetPath',
+                  fileUri[0].fsPath,
+                  vscode.ConfigurationTarget.Global
+                );
+              }
+            }
+          });
+        channel.appendLine('');
+        channel.appendLine(`ERROR: ${safeError.message}`);
+        return;
+      }
+      resolvedDatasetPath = configuredDatasetPath;
+    }
+  }
 
   // Check Python availability
   channel.appendLine('Checking Python installation...');
@@ -430,6 +556,21 @@ export async function executeRun(
   // Phase 4: structured event consumer for stderr JSONL.
   const eventConsumer = new EventStreamConsumer();
 
+  // Wave 3a (FE F-002): attach the status-bar to this run's event stream.
+  // Hidden until the first `train_progress` event paints; cleared on
+  // run-complete (markFinished/markEnded). Throttled per the Wave 3a
+  // contract (once per 200ms or per epoch transition).
+  const statusBarSurface = getStatusBar();
+  statusBarSurface.attachToRun(eventConsumer);
+
+  // Wave 3a (FE F-005): per-epoch throttle state for the modal-notification
+  // surface (`progress.report`). Mirrors the status-bar throttle so the two
+  // surfaces stay coherent under bursty input. Closure-captured by the
+  // onStderr handler below.
+  let progressLastEpoch: number | null = null;
+  let progressLastUpdateMs = 0;
+  const PROGRESS_THROTTLE_MS = 200;
+
   // Set active run (process will be set after spawn)
   activeRun = {
     token: runToken,
@@ -443,6 +584,15 @@ export async function executeRun(
     events: eventConsumer,
     sigkillTimer: null,
   };
+
+  // Wave 3a (FE F-004): publish the `runforge:hasActiveRun` context key so
+  // command-palette `when`-clauses and the cancel keybinding gate on
+  // training state. Cleared in `handleRunComplete`'s `finally`.
+  void vscode.commands.executeCommand(
+    'setContext',
+    'runforge:hasActiveRun',
+    true
+  );
 
   // Create callbacks for streaming.
   // Contract: each callback guards on activeRun.token === runToken — late callbacks from a
@@ -488,6 +638,35 @@ export async function executeRun(
           progress.report({
             message: `Cancelling… ${parsed.event.seconds_remaining}s`,
           });
+        }
+        // Wave 3a (FE F-005): per-epoch progress wiring. The
+        // EventStreamConsumer subscriber drives the status-bar; this branch
+        // drives the modal `withProgress` notification so both surfaces
+        // surface the same epoch counter. Throttled identically to the
+        // status-bar (once per 200ms or per epoch transition) so bursts
+        // don't flood the toast with redraws.
+        if (parsed.event.event === EVENT_TYPES.TRAIN_PROGRESS && progress) {
+          const ev = parsed.event;
+          const now = Date.now();
+          const epochChanged = ev.epoch !== progressLastEpoch;
+          const elapsed = now - progressLastUpdateMs;
+          if (
+            progressLastUpdateMs === 0 ||
+            epochChanged ||
+            elapsed > PROGRESS_THROTTLE_MS
+          ) {
+            progressLastEpoch = ev.epoch;
+            progressLastUpdateMs = now;
+            const lossPart =
+              typeof ev.loss === 'number' ? ` — loss=${ev.loss.toFixed(4)}` : '';
+            const accPart =
+              typeof ev.val_accuracy === 'number'
+                ? ` val_acc=${ev.val_accuracy.toFixed(3)}`
+                : '';
+            progress.report({
+              message: `Epoch ${ev.epoch}/${ev.total_epochs}${lossPart}${accPart}`,
+            });
+          }
         }
       } else if (parsed.kind === 'skipped') {
         channel.appendLine(`[stderr-skip] ${line}`);
@@ -596,7 +775,7 @@ export async function executeRun(
       seed,
       device: actualDevice,
       cwd: workspaceRoot,
-      dataset_path: datasetPath,
+      dataset_path: resolvedDatasetPath,
       model_family: modelFamily,
       profile: profile || undefined,
     }, callbacks, bundledRunnerParent);
@@ -866,6 +1045,10 @@ async function handleRunComplete(
         }
       }
       void vscode.window.showInformationMessage(`Training complete: ${request.run_id}`);
+      // Wave 3a (FE F-002): brief success flash, auto-clears after ~2s.
+      if (statusBar) {
+        statusBar.markFinished(request.run_id);
+      }
     } else {
       channel.appendLine(`✗ Training failed: ${request.run_id}`);
       channel.appendLine(`  Exit code: ${result.exit_code}`);
@@ -873,6 +1056,11 @@ async function handleRunComplete(
         channel.appendLine(`  Error: ${result.error}`);
       }
       void vscode.window.showErrorMessage(`Training failed: ${request.run_id}`);
+      // Wave 3a (FE F-002): hide the surface — the failure toast already
+      // informs the user; a stale 'Epoch N/M' would mislead.
+      if (statusBar) {
+        statusBar.markEnded();
+      }
     }
     channel.appendLine('═'.repeat(60));
 
@@ -881,6 +1069,13 @@ async function handleRunComplete(
     if (activeRun && activeRun.token === runToken) {
       activeRun = null;
     }
+    // Wave 3a (FE F-004): drop the active-run context key. Idempotent; safe
+    // to fire even if a stale callback already cleared `activeRun` above.
+    void vscode.commands.executeCommand(
+      'setContext',
+      'runforge:hasActiveRun',
+      false
+    );
   }
 }
 

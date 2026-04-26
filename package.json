@@ -127,53 +127,114 @@
         "icon": "$(refresh)"
       }
     ],
-    "configuration": {
-      "title": "RunForge",
-      "properties": {
-        "runforge.pythonPath": {
-          "type": "string",
-          "default": "python",
-          "description": "Path to Python executable"
-        },
-        "runforge.mlRunnerModule": {
-          "type": "string",
-          "default": "ml_runner",
-          "description": "Python module to run for training"
-        },
-        "runforge.modelFamily": {
-          "type": "string",
-          "default": "logistic_regression",
-          "enum": [
-            "logistic_regression",
-            "random_forest",
-            "linear_svc"
-          ],
-          "enumDescriptions": [
-            "Logistic Regression (default, fast, interpretable)",
-            "Random Forest (ensemble, handles non-linear patterns)",
-            "Linear SVC (support vector classifier, margin-based)"
-          ],
-          "description": "Model family to use for training (Phase 3.1)"
-        },
-        "runforge.profile": {
-          "type": "string",
-          "default": "",
-          "enum": [
-            "",
-            "default",
-            "fast",
-            "thorough"
-          ],
-          "enumDescriptions": [
-            "No profile (use preset defaults)",
-            "Default profile (no hyperparameter overrides)",
-            "Fast profile (reduced iterations for quick runs)",
-            "Thorough profile (more trees/iterations, uses RandomForest)"
-          ],
-          "description": "Training profile to use (Phase 3.2). Profiles can override model family and hyperparameters."
+    "configuration": [
+      {
+        "title": "RunForge: Python",
+        "order": 1,
+        "properties": {
+          "runforge.pythonPath": {
+            "type": "string",
+            "default": "python",
+            "scope": "machine",
+            "order": 1,
+            "markdownDescription": "Path to the Python executable used for training. Python 3.10+ is required. Examples: `/usr/bin/python3.11` or `C:\\Python311\\python.exe`. Leave as `python` to use whatever resolves on `PATH`."
+          }
+        }
+      },
+      {
+        "title": "RunForge: Model",
+        "order": 2,
+        "properties": {
+          "runforge.modelFamily": {
+            "type": "string",
+            "default": "logistic_regression",
+            "order": 1,
+            "enum": [
+              "logistic_regression",
+              "random_forest",
+              "linear_svc"
+            ],
+            "markdownEnumDescriptions": [
+              "**Logistic Regression** — fast, interpretable linear classifier. Good default for tabular data.",
+              "**Random Forest** — ensemble of decision trees. Handles non-linear patterns; slower to train.",
+              "**Linear SVC** — support vector classifier with linear kernel. Margin-based; competitive on high-dimensional data."
+            ],
+            "markdownDescription": "Which model family to train. May be overridden by `#runforge.profile#` (e.g. `thorough` forces Random Forest)."
+          }
+        }
+      },
+      {
+        "title": "RunForge: Profile",
+        "order": 3,
+        "properties": {
+          "runforge.profile": {
+            "type": "string",
+            "default": "",
+            "order": 1,
+            "enum": [
+              "",
+              "default",
+              "fast",
+              "thorough"
+            ],
+            "markdownEnumDescriptions": [
+              "_(none)_ — use the preset's defaults.",
+              "**Default** — preset defaults, no overrides.",
+              "**Fast** — reduced iterations for quick iteration.",
+              "**Thorough** — more trees/iterations; uses Random Forest regardless of `#runforge.modelFamily#`."
+            ],
+            "markdownDescription": "Training profile. Profiles can override `#runforge.modelFamily#` and hyperparameters."
+          }
+        }
+      },
+      {
+        "title": "RunForge: Execution",
+        "order": 4,
+        "properties": {
+          "runforge.datasetPath": {
+            "type": "string",
+            "default": "",
+            "scope": "machine",
+            "order": 1,
+            "markdownDescription": "Absolute path to the dataset CSV used for training. Leave empty (default) to be prompted with a file picker on every run. When set, the training command validates that the file exists and aborts with an actionable error if it does not — no auto-detect, no fuzzy-match."
+          }
+        }
+      },
+      {
+        "title": "RunForge: Advanced",
+        "order": 99,
+        "properties": {
+          "runforge.mlRunnerModule": {
+            "type": "string",
+            "default": "ml_runner",
+            "scope": "machine",
+            "order": 1,
+            "markdownDescription": "_Advanced._ Python module name to invoke (`python -m <module>`). Override only when running a custom runner. Default `ml_runner` ships with the extension."
+          }
         }
       }
-    }
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "runforge.cancelActiveRun", "when": "runforge:hasActiveRun" },
+        { "command": "runforge.trainStandard", "when": "!runforge:hasActiveRun" },
+        { "command": "runforge.trainHighQuality", "when": "!runforge:hasActiveRun" }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "runforge.trainStandard",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "!runforge:hasActiveRun"
+      },
+      {
+        "command": "runforge.cancelActiveRun",
+        "key": "ctrl+alt+x",
+        "mac": "cmd+alt+x",
+        "when": "runforge:hasActiveRun"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
