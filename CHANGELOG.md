@@ -2,6 +2,30 @@
 
 All notable changes to the RunForge VS Code extension will be documented in this file.
 
+## [Unreleased]
+
+Stage D dogfood polish — Wave 3a (CI/Docs).
+
+### Added
+- `.github/ISSUE_TEMPLATE/` — `bug_report.yml`, `feature_request.yml`, `question.yml`,
+  plus `config.yml` routing to handbook / Discussions / SECURITY.md.
+- `.github/PULL_REQUEST_TEMPLATE.md` — contract-impact + verification checklist.
+- `.github/CODEOWNERS` — frozen-contract surfaces gated for review.
+- Starlight `:::caution` / `:::tip` / `:::note` asides on the Cancel & Recovery
+  handbook page (5s SIGKILL, atomic marker, partial artifacts, workspace-trust
+  guard).
+
+### Changed
+- Handbook sidebar: explicit grouping (Start here / Operations / Reference /
+  Contracts) replacing `autogenerate`. Frontmatter `sidebar.order` removed
+  from each handbook page (now redundant).
+- Tagged plain-text state-machine and lifecycle code blocks with the `text`
+  language hint so they render with monospace + horizontal scroll instead of
+  soft-wrap (`cancel-and-recovery.md`, `reference.md`).
+- README: deduplicated horizontal rule between Non-Goals and Observability.
+- README badge row: added VS Code Marketplace rating badge alongside the
+  existing auto-tracking version + installs badges.
+
 ## [1.1.0] - 2026-04-25
 
 ### Added
