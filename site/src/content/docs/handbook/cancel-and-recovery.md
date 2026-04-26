@@ -1,8 +1,6 @@
 ---
 title: Cancel and Recovery
 description: Cancel an in-progress training run, recover orphaned runs into the index, and trust the workspace before subprocess spawn.
-sidebar:
-  order: 3
 ---
 
 Phase 4 introduces three lifecycle controls: **cancel an active training run**, **recover a missing index**, and a **workspace-trust guard** on Python subprocess spawn. This page covers each end-to-end.
@@ -21,7 +19,7 @@ You can also dismiss the in-progress notification's cancel affordance — both p
 
 ### What happens during cancel
 
-```
+```text
 running → user fires cancel → TS arms 5s SIGKILL timer + sends SIGTERM
   → Python receives SIGTERM
     → emits cancelling{seconds_remaining: 5..0} per second
@@ -30,7 +28,9 @@ running → user fires cancel → TS arms 5s SIGKILL timer + sends SIGTERM
     → exits non-zero
 ```
 
+:::caution[Five-second hard stop]
 If Python has not exited five seconds after `SIGTERM`, RunForge sends `SIGKILL` regardless of whether cleanup is in flight. The five-second window is fixed in Phase 4.
+:::
 
 ### Terminal states after cancel
 
@@ -42,11 +42,15 @@ The cancel state is determined by **artifacts on disk and events observed during
 | **Cancelled (forced)** | Cancel intent fired, neither marker nor event landed, non-zero exit |
 | **Completed** | `artifacts_written` event observed AND `run.json` exists (training finished before cancel could land) |
 
+:::tip[Source of truth]
 The `.cancelled` marker is written atomically (`os.replace()` on `.cancelled.tmp` → `.cancelled`), so partial markers cannot exist. Even if `SIGKILL` fires at t+5s, a marker that was atomically written before t+5s still wins — graceful state is durable.
+:::
 
 ### Partial artifacts
 
+:::note[Partial artifacts are expected]
 A graceful cancel may leave partial artifacts in the run directory (a flushed log, a partially-written metrics file). The `.cancelled` marker file is the canonical signal that the run was user-cancelled; observability commands surface it as a first-class run state alongside completed runs.
+:::
 
 ## Recover Index
 
@@ -96,7 +100,9 @@ If you are running RunForge in an untrusted workspace, training and other comman
 
 ### Why this exists
 
+:::caution[Why this guard exists]
 The workspace-trust guard sits between RunForge's command surface and any Python spawn. An untrusted workspace cannot induce RunForge to execute arbitrary Python — even if the workspace ships its own `runforge.pythonPath` setting in `.vscode/settings.json`. This is consistent with VS Code's broader workspace-trust contract.
+:::
 
 For the full security model, see [TRUST_MODEL.md](https://github.com/mcp-tool-shop-org/runforge-vscode/blob/main/docs/TRUST_MODEL.md).
 

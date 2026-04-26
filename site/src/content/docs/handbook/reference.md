@@ -1,8 +1,6 @@
 ---
 title: Reference
 description: Commands, settings, models, training profiles, artifacts, interpretability, and security model.
-sidebar:
-  order: 2
 ---
 
 ## Commands
@@ -75,7 +73,7 @@ Profiles provide pre-configured hyperparameter overrides.
 
 ## Run Lifecycle
 
-```
+```text
 dataset.csv
     |
     v

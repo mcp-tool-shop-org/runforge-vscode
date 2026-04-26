@@ -1,8 +1,6 @@
 ---
 title: RunForge Handbook
 description: The complete guide to push-button ML training in VS Code.
-sidebar:
-  order: 0
 ---
 
 Welcome to the RunForge Handbook — your guide to deterministic, contract-driven ML training directly in VS Code.

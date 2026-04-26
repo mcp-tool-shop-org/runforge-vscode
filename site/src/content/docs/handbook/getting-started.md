@@ -1,8 +1,6 @@
 ---
 title: Getting Started
 description: Install RunForge, prepare a dataset, and run your first ML training session.
-sidebar:
-  order: 1
 ---
 
 This page walks you through installing RunForge, preparing a dataset, and running your first deterministic training session.

@@ -1,8 +1,6 @@
 ---
 title: For Beginners
 description: New to RunForge? Start here for a gentle introduction.
-sidebar:
-  order: 99
 ---
 
 ## What Is This Tool?
