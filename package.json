@@ -1,7 +1,7 @@
 {
   "name": "runforge",
-  "displayName": "RunForge — ML Training from VS Code",
-  "description": "Push-button ML training with presets, indexed runs, and artifact inspection — all without leaving your editor.",
+  "displayName": "RunForge — ML Training, Reproducible",
+  "description": "Deterministic, contract-driven ML training inside VS Code. Same dataset, same seed, same version — identical model, every time. Run, browse, inspect — all in-editor.",
   "version": "1.1.0",
   "publisher": "mcp-tool-shop",
   "author": {
@@ -22,19 +22,20 @@
   },
   "categories": [
     "Machine Learning",
-    "Other"
+    "Data Science",
+    "Notebooks"
   ],
   "keywords": [
     "machine learning",
     "ml training",
+    "mlops",
+    "reproducibility",
+    "determinism",
+    "experiment tracking",
+    "sklearn",
     "scikit-learn",
-    "model training",
-    "presets",
-    "random forest",
-    "logistic regression",
-    "python",
     "data science",
-    "artifacts"
+    "python"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
