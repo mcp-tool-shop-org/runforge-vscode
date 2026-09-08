@@ -7,11 +7,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode"><img src="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode/branch/main/graph/badge.svg" alt="Coverage"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/badge/marketplace-v1.1.0-blue" alt="Marketplace"></a>
+  <a href="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/runforge-vscode/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status on main"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode"><img src="https://codecov.io/gh/mcp-tool-shop-org/runforge-vscode/branch/main/graph/badge.svg" alt="Coverage on main"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/visual-studio-marketplace/v/mcp-tool-shop.runforge?label=marketplace" alt="VS Code Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/visual-studio-marketplace/i/mcp-tool-shop.runforge?label=installs" alt="VS Code Marketplace installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=mcp-tool-shop.runforge"><img src="https://img.shields.io/visual-studio-marketplace/r/mcp-tool-shop.runforge?label=rating" alt="VS Code Marketplace rating"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
-  <a href="https://mcp-tool-shop-org.github.io/runforge-vscode/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
+  <a href="https://mcp-tool-shop-org.github.io/runforge-vscode/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing page"></a>
 </p>
 
 > **Avviso per gli utenti del Marketplace nella versione 1.0.1 (rilasciata il 25 marzo 2026):** La versione 1.0.1 conteneva cinque
@@ -21,7 +23,7 @@
 > vi preghiamo di aggiornare alla versione 1.1.0. Consultate le [note di rilascio della versione 1.0.1](docs/MARKETPLACE_NOTE_v1.0.1.md)
 > e il [`CHANGELOG.md`](CHANGELOG.md#110---2026-04-25) per i dettagli.
 
-Addestramento di modelli di machine learning con un'interfaccia semplice e un comportamento deterministico e basato su contratti.
+Addestramento di modelli di machine learning deterministico e basato su contratti, direttamente all'interno di VS Code. Utilizzando lo stesso set di dati, la stessa "seed" e la stessa versione, si ottiene sempre lo stesso modello, in modo identico.
 
 > **La Fase 3 (Funzionalità e interpretabilità) è stata bloccata alla versione 0.3.6.0.
 > La Fase 4 (Ciclo di vita e ripristino) è stata rilasciata nella versione 1.1.0** — consultare il [contratto della Fase 4](CONTRACT-PHASE-4.md).
@@ -198,8 +200,6 @@ RunForge attualmente non tenta di:
 - Nascondere il comportamento dell'addestramento dietro euristiche.
 
 La correttezza e la trasparenza hanno la priorità sull'automazione.
-
----
 
 ---
 
