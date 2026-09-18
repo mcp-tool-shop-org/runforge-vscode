@@ -12,6 +12,16 @@ on:
       - 'tsconfig.json'
       - 'vitest.config.ts'
       - '.github/workflows/**'
+      # site/ dependencies were outside every filter, so a PR that changed
+      # only them triggered nothing while dep-audit, extension-host-smoke and
+      # both quality-gates cells stayed REQUIRED -- unmergeable by
+      # construction. Found 2026-09-17 on the PR migrating site/ off an astro
+      # release that cannot hold the sharp patch. Deliberately the three files
+      # that change what gets BUILT or AUDITED, not 'site/**': prose edits
+      # should not spend CI minutes.
+      - 'site/package.json'
+      - 'site/package-lock.json'
+      - 'site/astro.config.mjs'
   pull_request:
     branches: [main]
     paths:
@@ -23,6 +33,16 @@ on:
       - 'tsconfig.json'
       - 'vitest.config.ts'
       - '.github/workflows/**'
+      # site/ dependencies were outside every filter, so a PR that changed
+      # only them triggered nothing while dep-audit, extension-host-smoke and
+      # both quality-gates cells stayed REQUIRED -- unmergeable by
+      # construction. Found 2026-09-17 on the PR migrating site/ off an astro
+      # release that cannot hold the sharp patch. Deliberately the three files
+      # that change what gets BUILT or AUDITED, not 'site/**': prose edits
+      # should not spend CI minutes.
+      - 'site/package.json'
+      - 'site/package-lock.json'
+      - 'site/astro.config.mjs'
   workflow_dispatch:
 
 concurrency:
