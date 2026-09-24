@@ -1,0 +1,4609 @@
+{
+  "boundaries": [
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "154405d0bc7a0ad24213293d6a8751cd4e66a6610ca2ca35d25a858c85b7b70b",
+          "path": ".github/CODEOWNERS"
+        },
+        {
+          "hash": "d59663c9d5d49d0d5843296dfc70ccace8075de862e1690c4ad9d2823d26b0c1",
+          "path": ".github/ISSUE_TEMPLATE/bug_report.yml"
+        },
+        {
+          "hash": "6dba1e0d7a3c7cd1bd511366931a25b4b70de53098e1af9b0c06b671a3abe265",
+          "path": ".github/ISSUE_TEMPLATE/config.yml"
+        },
+        {
+          "hash": "6a678f8d4d40958200ad1cf7bc72bbda00528291a8e3a1b6039f6a760d3b63f4",
+          "path": ".github/ISSUE_TEMPLATE/feature_request.yml"
+        },
+        {
+          "hash": "e5633fd1c30825147ccea8eb775493527ff3ee645ad0141a968b9e8ddbfd2501",
+          "path": ".github/ISSUE_TEMPLATE/question.yml"
+        },
+        {
+          "hash": "93e182181aee13e60765e743d459570f55595fb38262c3008f60e79cb7b3795b",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md"
+        },
+        {
+          "hash": "88658a4e28f116d5d829d857c5430a8fbf8866646754aea3791179babd59d8df",
+          "path": ".github/dependabot.yml"
+        },
+        {
+          "hash": "e9e4ddf48a196e171ea084943f4c108c0f0b1e13bf4b0a62cc9f4c24596a4ab9",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "hash": "f3cd978e8c0c74b408e720ae034dcf728821169d0be037b960a740b6498cbce6",
+          "path": ".github/workflows/pages.yml"
+        },
+        {
+          "hash": "d373b3dadedde148809bbdb8ea320179b3c85b1812275edb13d6ff64111b0916",
+          "path": ".github/workflows/publish.yml"
+        }
+      ],
+      "globs": [
+        ".github/**"
+      ],
+      "importConfidence": "full",
+      "name": ".github",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "3457632fb2c1869ebf927b0a8afc05a6561f5e49d3f28fef0b17a92dcc06e4fb",
+          "path": "assets/activity-icon.svg"
+        },
+        {
+          "hash": "e25a801029d0908619c11d613c28823b8853213b6e7eba51a51386a7983f96ff",
+          "path": "assets/glyph-256.png"
+        },
+        {
+          "hash": "89d62a025f858af78ed62c8fb8b690da3bb5c43dd8be3fcc81caf7b5b2d3c686",
+          "path": "assets/glyph-spark.svg"
+        },
+        {
+          "hash": "0ff9ab47474410040287c835abb6b92e0a633e655c1cdb511c5b3d5b215d3141",
+          "path": "assets/glyph.svg"
+        },
+        {
+          "hash": "00ba4b28f5be51c5c8b03765833699879e2fcc8e6e9a34ab0c567bccbca894ba",
+          "path": "assets/hero-spark-master.png"
+        },
+        {
+          "hash": "70d92b6b5f2a090212c15ecbd54c05cdf2c0211fb9283695eed948377d62efbd",
+          "path": "assets/hero-spark.png"
+        },
+        {
+          "hash": "b77a388e31f785f5d33dc087a90304c140043af306a8b1a0189d6d341763b188",
+          "path": "assets/hero-spark.webp"
+        },
+        {
+          "hash": "1d54be0fd3fc92026a2558c443b7ab2daf72c376b41cf22b85f21b7208aee204",
+          "path": "assets/icon.png"
+        },
+        {
+          "hash": "2edc1fbbdd03ed74f3cc8f17df09b809043bf8d756f84c8a92051433bb2c13d6",
+          "path": "assets/logo.png"
+        },
+        {
+          "hash": "4d0a0cc9c4b326d2367761362d0e512f652dc85ddfbe0fecfb1c86e8794c1fd1",
+          "path": "assets/marketplace/STORYBOARDS.md"
+        },
+        {
+          "hash": "4b31d9809bffa08572c99d76986e6a24dea513372590530cc4dfe6649d3905cc",
+          "path": "assets/walkthrough/01-open-workspace.svg"
+        },
+        {
+          "hash": "c9804fa6c9067d575aa333c4fe29aca20612183da36200c448ce2a39c491ae96",
+          "path": "assets/walkthrough/02-train-model.svg"
+        },
+        {
+          "hash": "bd6fcb3552234f45bbd53b170512ab4b8b8bbfb213be53ae4bbe8b2ef6464844",
+          "path": "assets/walkthrough/03-inspect-results.svg"
+        }
+      ],
+      "globs": [
+        "assets/**"
+      ],
+      "importConfidence": "full",
+      "name": "assets",
+      "origin": "authored",
+      "role": "data",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [
+        "docs/index.md"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "014e7ff0347c772788c60d7d7c8402391bc18faa9f5a34898a40c6a9db24bb92",
+          "path": "docs/CONTRACTS.md"
+        },
+        {
+          "hash": "f168d210408ad361bd2b2ff301f988805e4b552d1a4a51f95fe7ab394e859b1e",
+          "path": "docs/DEFERRED_UX_ENHANCEMENTS.md"
+        },
+        {
+          "hash": "18b51fdaf14d5870d0c0e52a0b70a96761a4febf3518226d8d2dbccda6c71cd8",
+          "path": "docs/DIAGNOSTICS.md"
+        },
+        {
+          "hash": "337a2b1e96371c443543c70eb2dc55ae58681374b6c3378fe13e2ce23e6bf7e1",
+          "path": "docs/GITHUB_DISCUSSION_v1.0.1.md"
+        },
+        {
+          "hash": "50e049f03ba31324cfbf67b562d5123d1263a63d41f06241023455f799daa3f6",
+          "path": "docs/MARKETPLACE_NOTE_v1.0.1.md"
+        },
+        {
+          "hash": "e7fd2bb779965ef8c499e8dd8d551a6b34ee4e5b9f6fb1bf9a66f605d8a74212",
+          "path": "docs/PHASE-2.2-WHITEBOARD.md"
+        },
+        {
+          "hash": "a73db581fa06e4aa3c5c997e193031544217cf2d40c2d216e162e30a219f8c86",
+          "path": "docs/PHASE-2.2.1-ACCEPTANCE.md"
+        },
+        {
+          "hash": "6af7618775b8fe637d5ac107f404d69f5d8846ab79e717305105ce89b985b5fb",
+          "path": "docs/PHASE-2.2.2-ACCEPTANCE.md"
+        },
+        {
+          "hash": "d9f7a824416627784a803aaec1ce87d9c7048fb4e690c431f69e1b5cb601259b",
+          "path": "docs/PHASE-2.3-ACCEPTANCE.md"
+        },
+        {
+          "hash": "95c5490f1aa07af14f9f78191a65589a3e88c6521187169b7db82f1a1a69014c",
+          "path": "docs/PHASE-3.1-ACCEPTANCE.md"
+        },
+        {
+          "hash": "012905f8bbf0d7084996100cd2b6639d824c236543a1a72369571449dbba89be",
+          "path": "docs/PHASE-3.2-ACCEPTANCE.md"
+        },
+        {
+          "hash": "634fbcc4f9ec48ab0549fa1f536eb0ed57d64a4a34ca81229d0b5f81e78ac6e7",
+          "path": "docs/PHASE-3.3-ACCEPTANCE.md"
+        },
+        {
+          "hash": "544683044e286668209dc154e22a95822c62104ec07e29eeeb2c74abf115cfa7",
+          "path": "docs/PHASE-3.4-ACCEPTANCE.md"
+        },
+        {
+          "hash": "c32688899ea438a5bddab5c24d1ab878773febe417063abf37834bd066535fdc",
+          "path": "docs/PHASE-3.5-ACCEPTANCE.md"
+        },
+        {
+          "hash": "5784adcaea8e45921ab03339296912b3b0105aaae783b96c5c030ebefc7e8f82",
+          "path": "docs/PHASE-3.6-ACCEPTANCE.md"
+        },
+        {
+          "hash": "6a5dc28f07c32870f90f9fae270db67a4c71c0b676ebc7eceafe05493861dba6",
+          "path": "docs/RELEASE-PROVENANCE.md"
+        },
+        {
+          "hash": "06c2080f9caba091d0fc77d27e701fef92dfa876d8f1537921f168d85b68f208",
+          "path": "docs/RELEASE_NOTES_v0.3.6.0.md"
+        },
+        {
+          "hash": "ec1cc00f58ec458ee1e4eb3bd8cc54fbc2a7c12b1dc2cf8b4ae9604d7e2cd466",
+          "path": "docs/REPO_STRUCTURE.md"
+        },
+        {
+          "hash": "e9f898847a4d7bba1233e3395b0a66ee734b082af0289e9eb5a91f0c92db696f",
+          "path": "docs/TRUST_MODEL.md"
+        },
+        {
+          "hash": "8e4e8c86bb573ccb1038007e7bf7e192face7ad7eef80357399646dcbb7a3a4a",
+          "path": "docs/V1_CONTRACT.md"
+        },
+        {
+          "hash": "aa908d80daac091594f3f94593bb66f3044dafa5f727ca19a6d32161ad12fbcb",
+          "path": "docs/WALKTHROUGH.md"
+        },
+        {
+          "hash": "bf362a1da210b1209658fa1b4535d9cb47e2f4e04ab8719a9fd3564a321d7400",
+          "path": "docs/WHAT_RUNFORGE_IS.md"
+        },
+        {
+          "hash": "a16695c5c810b7ceb3ca0b8620e5d07619d09e2e0f0ed30338836022d90c7e1c",
+          "path": "docs/WHY_RUNFORGE.md"
+        },
+        {
+          "hash": "9cd5459c25d302c3b1961794b8fffee7d232698dd406bdf051e748c78f10f049",
+          "path": "docs/index.md"
+        },
+        {
+          "hash": "ad75d90ef7a5333e76f64cbe5f260dea0ad178299d75a8ce31cd47c93fee2bd1",
+          "path": "docs/test-vectors/request.v1.full.json"
+        },
+        {
+          "hash": "a4b6b7c32f0bdbaa92b1a54909125d481e9faaf5e9c26d0bc9feaf1bf486410d",
+          "path": "docs/test-vectors/request.v1.min.json"
+        },
+        {
+          "hash": "45bfd29d8d1e9655af0c6b2ae7ec1c5d8c8d4dfc37e2933c3d8cab6262960a1e",
+          "path": "docs/test-vectors/request.v1.unknown-fields.json"
+        }
+      ],
+      "globs": [
+        "docs/**"
+      ],
+      "importConfidence": "full",
+      "name": "docs",
+      "origin": "authored",
+      "role": "docs",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "501604c91e3ea0e181c9b43e22f20e97f108f66fb8b7f25087d996ab8592b254",
+          "path": "eslint-rules/README.md"
+        },
+        {
+          "hash": "3298b83a364848f299f1ce28778045682b27b07d276a34dc037a24bd928d7fbb",
+          "path": "eslint-rules/no-shadow-canonical-types.js"
+        }
+      ],
+      "globs": [
+        "eslint-rules/**"
+      ],
+      "importConfidence": "full",
+      "name": "eslint-rules",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 7,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 2,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "8e801341d80e7ad7d932c1e2c1243083a4761f2e155ef273e6763d34cb7cef99",
+          "noStatements": true,
+          "path": "python/ml_runner/__init__.py"
+        },
+        {
+          "hash": "0a334f022cdfb96a4f345c879578200f425ed397ba4418c3bc4f0d7463697531",
+          "importsFiles": [
+            "python/ml_runner/cli.py"
+          ],
+          "path": "python/ml_runner/__main__.py"
+        },
+        {
+          "exports": [
+            "extract_pipeline_structure",
+            "has_preprocessing_steps",
+            "inspect_artifact",
+            "load_artifact",
+            "validate_is_pipeline",
+            "write_inspection_json"
+          ],
+          "hash": "31d0217cc59efefbad2a5a44fd93ee17ec069db333c335064edc5368c1b6fc74",
+          "path": "python/ml_runner/artifact_inspect.py"
+        },
+        {
+          "exports": [
+            "main",
+            "run_inspect_artifact_command"
+          ],
+          "hash": "5c46a8faa293864a49db5b666091d19d90a08c0aa6ce5237d5d94064a304b187",
+          "importsFiles": [
+            "python/ml_runner/artifact_inspect.py",
+            "python/ml_runner/inspect.py",
+            "python/ml_runner/metadata.py",
+            "python/ml_runner/params.py",
+            "python/ml_runner/runner.py"
+          ],
+          "path": "python/ml_runner/cli.py"
+        },
+        {
+          "exports": [
+            "get_index_schema",
+            "get_inspect_schema",
+            "get_interpretability_index_schema",
+            "get_linear_coefficients_schema",
+            "get_run_schema",
+            "load_schema"
+          ],
+          "hash": "73d1b328d01255a099956b3c20f8e83f1e255aea9486ad4c13bf2dbe911cb668",
+          "path": "python/ml_runner/contracts/__init__.py"
+        },
+        {
+          "hash": "ff76d532dce0c29adf2311d50ab470131a0a1d617908defb0dcbbafb3adf776c",
+          "path": "python/ml_runner/contracts/cancelled.schema.v1.0.0.json"
+        },
+        {
+          "hash": "7c146ecf4edbb2ebb551b6ce76ce148c94e70b46ff12d236adf06b9ccef56514",
+          "path": "python/ml_runner/contracts/diagnostics.schema.v0.2.2.2.json"
+        },
+        {
+          "hash": "bbde0f9f7ec57fab09f5e4b01291800bc65f1f7cd1a0432f4a7b75fa11b4b397",
+          "path": "python/ml_runner/contracts/events.schema.v1.json"
+        },
+        {
+          "hash": "4b3d3b7c22f0e53d680a5496c6c7deee0b2fe2ef713b1d22eaf254b37f2046df",
+          "path": "python/ml_runner/contracts/feature_importance.schema.v1.json"
+        },
+        {
+          "hash": "e5c409aca3306cc1b6d2ce58e33a3a6ed205e2a32a88f716edba711eb147d4a4",
+          "path": "python/ml_runner/contracts/index-orphan.schema.v1.0.0.json"
+        },
+        {
+          "hash": "6b7743ab1f3c9d9500436bc457e3a96b113301b4d7f6dae9dd0dafb104fd72ca",
+          "path": "python/ml_runner/contracts/index.schema.v0.2.2.1.json"
+        },
+        {
+          "hash": "c51ce097e525abbeafbb9d20ae14f70541e4be3ccbb310796144259c34222ada",
+          "path": "python/ml_runner/contracts/index.schema.v1.0.0.json"
+        },
+        {
+          "hash": "851614880f8895f0104e79c3343ba71e982a6db63833fb2f2045ebe8513689e4",
+          "path": "python/ml_runner/contracts/inspect.schema.v0.2.2.1.json"
+        },
+        {
+          "hash": "953f95fc9e692ee44729731413ae91f362e22f0c5ebfb66fd7e3ccb59fb70a0d",
+          "path": "python/ml_runner/contracts/interpretability.index.schema.v1.json"
+        },
+        {
+          "hash": "4cfa8cfc1ac9ecdea545c0f14fd228a0ee170d20bd2953983bc9255edf1aac34",
+          "path": "python/ml_runner/contracts/linear_coefficients.schema.v1.json"
+        },
+        {
+          "hash": "b9995ab14ae0f5eb9998a335bdc7220473a8ac2977edce202c8ebd035e30134f",
+          "path": "python/ml_runner/contracts/metrics.schema.v1.json"
+        },
+        {
+          "hash": "fbd3f3b3da737e2f7853928961f8ba3d61c3fa6ba696f15514a0b26ec5f61403",
+          "path": "python/ml_runner/contracts/pipeline.inspect.schema.v0.2.2.2.json"
+        },
+        {
+          "hash": "88cd1d5c2487e437cafb1370fb5df3564b682e1fd57f4fe1b2b10ae0453c8d86",
+          "path": "python/ml_runner/contracts/run.schema.v0.2.2.1.json"
+        },
+        {
+          "hash": "6f6d65067643bade7c337883210d9e0cf325e6b60aa30f6e4bc21c39d72a2a81",
+          "path": "python/ml_runner/contracts/run.schema.v0.3.3.json"
+        },
+        {
+          "hash": "8b3d9a8f405b3eb62ba035d666cfb00085a7486100c1b4daf38b44b91b05ed70",
+          "path": "python/ml_runner/contracts/run.schema.v0.3.6.json"
+        },
+        {
+          "hash": "208c1d8dc0fbf29299ed659a3b1ecdc1afff2c593852512c608028c44b861beb",
+          "path": "python/ml_runner/diagnostics.py"
+        },
+        {
+          "exports": [
+            "extract_feature_importance",
+            "get_classifier_from_pipeline",
+            "get_feature_names_from_csv_header",
+            "supports_feature_importance",
+            "write_feature_importance"
+          ],
+          "hash": "7b015a92051af3afab7086961fdb60e03cdcc752e9010b4730558471d8782a20",
+          "path": "python/ml_runner/feature_importance.py"
+        },
+        {
+          "hash": "49bab60de41067ddfdbb81f7ef899b524d6764ef6f6efd90f197d192a0138bb0",
+          "noStatements": true,
+          "path": "python/ml_runner/fixtures/__init__.py"
+        },
+        {
+          "exports": [
+            "create_golden_pipeline",
+            "main"
+          ],
+          "hash": "cbffdd1dfd01ec2e6632201d163b48033c71182f142274ceafea08c11c950f89",
+          "path": "python/ml_runner/fixtures/create_golden_artifact.py"
+        },
+        {
+          "hash": "70265ac34f1543853cea465cd9765964494f10f12436cb7bf4b83a39d1df4d81",
+          "path": "python/ml_runner/fixtures/golden_inspection.json"
+        },
+        {
+          "hash": "9e401f5500ba07b489aa71d868789769a70b3fdf74dc285ce962bb8eb22627d0",
+          "path": "python/ml_runner/fixtures/golden_pipeline.pkl"
+        },
+        {
+          "exports": [
+            "get_valid_params",
+            "validate_and_convert"
+          ],
+          "hash": "e4086ba0a77237e30b5563c1b5a4e2a0bb913a121c249eaf42699d30290fcae8",
+          "path": "python/ml_runner/hyperparams.py"
+        },
+        {
+          "exports": [
+            "compute_dataset_fingerprint",
+            "inspect_dataset",
+            "inspect_dataset_json",
+            "parse_csv_header",
+            "run_inspect_command"
+          ],
+          "hash": "a0f1511d2cfc100067c9f328ada7baf0a579ad4969b5f7d29cc1b2b55228c0b1",
+          "path": "python/ml_runner/inspect.py"
+        },
+        {
+          "exports": [
+            "build_interpretability_index",
+            "write_interpretability_index"
+          ],
+          "hash": "8be5ac9f657c17ec9ef8f75e6b37c0cbbd05f20e09db88b9e2dc0c0330b29b4c",
+          "importsFiles": [
+            "python/ml_runner/metadata.py"
+          ],
+          "path": "python/ml_runner/interpretability_index.py"
+        },
+        {
+          "exports": [
+            "extract_linear_coefficients",
+            "get_classifier_from_pipeline",
+            "supports_linear_coefficients",
+            "write_linear_coefficients"
+          ],
+          "hash": "805412a26539ea486d3c0558d696016b016f48636bde559f35b66c9239160b4a",
+          "path": "python/ml_runner/linear_coefficients.py"
+        },
+        {
+          "exports": [
+            "create_run_metadata",
+            "format_metadata_for_display",
+            "generate_run_id",
+            "read_run_metadata",
+            "run_metadata_command",
+            "write_run_metadata"
+          ],
+          "hash": "87d4292f661159db16c36565a5b2f7289b09f313dfd6ba38f70aca10be2455e0",
+          "importsFiles": [
+            "python/ml_runner/provenance.py"
+          ],
+          "path": "python/ml_runner/metadata.py"
+        },
+        {
+          "exports": [
+            "compute_base_metrics",
+            "compute_decision_function_auc",
+            "compute_metrics_v1",
+            "compute_multiclass_metrics",
+            "compute_proba_metrics",
+            "get_classifier_from_pipeline",
+            "get_metrics_profile_display_name",
+            "has_decision_function",
+            "has_predict_proba",
+            "select_metrics_profile",
+            "write_metrics_v1"
+          ],
+          "hash": "243724feb6a4b2e38f4d891b1f30ec62154e1d92b70ef0f5628595a7762f13d7",
+          "path": "python/ml_runner/metrics_v1.py"
+        },
+        {
+          "exports": [
+            "create_estimator",
+            "get_model_display_name"
+          ],
+          "hash": "da8c4eb2e7c54205b672f3b585dc6fc3ea306f7cc69108412e754613337880d3",
+          "path": "python/ml_runner/model_factory.py"
+        },
+        {
+          "exports": [
+            "parse_param",
+            "parse_params"
+          ],
+          "hash": "b9d10da00d530bc2f213ed0b5ca8c27f22cd591468e80ebad41a1e5efee89b5a",
+          "path": "python/ml_runner/params.py"
+        },
+        {
+          "exports": [
+            "get_all_presets",
+            "get_preset"
+          ],
+          "hash": "43aed5b218eb2dbca49fae9b48c9b1cd23cfefadedf15e32932371ca7759974a",
+          "path": "python/ml_runner/presets.py"
+        },
+        {
+          "exports": [
+            "expand_profile",
+            "get_profile",
+            "get_profile_info",
+            "list_profiles"
+          ],
+          "hash": "92598d86e7a32c9583d27c933667791e9dcb8522ca97d63b7ecbbe66af0e04c0",
+          "path": "python/ml_runner/profiles.py"
+        },
+        {
+          "exports": [
+            "append_run_to_index",
+            "find_runs_by_fingerprint",
+            "get_index_path",
+            "get_latest_run",
+            "get_run_by_id",
+            "list_runs",
+            "load_index",
+            "save_index",
+            "write_cancelled_marker",
+            "write_index_orphan_marker"
+          ],
+          "hash": "547ebf1e38e242f7d792efc26f83c6cc5efe50d92f035b9a4877914695a2b8e5",
+          "path": "python/ml_runner/provenance.py"
+        },
+        {
+          "exports": [
+            "get_param_provenance",
+            "resolve_config"
+          ],
+          "hash": "9f3c01baabb8229cfd453ef4e2d2987a6e040cb55a61c0e5c219964c30e623cd",
+          "importsFiles": [
+            "python/ml_runner/profiles.py"
+          ],
+          "path": "python/ml_runner/resolver.py"
+        },
+        {
+          "exports": [
+            "emit_event",
+            "load_csv",
+            "run_training",
+            "train_model"
+          ],
+          "hash": "35ef505f988f8c670fa5e866e203a44ddb439b9bb3b0ab7f7154ccd6f94c402a",
+          "importsFiles": [
+            "python/ml_runner/contracts/__init__.py",
+            "python/ml_runner/feature_importance.py",
+            "python/ml_runner/hyperparams.py",
+            "python/ml_runner/inspect.py",
+            "python/ml_runner/interpretability_index.py",
+            "python/ml_runner/linear_coefficients.py",
+            "python/ml_runner/metadata.py",
+            "python/ml_runner/metrics_v1.py",
+            "python/ml_runner/model_factory.py",
+            "python/ml_runner/presets.py",
+            "python/ml_runner/provenance.py",
+            "python/ml_runner/resolver.py"
+          ],
+          "path": "python/ml_runner/runner.py"
+        },
+        {
+          "exports": [
+            "model_pkl",
+            "simple_pipeline"
+          ],
+          "hash": "f06d22b4b45b08c4ca45320ba6ac390a0d2730747be03d0e943bd994312843d8",
+          "importsFiles": [
+            "python/ml_runner/artifact_inspect.py",
+            "python/ml_runner/cli.py"
+          ],
+          "path": "python/ml_runner/test_artifact_inspect.py"
+        },
+        {
+          "exports": [
+            "cancelled_schema",
+            "run_dir",
+            "test_subprocess_sigterm_writes_marker_and_emits_run_cancelled",
+            "workspace"
+          ],
+          "hash": "140de1857cd26138353ecb78e03ad15686e7654489bc39faf67bde7ad8132cf8",
+          "path": "python/ml_runner/test_cancellation_marker.py"
+        },
+        {
+          "hash": "4de1dcc32cff1fd71b2e89ae2ed1c57d04975e6390b28064ffec8d733133214a",
+          "path": "python/ml_runner/test_csv_actionability.py"
+        },
+        {
+          "hash": "e2efce3cce64ede592fef07dc3fb8f7343a41bb0b44072dfe1788aab9e963537",
+          "path": "python/ml_runner/test_determinism_phase32.py"
+        },
+        {
+          "hash": "e17ddff3be1567dcb61745bc9ca9a14d2dce36dd9b9ecc714ea6fa9cb3c569a2",
+          "importsFiles": [
+            "python/ml_runner/diagnostics.py"
+          ],
+          "path": "python/ml_runner/test_diagnostics.py"
+        },
+        {
+          "exports": [
+            "iris_csv",
+            "workspace_run_dir"
+          ],
+          "hash": "e9c74fb067e36e45a26ed118644ca04367abbb4ee7c368b3a7a08c0074a94355",
+          "path": "python/ml_runner/test_event_stream.py"
+        },
+        {
+          "hash": "368e0822e46ebe2299ff1aaa3d136706d99fb75735eb395c0da02a76a9379bc5",
+          "path": "python/ml_runner/test_feature_importance.py"
+        },
+        {
+          "hash": "5b58e265c976a8fbafbace74d35f934d11c2e8e3b153e12fb09b009426f57c16",
+          "path": "python/ml_runner/test_hyperparams.py"
+        },
+        {
+          "exports": [
+            "run_dir",
+            "workspace"
+          ],
+          "hash": "7ea799df033acc51a49be1630b93416891ab101da88d304e9f0c3efc9e4800ac",
+          "path": "python/ml_runner/test_index_orphan_marker.py"
+        },
+        {
+          "hash": "59eab3ed29b651e8688c4f0c77b95d54c4fe15111c816c13bde4fcae9716480a",
+          "path": "python/ml_runner/test_integration_phase32.py"
+        },
+        {
+          "hash": "787fa64571e9d3d300380515ece757703266e9e1c2e45c49e941a72e4922d5da",
+          "path": "python/ml_runner/test_interpretability_index.py"
+        },
+        {
+          "hash": "41df39507ddbb17dd0d5bc56946cbb4bd663862f76c6ecf98959d64764671e4e",
+          "path": "python/ml_runner/test_linear_coefficients.py"
+        },
+        {
+          "hash": "a306617bee2e3e7f9aff4d8a84d94869ccdb1393ae10dc248e3c2a9806a916ed",
+          "path": "python/ml_runner/test_metadata_metrics_v1_required.py"
+        },
+        {
+          "hash": "545004874c0a54bcc1ae69c186318e767a888051c9f43881bf3af5cf4ee04558",
+          "path": "python/ml_runner/test_metadata_phase32.py"
+        },
+        {
+          "hash": "b0862d34992e198ad1c63497d4cdae03a6dfba67b64827483cb090a597417fa4",
+          "path": "python/ml_runner/test_metadata_phase33.py"
+        },
+        {
+          "hash": "c02bd651b4073dd8fd343f906e9994d7661b27b9eb20f2df95d9b129467783e9",
+          "path": "python/ml_runner/test_metadata_phase35.py"
+        },
+        {
+          "hash": "5a6273df0c7e9d8e8049ad4da0d88265a52f911b0c2e001ca10de6d92d0a4b06",
+          "path": "python/ml_runner/test_metrics_v1.py"
+        },
+        {
+          "hash": "4312a0300ccfbc09938948f226e8075cf176e7637510ad5fc08a42c7a8a98046",
+          "path": "python/ml_runner/test_model_selection.py"
+        },
+        {
+          "exports": [
+            "run_dir",
+            "sample_csv"
+          ],
+          "hash": "33037e67466d59fd91ccd4ed314e8626ab32669794bc61bae89521faa9a1f77c",
+          "importsFiles": [
+            "python/ml_runner/inspect.py",
+            "python/ml_runner/metadata.py",
+            "python/ml_runner/provenance.py",
+            "python/ml_runner/runner.py"
+          ],
+          "path": "python/ml_runner/test_observability.py"
+        },
+        {
+          "hash": "d12d4e5a4019af4ffaabff63b9723a354bb5325e0908fa1f011be24abd1c5ee7",
+          "path": "python/ml_runner/test_params.py"
+        },
+        {
+          "hash": "c778c632e41f7a8b7fc19a04fba0a7c089c70c309c72a35cc8f70aa156ba61fe",
+          "path": "python/ml_runner/test_profiles.py"
+        },
+        {
+          "hash": "5356e1bcadc3c2fdfd9741d22e828c3059b64541724927b2e7d6290aec456572",
+          "path": "python/ml_runner/test_resolver.py"
+        },
+        {
+          "exports": [
+            "run_dir",
+            "sample_csv"
+          ],
+          "hash": "beb0ebe32dc7c617245e0568f3b6ce6c6c64dee6acee0c7a5d2700643c8b2a03",
+          "importsFiles": [
+            "python/ml_runner/presets.py",
+            "python/ml_runner/runner.py"
+          ],
+          "path": "python/ml_runner/test_runner.py"
+        }
+      ],
+      "globs": [
+        "python/**"
+      ],
+      "importConfidence": "full",
+      "name": "python",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 12,
+      "unresolvedSites": 83
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "2edc1fbbdd03ed74f3cc8f17df09b809043bf8d756f84c8a92051433bb2c13d6",
+          "path": "resources/runforge-logo.png"
+        }
+      ],
+      "globs": [
+        "resources/**"
+      ],
+      "importConfidence": "full",
+      "name": "resources",
+      "origin": "authored",
+      "role": "data",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "f924800cb85e0f9bd17caa27d18a67819b3f9476ffebe93230e41b7dd8967f8b",
+          "path": ".eslintrc.json"
+        },
+        {
+          "hash": "57c4b5cf1f3a419fdd5263abf921a93c3d6c19a5f41043da4de0e7786f717930",
+          "path": ".gitignore"
+        },
+        {
+          "hash": "34793e10d7a281a8eec71421bd6d85b06fbac24e948110f958ee58bad5b9e617",
+          "path": ".vscode-test.mjs"
+        },
+        {
+          "hash": "910b6126c439e9b7d5d876d556ccfc00a014e37343d4389642e92dcf7bd576f8",
+          "path": ".vscodeignore"
+        },
+        {
+          "hash": "ec24016222499edc3b167c53b5961f29a9283e114757403f99bc0a8a0c4b55fe",
+          "path": "CHANGELOG.md"
+        },
+        {
+          "hash": "283eb826d283b9ab42e6790b9a61b1b94beade1b1e06cc85d5d9e1d9ee8311d0",
+          "path": "CLAUDE.md"
+        },
+        {
+          "hash": "151070ff029df6d2e8b8ee3bdad3c713306bed5019e13978d31f485934e81b98",
+          "path": "CONTRACT-PHASE-3.md"
+        },
+        {
+          "hash": "c2dbcaf8628b466ec52e2bae0a80a0dd1822b914838688253d989d6a89f063cf",
+          "path": "CONTRACT-PHASE-4.md"
+        },
+        {
+          "hash": "4617fa2a2f54ecc268112177e250becaa9db180d5ed510235b46b92dfb6edb0c",
+          "path": "CONTRACT.md"
+        },
+        {
+          "hash": "5ae6b3c8f446f0a7cb95176e4dadb91b68aaffb16b3be09f64f5de248b6a973a",
+          "path": "LICENSE"
+        },
+        {
+          "hash": "f23f391320b1f26d7d4391203b664f2b2040601dccd31f6b7ac397367d7150b8",
+          "path": "README.es.md"
+        },
+        {
+          "hash": "26ce9ddb48e8fe840d348f542ce8971f8ff70e61285e7c3355d5dc2abe9e7790",
+          "path": "README.fr.md"
+        },
+        {
+          "hash": "724dbbd7c9d536c41a68fa44b97cd69e640a1e24c70b686ea6c8d84e82fa8315",
+          "path": "README.hi.md"
+        },
+        {
+          "hash": "5247cd7b1e1e5fb3170d26780948ad21bb0d3549f7b4a02c072025f908384631",
+          "path": "README.it.md"
+        },
+        {
+          "hash": "f8011a770cea302fbd9ca569cabb46e30e89ce306bfe220678433f0f3f9ad3f8",
+          "path": "README.ja.md"
+        },
+        {
+          "hash": "f40edbcf76e3369ffa96ba80031ccef8c5867ea8879a5f302036fb96ed4a9d0c",
+          "path": "README.md"
+        },
+        {
+          "hash": "4fa15f162d12d15ca36652048502cb6d1daebf8c9ca11414b3467fe7cd39c05d",
+          "path": "README.pt-BR.md"
+        },
+        {
+          "hash": "523ac375be4375373fb73dabfb11575fba1c36b683278f2b0c2909a70475f0a8",
+          "path": "README.zh.md"
+        },
+        {
+          "hash": "d2a5f89df7e0dd7230d2e351f51a1dd532f61e96fffa8ea92b122459a5fcfe0d",
+          "path": "SCORECARD.md"
+        },
+        {
+          "hash": "97d19d5164c35e352bb34c91b68fcbf960277c23b271f266a4d2e729932e7aaa",
+          "path": "SECURITY.md"
+        },
+        {
+          "hash": "ce8b10a14099b8ea67256676cb4096b9c3244cb5b45caf4873fd95d5940eab50",
+          "path": "SHIP_GATE.md"
+        },
+        {
+          "hash": "10dca772dd76db5852af6bc0d10a4f87444e0e8428d5b3648429b97a0fb072cd",
+          "path": "package-lock.json"
+        },
+        {
+          "hash": "9844a4becda8e35a320b8e5b53e733d568a770aec783f8f22085759ee66f9734",
+          "path": "package.json"
+        },
+        {
+          "hash": "fc84f41e856015e4ee04e9c9f5d6e4eb7d184591064464b578c6e9d289637d43",
+          "path": "tsconfig.json"
+        },
+        {
+          "hash": "e39a15739ae9424608d7dd6edf382841c5f9a8e6a16a41fe08b7cec6c1bea824",
+          "path": "vitest.config.ts"
+        }
+      ],
+      "globs": [
+        "*"
+      ],
+      "importConfidence": "full",
+      "name": "root",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "64505f879a3c206cb2dfa1df891cf41336a9a81eda744f0bc621eeb5030799b7",
+          "path": "site/astro.config.mjs"
+        },
+        {
+          "hash": "b5578baf42cab82e5e7b451b6992cb929aeb6ff8d02d8e11ab690e6f67fea144",
+          "path": "site/package-lock.json"
+        },
+        {
+          "hash": "cff923d88f356795747a843362ca300b43d09c5715e6356f904b4d5fa06a7fae",
+          "path": "site/package.json"
+        },
+        {
+          "hash": "ec030f2e4bf6dc57eaca075d390c228b3212cf29db267e32ef92e110de1acdcc",
+          "path": "site/src/content.config.ts"
+        },
+        {
+          "hash": "3dad47a7d6d93371cc4480e2d6024d5b5a36a7243fce7dec6ce50ca464eba650",
+          "path": "site/src/content/docs/handbook/beginners.md"
+        },
+        {
+          "hash": "1a12e03dec8e390faa6eaa4052bd32301882ea10f8d153a1413500719d44579a",
+          "path": "site/src/content/docs/handbook/cancel-and-recovery.md"
+        },
+        {
+          "hash": "ef4d17f2d7233bfa769b240ba81af4da0a08112a340bd22fd7a95d3ac62ddf77",
+          "path": "site/src/content/docs/handbook/getting-started.md"
+        },
+        {
+          "hash": "71e0e4d613d7361c483eb9e2939416a6f44e8b81657e4c6611c597194dcb7692",
+          "path": "site/src/content/docs/handbook/index.md"
+        },
+        {
+          "hash": "8b2a581e509710611e618bffcfddc95f48d8f71efd4f549d7c0dc51fd910bc76",
+          "path": "site/src/content/docs/handbook/reference.md"
+        },
+        {
+          "hash": "a699ad78a6d27d6864ccfe4c3a4a01993aca28ecb4a3d20893f37db9f9b1a522",
+          "path": "site/src/pages/index.astro"
+        },
+        {
+          "hash": "3af70c5bcd5203fd28ef5b7ed9f66885f53a77541b070e72ff220aa5ede5c206",
+          "path": "site/src/site-config.ts"
+        },
+        {
+          "hash": "5995279a40a9a63426a93feec129006b261cc7200426a398914d0317722ef19b",
+          "path": "site/src/styles/global.css"
+        },
+        {
+          "hash": "04bf00704f1a83aa9de96fe004f5b4bc1c81efdd6241b746e359639c78fccf36",
+          "path": "site/src/styles/starlight-custom.css"
+        },
+        {
+          "hash": "61fc24492db9aef7ec38eb91cfeebaef96155014bb5f22648fd8ed2327c6cae2",
+          "path": "site/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "site/**"
+      ],
+      "importConfidence": "full",
+      "name": "site",
+      "origin": "authored",
+      "role": "site",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 24,
+      "dynamicSpawns": 5,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 5,
+      "entryPoints": [
+        "src/extension.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "entry": "activate",
+          "entryRule": 4,
+          "exports": [
+            "activate",
+            "deactivate"
+          ],
+          "hash": "4d8c34ffd63d04b8aea57d240afc6183b575cef3c241937980f25153b3e4cd5b",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/browse-runs-command.ts",
+            "src/observability/export-markdown-command.ts",
+            "src/observability/feature-importance-command.ts",
+            "src/observability/inspect-command.ts",
+            "src/observability/interpretability-index-command.ts",
+            "src/observability/linear-coefficients-command.ts",
+            "src/observability/metadata-command.ts",
+            "src/observability/metrics-v1-command.ts",
+            "src/observability/recover-index-command.ts",
+            "src/runner/run-manager.ts",
+            "src/types.ts",
+            "src/views/runs-picker.ts"
+          ],
+          "path": "src/extension.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 36,
+                  "name": "setExtensionPath",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 98,
+                  "name": "isRunning",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  },
+                  "via": "startTraining"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 450,
+                      "name": "checkPython",
+                      "target": {
+                        "file": "src/runner/python-runner.ts"
+                      }
+                    },
+                    {
+                      "line": 480,
+                      "name": "detectGpu",
+                      "target": {
+                        "file": "src/runner/gpu-probe.ts"
+                      }
+                    },
+                    {
+                      "line": 496,
+                      "name": "selectDevice",
+                      "target": {
+                        "file": "src/runner/gpu-probe.ts"
+                      }
+                    },
+                    {
+                      "line": 501,
+                      "name": "getPreset",
+                      "target": {
+                        "file": "src/presets/registry.ts"
+                      }
+                    },
+                    {
+                      "line": 509,
+                      "name": "getCpuFallbackMessage",
+                      "target": {
+                        "file": "src/runner/gpu-probe.ts"
+                      }
+                    },
+                    {
+                      "line": 513,
+                      "name": "formatBytes",
+                      "target": {
+                        "file": "src/runner/gpu-probe.ts"
+                      }
+                    },
+                    {
+                      "line": 519,
+                      "name": "generateRunId",
+                      "target": {
+                        "file": "src/workspace/run-folder.ts"
+                      }
+                    },
+                    {
+                      "line": 520,
+                      "name": "createRunFolder",
+                      "target": {
+                        "file": "src/workspace/run-folder.ts"
+                      }
+                    },
+                    {
+                      "line": 521,
+                      "name": "createTimestamp",
+                      "target": {
+                        "file": "src/workspace/index-manager.ts"
+                      }
+                    },
+                    {
+                      "line": 551,
+                      "name": "writeRequest",
+                      "target": {
+                        "file": "src/workspace/run-folder.ts"
+                      }
+                    },
+                    {
+                      "line": 771,
+                      "name": "spawnRunner",
+                      "target": {
+                        "file": "src/runner/python-runner.ts"
+                      }
+                    },
+                    {
+                      "line": 795,
+                      "name": "onCancellationRequested",
+                      "target": null
+                    }
+                  ],
+                  "innerTruncated": true,
+                  "line": 150,
+                  "name": "executeRun",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  },
+                  "via": "startTraining"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 22,
+                      "name": "getRecentRuns",
+                      "target": {
+                        "file": "src/workspace/index-manager.ts"
+                      }
+                    },
+                    {
+                      "line": 71,
+                      "name": "formatDuration",
+                      "target": {
+                        "file": "src/utils/format.ts"
+                      },
+                      "via": "formatDetail"
+                    }
+                  ],
+                  "line": 173,
+                  "name": "showRunsPicker",
+                  "target": {
+                    "file": "src/views/runs-picker.ts"
+                  },
+                  "via": "openRuns"
+                },
+                {
+                  "line": 230,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  },
+                  "via": "runInspectDataset"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 39,
+                      "name": "pythonSpawnEnv",
+                      "target": {
+                        "file": "src/runner/python-runner.ts"
+                      }
+                    }
+                  ],
+                  "line": 236,
+                  "name": "inspectDataset",
+                  "target": {
+                    "file": "src/observability/inspect-command.ts"
+                  },
+                  "via": "runInspectDataset"
+                },
+                {
+                  "line": 238,
+                  "name": "formatInspectResult",
+                  "target": {
+                    "file": "src/observability/inspect-command.ts"
+                  },
+                  "via": "runInspectDataset"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 109,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      },
+                      "via": "surfaceOrphanBannerIfAny"
+                    },
+                    {
+                      "line": 140,
+                      "name": "safeReadIndex",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 143,
+                      "name": "getActionableMessage",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 153,
+                      "name": "safeReadRunJson",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 156,
+                      "name": "getActionableMessage",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    }
+                  ],
+                  "line": 268,
+                  "name": "getLatestRunMetadataSafe",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  },
+                  "via": "runOpenLatestMetadata"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 92,
+                      "name": "openJsonDocument",
+                      "target": {
+                        "file": "src/observability/open-summary.ts"
+                      }
+                    }
+                  ],
+                  "line": 275,
+                  "name": "openMetadataInEditor",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  },
+                  "via": "runOpenLatestMetadata"
+                },
+                {
+                  "line": 318,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  },
+                  "via": "runInspectArtifact"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 48,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      },
+                      "via": "surfaceArtifactInspectOrphanBanner"
+                    },
+                    {
+                      "line": 101,
+                      "name": "pythonSpawnEnv",
+                      "target": {
+                        "file": "src/runner/python-runner.ts"
+                      }
+                    }
+                  ],
+                  "line": 324,
+                  "name": "inspectArtifact",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "runInspectArtifact"
+                },
+                {
+                  "line": 326,
+                  "name": "formatArtifactInspectResult",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "runInspectArtifact"
+                },
+                {
+                  "line": 329,
+                  "name": "openInspectionInEditor",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "runInspectArtifact"
+                },
+                {
+                  "line": 362,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  },
+                  "via": "runBrowseRuns"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 387,
+                      "name": "safeReadIndex",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 388,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      }
+                    },
+                    {
+                      "line": 285,
+                      "name": "appendLine",
+                      "target": null,
+                      "via": "logOrphanSkips"
+                    },
+                    {
+                      "line": 409,
+                      "name": "getActionableMessage",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 310,
+                      "name": "humanizeOrphanRecovery",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      },
+                      "via": "handleOrphanPick"
+                    },
+                    {
+                      "line": 352,
+                      "name": "show",
+                      "target": null,
+                      "via": "handleOrphanPick"
+                    },
+                    {
+                      "line": 353,
+                      "name": "appendLine",
+                      "target": null,
+                      "via": "handleOrphanPick"
+                    },
+                    {
+                      "line": 186,
+                      "name": "safeReadRunJson",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      },
+                      "via": "openRunSummary"
+                    },
+                    {
+                      "line": 189,
+                      "name": "getActionableMessage",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      },
+                      "via": "openRunSummary"
+                    },
+                    {
+                      "line": 197,
+                      "name": "renderRunSummary",
+                      "target": {
+                        "file": "src/observability/render/run-summary.ts"
+                      },
+                      "via": "openRunSummary"
+                    },
+                    {
+                      "line": 199,
+                      "name": "openMarkdownSummary",
+                      "target": {
+                        "file": "src/observability/open-summary.ts"
+                      },
+                      "via": "openRunSummary"
+                    },
+                    {
+                      "line": 210,
+                      "name": "safeReadRunJson",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      },
+                      "via": "viewDiagnostics"
+                    }
+                  ],
+                  "innerTruncated": true,
+                  "line": 364,
+                  "name": "browseRuns",
+                  "target": {
+                    "file": "src/observability/browse-runs-command.ts"
+                  },
+                  "via": "runBrowseRuns"
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 137,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      }
+                    },
+                    {
+                      "line": 147,
+                      "name": "getLatestRunDir",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    }
+                  ],
+                  "line": 51,
+                  "name": "viewLatestMetricsV1",
+                  "target": {
+                    "file": "src/observability/metrics-v1-command.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 114,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      }
+                    },
+                    {
+                      "line": 124,
+                      "name": "getLatestRunDir",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    }
+                  ],
+                  "line": 53,
+                  "name": "viewLatestFeatureImportance",
+                  "target": {
+                    "file": "src/observability/feature-importance-command.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 147,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      }
+                    },
+                    {
+                      "line": 157,
+                      "name": "getLatestRunDir",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    }
+                  ],
+                  "line": 55,
+                  "name": "viewLatestLinearCoefficients",
+                  "target": {
+                    "file": "src/observability/linear-coefficients-command.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 155,
+                      "name": "listOrphanedRuns",
+                      "target": {
+                        "file": "src/observability/orphan-markers.ts"
+                      }
+                    },
+                    {
+                      "line": 165,
+                      "name": "getLatestRunDir",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    }
+                  ],
+                  "line": 57,
+                  "name": "viewLatestInterpretabilityIndex",
+                  "target": {
+                    "file": "src/observability/interpretability-index-command.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 232,
+                      "name": "surfaceOrphanBannerIfAny",
+                      "target": {
+                        "file": "src/observability/metadata-command.ts"
+                      }
+                    },
+                    {
+                      "line": 236,
+                      "name": "getLatestRunMetadataSafe",
+                      "target": {
+                        "file": "src/observability/metadata-command.ts"
+                      }
+                    },
+                    {
+                      "line": 247,
+                      "name": "getLatestRunDir",
+                      "target": {
+                        "file": "src/observability/fs-safe.ts"
+                      }
+                    },
+                    {
+                      "line": 67,
+                      "name": "escapeTableCell",
+                      "target": {
+                        "file": "src/observability/render/escape.ts"
+                      },
+                      "via": "buildMarkdown"
+                    }
+                  ],
+                  "line": 59,
+                  "name": "exportLatestRunAsMarkdown",
+                  "target": {
+                    "file": "src/observability/export-markdown-command.ts"
+                  }
+                },
+                {
+                  "line": 67,
+                  "name": "killActiveRun",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 71,
+                  "name": "recoverIndex",
+                  "target": {
+                    "file": "src/observability/recover-index-command.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "activate"
+            },
+            {
+              "calls": [
+                {
+                  "line": 82,
+                  "name": "killActiveRun",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 83,
+                  "name": "disposeOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "deactivate"
+            },
+            {
+              "calls": [
+                {
+                  "line": 98,
+                  "name": "isRunning",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 150,
+                  "name": "executeRun",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "startTraining"
+            },
+            {
+              "calls": [
+                {
+                  "line": 173,
+                  "name": "showRunsPicker",
+                  "target": {
+                    "file": "src/views/runs-picker.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "openRuns"
+            },
+            {
+              "calls": [
+                {
+                  "line": 230,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 236,
+                  "name": "inspectDataset",
+                  "target": {
+                    "file": "src/observability/inspect-command.ts"
+                  }
+                },
+                {
+                  "line": 238,
+                  "name": "formatInspectResult",
+                  "target": {
+                    "file": "src/observability/inspect-command.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "runInspectDataset"
+            },
+            {
+              "calls": [
+                {
+                  "line": 268,
+                  "name": "getLatestRunMetadataSafe",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  }
+                },
+                {
+                  "line": 275,
+                  "name": "openMetadataInEditor",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "runOpenLatestMetadata"
+            },
+            {
+              "calls": [
+                {
+                  "line": 318,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 324,
+                  "name": "inspectArtifact",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                },
+                {
+                  "line": 326,
+                  "name": "formatArtifactInspectResult",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                },
+                {
+                  "line": 329,
+                  "name": "openInspectionInEditor",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "runInspectArtifact"
+            },
+            {
+              "calls": [
+                {
+                  "line": 362,
+                  "name": "getOutputChannel",
+                  "target": {
+                    "file": "src/runner/run-manager.ts"
+                  }
+                },
+                {
+                  "line": 364,
+                  "name": "browseRuns",
+                  "target": {
+                    "file": "src/observability/browse-runs-command.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "runBrowseRuns"
+            }
+          ]
+        },
+        {
+          "exports": [
+            "notifyError",
+            "notifyInfo",
+            "notifyWarning"
+          ],
+          "hash": "0e00deb02b37060387d48581587d63d40008b92a6f5e36db012bee4d133e3db3",
+          "path": "src/notifications.ts"
+        },
+        {
+          "entry": "inspectArtifact",
+          "entryRule": 4,
+          "exports": [
+            "formatArtifactInspectResult",
+            "inspectArtifact",
+            "openInspectionInEditor",
+            "surfaceArtifactInspectOrphanBanner"
+          ],
+          "hash": "c92e8709a6ac09b0be06375c06f78b774b6317c051dd5f8e86abb87f56b3c2a8",
+          "importsFiles": [
+            "src/observability/orphan-markers.ts",
+            "src/runner/python-runner.ts"
+          ],
+          "path": "src/observability/artifact-inspect-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 48,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "surfaceArtifactInspectOrphanBanner"
+            },
+            {
+              "calls": [
+                {
+                  "line": 48,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  },
+                  "via": "surfaceArtifactInspectOrphanBanner"
+                },
+                {
+                  "line": 101,
+                  "name": "pythonSpawnEnv",
+                  "target": {
+                    "file": "src/runner/python-runner.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "inspectArtifact"
+            }
+          ]
+        },
+        {
+          "entry": "browseRuns",
+          "entryRule": 4,
+          "exports": [
+            "browseRuns"
+          ],
+          "hash": "507b14950d5eb2b6ae0a6c36c3cc605338ea4248eb31d7fdbedbd2f14a10d5a4",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/fs-safe.ts",
+            "src/observability/open-summary.ts",
+            "src/observability/orphan-markers.ts",
+            "src/observability/render/diagnostics-summary.ts",
+            "src/observability/render/run-summary.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/browse-runs-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 186,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 189,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 197,
+                  "name": "renderRunSummary",
+                  "target": {
+                    "file": "src/observability/render/run-summary.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 199,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 210,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 213,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 221,
+                  "name": "renderDiagnosticsSummary",
+                  "target": {
+                    "file": "src/observability/render/diagnostics-summary.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 224,
+                  "name": "show",
+                  "target": null,
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 225,
+                  "name": "appendLine",
+                  "target": null,
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 229,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 252,
+                  "name": "inspectArtifact",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                },
+                {
+                  "line": 259,
+                  "name": "formatArtifactInspectResult",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                },
+                {
+                  "line": 260,
+                  "name": "openInspectionInEditor",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "executeRunAction"
+            },
+            {
+              "calls": [
+                {
+                  "line": 186,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 189,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 197,
+                  "name": "renderRunSummary",
+                  "target": {
+                    "file": "src/observability/render/run-summary.ts"
+                  }
+                },
+                {
+                  "line": 199,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "openRunSummary"
+            },
+            {
+              "calls": [
+                {
+                  "line": 210,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 213,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 221,
+                  "name": "renderDiagnosticsSummary",
+                  "target": {
+                    "file": "src/observability/render/diagnostics-summary.ts"
+                  }
+                },
+                {
+                  "line": 224,
+                  "name": "show",
+                  "target": null
+                },
+                {
+                  "line": 225,
+                  "name": "appendLine",
+                  "target": null
+                },
+                {
+                  "line": 229,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "viewDiagnostics"
+            },
+            {
+              "calls": [
+                {
+                  "line": 252,
+                  "name": "inspectArtifact",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                },
+                {
+                  "line": 259,
+                  "name": "formatArtifactInspectResult",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                },
+                {
+                  "line": 260,
+                  "name": "openInspectionInEditor",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "inspectArtifact"
+            },
+            {
+              "calls": [
+                {
+                  "line": 285,
+                  "name": "appendLine",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "logOrphanSkips"
+            },
+            {
+              "calls": [
+                {
+                  "line": 310,
+                  "name": "humanizeOrphanRecovery",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 352,
+                  "name": "show",
+                  "target": null
+                },
+                {
+                  "line": 353,
+                  "name": "appendLine",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "handleOrphanPick"
+            },
+            {
+              "calls": [
+                {
+                  "line": 387,
+                  "name": "safeReadIndex",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 388,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 285,
+                  "name": "appendLine",
+                  "target": null,
+                  "via": "logOrphanSkips"
+                },
+                {
+                  "line": 409,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 310,
+                  "name": "humanizeOrphanRecovery",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  },
+                  "via": "handleOrphanPick"
+                },
+                {
+                  "line": 352,
+                  "name": "show",
+                  "target": null,
+                  "via": "handleOrphanPick"
+                },
+                {
+                  "line": 353,
+                  "name": "appendLine",
+                  "target": null,
+                  "via": "handleOrphanPick"
+                },
+                {
+                  "line": 186,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 189,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 197,
+                  "name": "renderRunSummary",
+                  "target": {
+                    "file": "src/observability/render/run-summary.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 199,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  },
+                  "via": "openRunSummary"
+                },
+                {
+                  "line": 210,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 213,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 221,
+                  "name": "renderDiagnosticsSummary",
+                  "target": {
+                    "file": "src/observability/render/diagnostics-summary.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 224,
+                  "name": "show",
+                  "target": null,
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 225,
+                  "name": "appendLine",
+                  "target": null,
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 229,
+                  "name": "openMarkdownSummary",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  },
+                  "via": "viewDiagnostics"
+                },
+                {
+                  "line": 252,
+                  "name": "inspectArtifact",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                },
+                {
+                  "line": 259,
+                  "name": "formatArtifactInspectResult",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                },
+                {
+                  "line": 260,
+                  "name": "openInspectionInEditor",
+                  "target": {
+                    "file": "src/observability/artifact-inspect-command.ts"
+                  },
+                  "via": "inspectArtifact"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "browseRuns"
+            }
+          ]
+        },
+        {
+          "hash": "bce240569e196c6ac1ecbbc622dbc06d93d6fb483865c640e80f3ca807e7f34e",
+          "parseError": true,
+          "path": "src/observability/cancelled-marker-reader.ts",
+          "unreadSyntax": "import-type-array"
+        },
+        {
+          "exports": [
+            "parseEventLine"
+          ],
+          "hash": "af624dca36c3d58c8682ce6ed5265f0e3a7dd1d87cd334e46ab876a111b1ecf4",
+          "path": "src/observability/event-stream-consumer.ts"
+        },
+        {
+          "entry": "exportLatestRunAsMarkdown",
+          "entryRule": 4,
+          "exports": [
+            "exportLatestRunAsMarkdown"
+          ],
+          "hash": "dbedc7df8e591781fa983321d02d3fade353d758b1e8866a6465d43df13a07bb",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/metadata-command.ts",
+            "src/observability/render/escape.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/export-markdown-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 67,
+                  "name": "escapeTableCell",
+                  "target": {
+                    "file": "src/observability/render/escape.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "buildMarkdown"
+            },
+            {
+              "calls": [
+                {
+                  "line": 232,
+                  "name": "surfaceOrphanBannerIfAny",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  }
+                },
+                {
+                  "line": 236,
+                  "name": "getLatestRunMetadataSafe",
+                  "target": {
+                    "file": "src/observability/metadata-command.ts"
+                  }
+                },
+                {
+                  "line": 247,
+                  "name": "getLatestRunDir",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 67,
+                  "name": "escapeTableCell",
+                  "target": {
+                    "file": "src/observability/render/escape.ts"
+                  },
+                  "via": "buildMarkdown"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "exportLatestRunAsMarkdown"
+            }
+          ]
+        },
+        {
+          "entry": "viewLatestFeatureImportance",
+          "entryRule": 4,
+          "exports": [
+            "formatFeatureImportance",
+            "openFeatureImportanceInEditor",
+            "viewLatestFeatureImportance"
+          ],
+          "hash": "35844b01f4d9108947cc5672837ba1d398c392f2bb832d943751300538af3786",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/feature-importance-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 114,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 124,
+                  "name": "getLatestRunDir",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "viewLatestFeatureImportance"
+            }
+          ]
+        },
+        {
+          "exports": [
+            "exists",
+            "formatError",
+            "getActionableMessage",
+            "getLatestRunDir",
+            "readJsonFile",
+            "safeReadIndex",
+            "safeReadRunJson"
+          ],
+          "hash": "821340e87d31ec831f0f839b546519cf3d41f62aa17d8470b54314c53aceddf1",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/observability/fs-safe.ts"
+        },
+        {
+          "entry": "inspectDataset",
+          "entryRule": 4,
+          "exports": [
+            "formatInspectResult",
+            "inspectDataset"
+          ],
+          "hash": "c5287c74adce7203217ae8283030816db0a17f5407c2c67fdc83887ff86ddf06",
+          "importsFiles": [
+            "src/runner/python-runner.ts"
+          ],
+          "path": "src/observability/inspect-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 39,
+                  "name": "pythonSpawnEnv",
+                  "target": {
+                    "file": "src/runner/python-runner.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "inspectDataset"
+            }
+          ]
+        },
+        {
+          "entry": "viewLatestInterpretabilityIndex",
+          "entryRule": 4,
+          "exports": [
+            "formatInterpretabilityIndex",
+            "openInterpretabilityIndexInEditor",
+            "viewLatestInterpretabilityIndex"
+          ],
+          "hash": "ed6dcede006a5bab85b5547834bb429d3aa19d83af910614cd845a530ff10faa",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/interpretability-index-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 155,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 165,
+                  "name": "getLatestRunDir",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "viewLatestInterpretabilityIndex"
+            }
+          ]
+        },
+        {
+          "entry": "viewLatestLinearCoefficients",
+          "entryRule": 4,
+          "exports": [
+            "formatLinearCoefficients",
+            "openLinearCoefficientsInEditor",
+            "viewLatestLinearCoefficients"
+          ],
+          "hash": "13a71a6d300db490f362ebd380f0a1e094c345216c86fabf6e4ef3d8137fcad5",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/linear-coefficients-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 147,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 157,
+                  "name": "getLatestRunDir",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "viewLatestLinearCoefficients"
+            }
+          ]
+        },
+        {
+          "entry": "getLatestRunMetadataSafe",
+          "entryRule": 4,
+          "exports": [
+            "formatMetadata",
+            "getLatestRunEntry",
+            "getLatestRunMetadata",
+            "getLatestRunMetadataSafe",
+            "getRunforgeDir",
+            "loadProvenanceIndex",
+            "loadRunMetadata",
+            "openMetadataInEditor",
+            "surfaceOrphanBannerIfAny"
+          ],
+          "hash": "ed8954e8e327a884e2a2178ad0e1c06c11fd1bda69dd05c3b9eb205d4b9c73f7",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/open-summary.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/metadata-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 92,
+                  "name": "openJsonDocument",
+                  "target": {
+                    "file": "src/observability/open-summary.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "openMetadataInEditor"
+            },
+            {
+              "calls": [
+                {
+                  "line": 109,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "surfaceOrphanBannerIfAny"
+            },
+            {
+              "calls": [
+                {
+                  "line": 109,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  },
+                  "via": "surfaceOrphanBannerIfAny"
+                },
+                {
+                  "line": 140,
+                  "name": "safeReadIndex",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 143,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 153,
+                  "name": "safeReadRunJson",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                },
+                {
+                  "line": 156,
+                  "name": "getActionableMessage",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "getLatestRunMetadataSafe"
+            }
+          ]
+        },
+        {
+          "entry": "viewLatestMetricsV1",
+          "entryRule": 4,
+          "exports": [
+            "formatMetricsV1",
+            "openMetricsV1InEditor",
+            "viewLatestMetricsV1"
+          ],
+          "hash": "2eb105dee2f87247885473cf0f3e0017db13d79ef186f24e7e3a07f54a36cf16",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/metrics-v1-command.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 137,
+                  "name": "listOrphanedRuns",
+                  "target": {
+                    "file": "src/observability/orphan-markers.ts"
+                  }
+                },
+                {
+                  "line": 147,
+                  "name": "getLatestRunDir",
+                  "target": {
+                    "file": "src/observability/fs-safe.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "viewLatestMetricsV1"
+            }
+          ]
+        },
+        {
+          "exports": [
+            "openJsonDocument",
+            "openMarkdownSummary"
+          ],
+          "hash": "0aa185fcbacdd806c7fdf4b4d6d3a0592339c0191a541d5023681c235bff69eb",
+          "path": "src/observability/open-summary.ts"
+        },
+        {
+          "hash": "b16b963eaf2f353842dd3d87ba5fe9602fc82a3a1973e747cfa7bd2d97076244",
+          "parseError": true,
+          "path": "src/observability/orphan-markers.ts",
+          "unreadSyntax": "import-type-array"
+        },
+        {
+          "hash": "f3164b6902a1774c21e3bd8ffe116a90944c741b55049cb128d1533c87768e43",
+          "parseError": true,
+          "path": "src/observability/recover-index-command.ts",
+          "unreadSyntax": "import-type-array"
+        },
+        {
+          "exports": [
+            "renderArtifactSummary"
+          ],
+          "hash": "4c6edcf36c4443a9f3265ea232ecf6942c5a42b877b4bb21a3a80499e2450d86",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/render/escape.ts"
+          ],
+          "path": "src/observability/render/artifact-summary.ts"
+        },
+        {
+          "exports": [
+            "renderDiagnosticsSummary"
+          ],
+          "hash": "45e21bd54037dc62868bc4a7b3c12091d13f5cc05739169f481e268983065b01",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/observability/render/diagnostics-summary.ts"
+        },
+        {
+          "exports": [
+            "escapeTableCell"
+          ],
+          "hash": "ae56cee32ac15a094550d133451d2e32cd677c1101e6cba382d534ad3f7107b9",
+          "path": "src/observability/render/escape.ts"
+        },
+        {
+          "exports": [
+            "renderRecoveryReport"
+          ],
+          "hash": "cb059c689877910427abd1e835f0a814c2d89657d417f0f00cd79d4145165943",
+          "importsFiles": [
+            "src/observability/render/escape.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/render/recovery-report-summary.ts"
+        },
+        {
+          "exports": [
+            "renderRunSummary"
+          ],
+          "hash": "b46e36eec505a2f12e0701b5e3c4f978d41360c985b1614922ce998f6587dc1b",
+          "importsFiles": [
+            "src/observability/render/escape.ts",
+            "src/types.ts"
+          ],
+          "path": "src/observability/render/run-summary.ts"
+        },
+        {
+          "hash": "9826fe7297773a67c0f3cfb90ffeeea19d7ce1b6921de80a45c276fe394227be",
+          "path": "src/presets/hq-train.json"
+        },
+        {
+          "exports": [
+            "getAllPresets",
+            "getPreset",
+            "hasPreset",
+            "validateRegistry"
+          ],
+          "hash": "89d10eb089ffeb92050ff00178e7044d3b86b8b0becb6328c45b00691424bb88",
+          "importsFiles": [
+            "src/presets/hq-train.json",
+            "src/presets/std-train.json",
+            "src/types.ts"
+          ],
+          "path": "src/presets/registry.ts"
+        },
+        {
+          "hash": "767b317c922218de8ff9db50ea63acc8189564415ae4d69459fed34bd43b7245",
+          "path": "src/presets/std-train.json"
+        },
+        {
+          "exports": [
+            "detectGpu",
+            "formatBytes",
+            "getCpuFallbackMessage",
+            "selectDevice"
+          ],
+          "hash": "891ee6f36479de7b2f5523a682062c4b547c6bbd42b165fea0f3c49146189612",
+          "importsFiles": [
+            "src/runner/python-runner.ts"
+          ],
+          "path": "src/runner/gpu-probe.ts"
+        },
+        {
+          "exports": [
+            "checkPython",
+            "pythonSpawnEnv",
+            "spawnRunner"
+          ],
+          "hash": "573611c0f4c3a2d00211360df21b08126b7a71d8673e8108e32e2c60c07149a3",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/runner/python-runner.ts"
+        },
+        {
+          "entry": "executeRun",
+          "entryRule": 4,
+          "exports": [
+            "buildDatasetNotFoundMessage",
+            "detectCancelTerminalState",
+            "disposeOutputChannel",
+            "executeRun",
+            "getOutputChannel",
+            "isOomError",
+            "isRunning",
+            "killActiveRun",
+            "setExtensionPath"
+          ],
+          "hash": "1ee417068a809e79627c90df058f7c9e1651c5ceb05b6f4685d2cb881e695953",
+          "importsFiles": [
+            "src/observability/cancelled-marker-reader.ts",
+            "src/observability/event-stream-consumer.ts",
+            "src/observability/fs-safe.ts",
+            "src/presets/registry.ts",
+            "src/runner/gpu-probe.ts",
+            "src/runner/python-runner.ts",
+            "src/status-bar.ts",
+            "src/types.ts",
+            "src/utils/format.ts",
+            "src/workspace/index-manager.ts",
+            "src/workspace/run-folder.ts"
+          ],
+          "path": "src/runner/run-manager.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 267,
+                  "name": "readCancelledMarker",
+                  "target": {
+                    "file": "src/observability/cancelled-marker-reader.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "detectCancelTerminalState"
+            },
+            {
+              "calls": [
+                {
+                  "line": 450,
+                  "name": "checkPython",
+                  "target": {
+                    "file": "src/runner/python-runner.ts"
+                  }
+                },
+                {
+                  "line": 480,
+                  "name": "detectGpu",
+                  "target": {
+                    "file": "src/runner/gpu-probe.ts"
+                  }
+                },
+                {
+                  "line": 496,
+                  "name": "selectDevice",
+                  "target": {
+                    "file": "src/runner/gpu-probe.ts"
+                  }
+                },
+                {
+                  "line": 501,
+                  "name": "getPreset",
+                  "target": {
+                    "file": "src/presets/registry.ts"
+                  }
+                },
+                {
+                  "line": 509,
+                  "name": "getCpuFallbackMessage",
+                  "target": {
+                    "file": "src/runner/gpu-probe.ts"
+                  }
+                },
+                {
+                  "line": 513,
+                  "name": "formatBytes",
+                  "target": {
+                    "file": "src/runner/gpu-probe.ts"
+                  }
+                },
+                {
+                  "line": 519,
+                  "name": "generateRunId",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  }
+                },
+                {
+                  "line": 520,
+                  "name": "createRunFolder",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  }
+                },
+                {
+                  "line": 521,
+                  "name": "createTimestamp",
+                  "target": {
+                    "file": "src/workspace/index-manager.ts"
+                  }
+                },
+                {
+                  "line": 551,
+                  "name": "writeRequest",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  }
+                },
+                {
+                  "line": 771,
+                  "name": "spawnRunner",
+                  "target": {
+                    "file": "src/runner/python-runner.ts"
+                  }
+                },
+                {
+                  "line": 795,
+                  "name": "onCancellationRequested",
+                  "target": null
+                },
+                {
+                  "line": 841,
+                  "name": "appendLine",
+                  "target": null,
+                  "via": "cancelActiveRun"
+                },
+                {
+                  "line": 1020,
+                  "name": "writeResult",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  },
+                  "via": "handleRunComplete"
+                },
+                {
+                  "line": 1029,
+                  "name": "readMetrics",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  },
+                  "via": "handleRunComplete"
+                },
+                {
+                  "line": 1039,
+                  "name": "formatDuration",
+                  "target": {
+                    "file": "src/utils/format.ts"
+                  },
+                  "via": "handleRunComplete"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "executeRun"
+            },
+            {
+              "calls": [
+                {
+                  "line": 841,
+                  "name": "appendLine",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "cancelActiveRun"
+            },
+            {
+              "calls": [
+                {
+                  "line": 926,
+                  "name": "appendLine",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "killRunOnOom"
+            },
+            {
+              "calls": [
+                {
+                  "line": 1020,
+                  "name": "writeResult",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  }
+                },
+                {
+                  "line": 1029,
+                  "name": "readMetrics",
+                  "target": {
+                    "file": "src/workspace/run-folder.ts"
+                  }
+                },
+                {
+                  "line": 1039,
+                  "name": "formatDuration",
+                  "target": {
+                    "file": "src/utils/format.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "handleRunComplete"
+            }
+          ]
+        },
+        {
+          "hash": "86ae6460ad9cc4f05466a89f5d6d2b726753cf506b65f60eaa2755796eab7d5b",
+          "importsFiles": [
+            "src/observability/event-stream-consumer.ts"
+          ],
+          "path": "src/status-bar.ts"
+        },
+        {
+          "hash": "5fa5bd6635e85879955559b2f18685680e9b4fd3163f01b4cb6eebcce5805570",
+          "path": "src/types.ts"
+        },
+        {
+          "exports": [
+            "formatDuration"
+          ],
+          "hash": "01321d1507937d02db209de46743a2947bd0b0e8647577fce40e305c07cb43ac",
+          "path": "src/utils/format.ts"
+        },
+        {
+          "entry": "showRunsPicker",
+          "entryRule": 4,
+          "exports": [
+            "showRunsPicker"
+          ],
+          "hash": "17c1b21146c284025e849865dfd1dad84adcc935317f23aaffc476d7cf78feb5",
+          "importsFiles": [
+            "src/types.ts",
+            "src/utils/format.ts",
+            "src/workspace/index-manager.ts"
+          ],
+          "path": "src/views/runs-picker.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 22,
+                  "name": "getRecentRuns",
+                  "target": {
+                    "file": "src/workspace/index-manager.ts"
+                  }
+                },
+                {
+                  "line": 71,
+                  "name": "formatDuration",
+                  "target": {
+                    "file": "src/utils/format.ts"
+                  },
+                  "via": "formatDetail"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "showRunsPicker"
+            },
+            {
+              "calls": [
+                {
+                  "line": 71,
+                  "name": "formatDuration",
+                  "target": {
+                    "file": "src/utils/format.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "formatDetail"
+            }
+          ]
+        },
+        {
+          "exports": [
+            "createTimestamp",
+            "findRunById",
+            "getRecentRuns",
+            "readIndex"
+          ],
+          "hash": "9e0441edf81e2bef004751a6707953e8eb29628ed09f772840d41737fed97ebf",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/workspace/index-manager.ts"
+        },
+        {
+          "exports": [
+            "appendLog",
+            "createRunFolder",
+            "generateRunId",
+            "isValidRunId",
+            "parseRunId",
+            "readMetrics",
+            "toSlug",
+            "toWorkspaceRelativePath",
+            "writeRequest",
+            "writeResult"
+          ],
+          "hash": "6cb19546690c98239c78e8f1a796a899b26b0dfec9b50f9a6ab5f21a710bc2bb",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/workspace/run-folder.ts"
+        }
+      ],
+      "globs": [
+        "src/**"
+      ],
+      "importConfidence": "full",
+      "name": "src",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 32,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 6,
+      "dynamicSpawnsInTests": 6,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "73acdcee591481bd6680ea6361576c8838069d5e8bb9c26fe3c587ccd88f4b55",
+          "importsFiles": [
+            "src/observability/browse-runs-command.ts"
+          ],
+          "path": "test/browse-runs.test.ts"
+        },
+        {
+          "hash": "eb5e988ecac69cf1f33e5aefc02e62bb7d53d3bedc6b9bbf58831887d094db37",
+          "importsFiles": [
+            "src/observability/event-stream-consumer.ts",
+            "src/runner/run-manager.ts",
+            "src/types.ts"
+          ],
+          "path": "test/cancel-state-machine.test.ts"
+        },
+        {
+          "hash": "9cbc4f4cb5cb44a92e7d0742fa642cdf1cbb4d985b6a87636e663878564a9c79",
+          "importsFiles": [
+            "src/observability/cancelled-marker-reader.ts",
+            "src/types.ts"
+          ],
+          "path": "test/cancelled-marker-reader.test.ts"
+        },
+        {
+          "hash": "e9abfa246c6c4cb50ec4a112902dd3e6db9996c376ce100df4d36ed0f5ff8ecd",
+          "importsFiles": [
+            "src/runner/python-runner.ts",
+            "src/types.ts"
+          ],
+          "path": "test/csv-edge-cases.test.ts"
+        },
+        {
+          "hash": "7cc205c26190fdcc055e4b5a19c572eda57647d6e794182f903be50afb045ee9",
+          "importsFiles": [
+            "src/runner/run-manager.ts"
+          ],
+          "path": "test/dataset-path-setting.test.ts"
+        },
+        {
+          "hash": "934268d846cc3487df41dfe431772888495d268d7ac134102a02884c77ab7196",
+          "importsFiles": [
+            "src/observability/event-stream-consumer.ts"
+          ],
+          "path": "test/event-stream-consumer.test.ts"
+        },
+        {
+          "hash": "7e02a0b2fbb6457e449145bfe2675b91d9a89b0127f218b9a8960453908fa8dc",
+          "importsFiles": [
+            "src/observability/export-markdown-command.ts",
+            "src/observability/render/escape.ts"
+          ],
+          "path": "test/export-markdown.test.ts"
+        },
+        {
+          "exports": [
+            "activateRunforge",
+            "assertRunJsonShape",
+            "cleanupScratch",
+            "fixtureWorkspacePath",
+            "listRunJsonPaths",
+            "makeScratchWorkspace",
+            "readIndex",
+            "setWorkspaceFolder",
+            "stubInputBox",
+            "stubOpenDialog",
+            "waitFor"
+          ],
+          "hash": "ea5337f40ae5a198a7e88cfa9db773c003508e5e19347d0e7b4ac64b921d39b9",
+          "path": "test/extension-host/helpers.ts"
+        },
+        {
+          "hash": "4858a247b0f9df79572117f568803706fc30d4a4664192e0d5f5e8024c83e8ef",
+          "importsFiles": [
+            "test/extension-host/helpers.ts"
+          ],
+          "path": "test/extension-host/smoke.eh.ts"
+        },
+        {
+          "hash": "f457751bf94861913654cb12fe122ff05672f4c7522e57135349eb5b1260cf50",
+          "path": "test/extension-host/tsconfig.json"
+        },
+        {
+          "hash": "5e4c2400f110b61387256f69162fe29a7ff5df0d8bfc129c61bd4f5f73e6e2b1",
+          "path": "test/fixtures/extension-host-workspace/iris.csv"
+        },
+        {
+          "hash": "84fcf5cf23d3312e99042e2b8c1b4fd345b741d045cde11c5c85784810786769",
+          "path": "test/fixtures/iris-tiny.csv"
+        },
+        {
+          "hash": "93c41ea8f2d16d2f3c0c62925adc1c5648f430619a4d80a7145ff5ffc9c91b05",
+          "path": "test/fixtures/single-class.csv"
+        },
+        {
+          "hash": "aec6bc03fccd3e9942cd456d997f3bca786a4574226a968ce24fa1737c5d208d",
+          "path": "test/fixtures/utf8-columns.csv"
+        },
+        {
+          "hash": "ed67cc73927c3029cf2f167f0e8dd601c2960c2e8d9e5fbb00be7871b3e84a43",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/feature-importance-command.ts",
+            "src/observability/inspect-command.ts",
+            "src/observability/interpretability-index-command.ts",
+            "src/observability/linear-coefficients-command.ts",
+            "src/observability/metrics-v1-command.ts"
+          ],
+          "path": "test/formatters.test.ts"
+        },
+        {
+          "hash": "da0fe2a694e3da9113fb060a2245934228995974aed90bbd859c16624ac775ad",
+          "importsFiles": [
+            "src/observability/fs-safe.ts"
+          ],
+          "path": "test/fs-safe.test.ts"
+        },
+        {
+          "hash": "70941970644cdce66d709861e7561b3a4e8e5e502cc804bd094dc17595b5195e",
+          "importsFiles": [
+            "src/runner/gpu-probe.ts"
+          ],
+          "path": "test/gpu-gating.test.ts"
+        },
+        {
+          "hash": "c8e70cc7acaa49d6548923789b1d5151528619815abf103414b0a8886f21774d",
+          "importsFiles": [
+            "src/types.ts",
+            "src/workspace/index-manager.ts"
+          ],
+          "path": "test/index.test.ts"
+        },
+        {
+          "hash": "1234e98f69773d772fe80632f4223e5cad3d31d8b5535543879734c3b24e877f",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/feature-importance-command.ts",
+            "src/observability/interpretability-index-command.ts",
+            "src/observability/linear-coefficients-command.ts",
+            "src/observability/metrics-v1-command.ts",
+            "src/observability/render/artifact-summary.ts",
+            "src/observability/render/diagnostics-summary.ts",
+            "src/observability/render/recovery-report-summary.ts",
+            "src/observability/render/run-summary.ts",
+            "src/types.ts"
+          ],
+          "path": "test/markdown-snapshots.test.ts"
+        },
+        {
+          "hash": "2bb0aa300d1082db190f782971b8002258a0d86072a7dccb40474153a2e33c20",
+          "importsFiles": [
+            "src/observability/metadata-command.ts"
+          ],
+          "path": "test/metadata.test.ts"
+        },
+        {
+          "hash": "c14cd79403ea4eefbbd6a6e5ab600c5bbc4092417d2ec364bebe6c55f9571c52",
+          "importsFiles": [
+            "src/notifications.ts"
+          ],
+          "path": "test/notifications.test.ts"
+        },
+        {
+          "hash": "0f2179204d560973a9e87eb8bb5f3a6eef67c03f8bdd50c9c0784ea0583e16a2",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/export-markdown-command.ts",
+            "src/observability/feature-importance-command.ts",
+            "src/observability/interpretability-index-command.ts",
+            "src/observability/linear-coefficients-command.ts",
+            "src/observability/metadata-command.ts",
+            "src/observability/metrics-v1-command.ts",
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "test/observability-orphan-banner.test.ts"
+        },
+        {
+          "hash": "526799d8de30cb74065752b734c78f39b4be35ed43fd6af543996ae831ca5661",
+          "importsFiles": [
+            "src/observability/orphan-markers.ts",
+            "src/types.ts"
+          ],
+          "path": "test/orphan-markers.test.ts"
+        },
+        {
+          "hash": "e385670d41e636f5db755c773c5edad8bc7c55abb5da26c202c7aa9c1c2266ca",
+          "importsFiles": [
+            "src/presets/registry.ts"
+          ],
+          "path": "test/presets.test.ts"
+        },
+        {
+          "hash": "410cfd29f85071801ea5ce0bbe7a6032ff158e76c944c32af64e85a19fe344bd",
+          "importsFiles": [
+            "src/runner/python-runner.ts",
+            "src/types.ts"
+          ],
+          "path": "test/python-runner.boundary.test.ts"
+        },
+        {
+          "hash": "add8952279e2e9c7817e674c331453615b7bf808115b8ead342d581382d79f9b",
+          "importsFiles": [
+            "src/observability/recover-index-command.ts",
+            "src/types.ts"
+          ],
+          "path": "test/recover-index-command.test.ts"
+        },
+        {
+          "hash": "b69b7b41aa382f919b7bde431be353f6f9881a00d5b00b18cff4489208d2cbb9",
+          "importsFiles": [
+            "src/observability/render/recovery-report-summary.ts",
+            "src/types.ts"
+          ],
+          "path": "test/recovery-report-render.test.ts"
+        },
+        {
+          "hash": "f3265b8456ec45328a724825f8973e3e5261e63ca00eebfdf2e9e412ebbb5403",
+          "importsFiles": [
+            "src/runner/python-runner.ts",
+            "src/types.ts"
+          ],
+          "path": "test/regression-coord-003.test.ts"
+        },
+        {
+          "hash": "b37f20488fa162b2c643e997db74e5758aac12878f7d1c03128e1cb5ba77e27c",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/types.ts",
+            "src/workspace/index-manager.ts",
+            "src/workspace/run-folder.ts"
+          ],
+          "path": "test/regression-coord-008.test.ts"
+        },
+        {
+          "hash": "4d209d3bd91bdaef2371aa6ebe4a5842ecde9cea5330a18d1f857a21ed715883",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/types.ts",
+            "src/workspace/index-manager.ts"
+          ],
+          "path": "test/regression-coord-010.test.ts"
+        },
+        {
+          "hash": "293dede47d12f292e6bfcc471985d82a3f7be044028b4fb5195fa337a8f80d87",
+          "importsFiles": [
+            "src/observability/fs-safe.ts",
+            "src/runner/python-runner.ts",
+            "src/types.ts"
+          ],
+          "path": "test/regression-iter-5a.test.ts"
+        },
+        {
+          "hash": "dae27ce58f1e435b5d35dbafd32fb734366a84570656a33f3b3469856ab7abf9",
+          "importsFiles": [
+            "src/runner/python-runner.ts",
+            "src/types.ts"
+          ],
+          "path": "test/regression-iter-5b.test.ts"
+        },
+        {
+          "hash": "16e386b5034facdfcaed9cc56b26ac3a51718aa3a0baa48cc6511c705a187e83",
+          "importsFiles": [
+            "src/observability/artifact-inspect-command.ts",
+            "src/observability/render/artifact-summary.ts",
+            "src/observability/render/diagnostics-summary.ts",
+            "src/observability/render/run-summary.ts",
+            "src/types.ts"
+          ],
+          "path": "test/renderers.test.ts"
+        },
+        {
+          "hash": "576d839380a9ad11f3ac8fadd1452c2da39006f551b689bb4a90f528ad2e50f1",
+          "importsFiles": [
+            "src/workspace/run-folder.ts"
+          ],
+          "path": "test/run-id.test.ts"
+        },
+        {
+          "hash": "71e3eabb28b2027ab71b0b31ec2a0b81fd855ae79deb3747d5c0f164f298530d",
+          "importsFiles": [
+            "src/runner/run-manager.ts"
+          ],
+          "path": "test/run-manager-pure.test.ts"
+        },
+        {
+          "hash": "9e03af3ca39bb8a7f810da18fd5684b1d38af7097c51a87cc08e73aaec834e16",
+          "path": "test/schema-validation.test.ts"
+        },
+        {
+          "hash": "99fa074edab336f618b43e9fdd16ef8824108a1e5870b05d12da04ecd24d4b02",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "test/schema.test.ts"
+        },
+        {
+          "hash": "8c9a7020e4dad1a7547e8a48954d926d0322277b75bc460ff361b7a083fa9ddb",
+          "importsFiles": [
+            "src/observability/event-stream-consumer.ts",
+            "src/status-bar.ts"
+          ],
+          "path": "test/status-bar.test.ts"
+        },
+        {
+          "hash": "d17f476e1529da73f2a56276945268c43142b976a1cf1bed5d06af6c0345afd6",
+          "importsFiles": [
+            "src/observability/cancelled-marker-reader.ts",
+            "src/observability/event-stream-consumer.ts",
+            "src/runner/run-manager.ts",
+            "src/types.ts"
+          ],
+          "path": "test/subprocess-boundary.integration.test.ts"
+        },
+        {
+          "hash": "ee4070bd7c2599b337a68df516840265b1fba20f31d9cdd64702b87a371f98cd",
+          "path": "test/version.test.ts"
+        },
+        {
+          "hash": "5a2b213eec404126666d624533636aedcb2e52acf5180fdec742662d4b2d6c8f",
+          "importsFiles": [
+            "src/runner/run-manager.ts"
+          ],
+          "path": "test/workspace-trust-guard.test.ts"
+        }
+      ],
+      "globs": [
+        "test/**"
+      ],
+      "importConfidence": "full",
+      "name": "test",
+      "origin": "authored",
+      "role": "test",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    }
+  ],
+  "doors": [
+    {
+      "checksCount": 2,
+      "commands": [
+        {
+          "job": "quality-gates",
+          "step": "Atlas check",
+          "text": "npx --yes @dogfood-lab/atlas@1.16.0 check"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Install Python deps for ml_runner boundary tests",
+          "text": "pip install scikit-learn pandas numpy joblib jsonschema"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Run tests",
+          "text": "npm test"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Run tests with coverage",
+          "text": "npx vitest run --coverage"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Compile (production)",
+          "text": "npm run compile"
+        },
+        {
+          "job": "quality-gates",
+          "step": "Package VSIX",
+          "text": "npx vsce package --no-dependencies"
+        },
+        {
+          "job": "dep-audit",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "dep-audit",
+          "step": "Run npm audit",
+          "text": "npm audit --omit=dev || true"
+        },
+        {
+          "job": "extension-host-smoke",
+          "step": "Install Python deps for ml_runner subprocess",
+          "text": "pip install scikit-learn pandas numpy joblib jsonschema"
+        },
+        {
+          "job": "extension-host-smoke",
+          "step": "Install Node dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "extension-host-smoke",
+          "step": "Install Xvfb (headless display for Extension Host)",
+          "text": "sudo apt-get update && sudo apt-get install -y xvfb"
+        },
+        {
+          "job": "extension-host-smoke",
+          "step": "Run Extension Host smoke tests",
+          "text": "xvfb-run -a npm run test:smoke"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/ci.yml",
+      "landings": [],
+      "mentions": [],
+      "name": "CI",
+      "permissions": [
+        "contents:read"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 34
+        },
+        {
+          "boundary": "test",
+          "depth": 0,
+          "files": 36
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "extension-host-smoke",
+          "path": "src/extension.ts",
+          "runKind": "checks"
+        },
+        {
+          "job": "quality-gates",
+          "path": "src/extension.ts",
+          "runKind": "checks"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/browse-runs.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/cancel-state-machine.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/cancelled-marker-reader.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/csv-edge-cases.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/dataset-path-setting.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/event-stream-consumer.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/export-markdown.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "extension-host-smoke",
+          "matched": true,
+          "path": "test/extension-host/",
+          "runKind": "checks",
+          "via": "tsc test/extension-host/tsconfig.json"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/formatters.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/fs-safe.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/gpu-gating.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/index.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/markdown-snapshots.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/metadata.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/notifications.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/observability-orphan-banner.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/orphan-markers.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/presets.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/python-runner.boundary.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/recover-index-command.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/recovery-report-render.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/regression-coord-003.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/regression-coord-008.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/regression-coord-010.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/regression-iter-5a.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/regression-iter-5b.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/renderers.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/run-id.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/run-manager-pure.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/schema-validation.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/schema.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/status-bar.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/subprocess-boundary.integration.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/version.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "quality-gates",
+          "matched": true,
+          "path": "test/workspace-trust-guard.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        }
+      ],
+      "runsCount": 36,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "pull_request",
+          "paths": [
+            ".github/workflows/**",
+            "atlas/**",
+            "package-lock.json",
+            "package.json",
+            "python/**",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "src/**",
+            "test/**",
+            "tsconfig.json",
+            "vitest.config.ts"
+          ]
+        },
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/**",
+            "atlas/**",
+            "package-lock.json",
+            "package.json",
+            "python/**",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "src/**",
+            "test/**",
+            "tsconfig.json",
+            "vitest.config.ts"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/setup-node",
+        "actions/setup-python",
+        "codecov/codecov-action"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 0,
+      "commands": [
+        {
+          "job": "build",
+          "step": "Install site dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "build",
+          "step": "Build site",
+          "text": "npm run build"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/pages.yml",
+      "landings": [],
+      "mentions": [],
+      "name": "Deploy site to GitHub Pages",
+      "permissions": [
+        "contents:read",
+        "id-token:write",
+        "pages:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 3
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "build",
+          "matched": true,
+          "path": "site/astro.config.mjs",
+          "runKind": "executes",
+          "via": "astro build"
+        },
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "site/src/",
+          "runKind": "executes",
+          "via": "astro build"
+        }
+      ],
+      "runsCount": 2,
+      "secrets": [],
+      "sends": {
+        "deploysPages": true,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/pages.yml",
+            "site/**"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/deploy-pages",
+        "actions/setup-node",
+        "actions/upload-pages-artifact"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 1,
+      "commands": [
+        {
+          "job": "build",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "build",
+          "step": "Run tests",
+          "text": "npm test"
+        },
+        {
+          "job": "build",
+          "step": "Compile (production)",
+          "text": "npm run compile"
+        },
+        {
+          "job": "build",
+          "step": "Verify tag matches package.json version",
+          "text": "TAG_VERSION=\"${GITHUB_REF#refs/tags/v}\"\nPKG_VERSION=\"$(node -p \"require('./package.json').version\")\"\nif [ \"$TAG_VERSION\" != \"$PKG_VERSION\" ]; then\n  echo \"::error::Tag version (v${TAG_VERSION}) does not match package.json version (${PKG_VERSION})\"\n  exit 1\nfi\necho \"✓ Tag v${TAG_VERSION} matches package.json ${PKG_VERSION}\"\n"
+        },
+        {
+          "job": "build",
+          "step": "Package VSIX",
+          "text": "npx vsce package"
+        },
+        {
+          "job": "build",
+          "step": "Get version",
+          "text": "echo \"version=$(node -p \"require('./package.json').version\")\" >> $GITHUB_OUTPUT"
+        },
+        {
+          "job": "build",
+          "step": "Generate SHA256",
+          "text": "sha256sum runforge-${{ steps.version.outputs.version }}.vsix > SHA256SUMS.txt\n"
+        },
+        {
+          "job": "publish_marketplace",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "publish_marketplace",
+          "step": "Package VSIX",
+          "text": "npx vsce package"
+        },
+        {
+          "job": "publish_marketplace",
+          "step": "Publish to VS Code Marketplace",
+          "text": "set -e\necho \"VSCE_PAT length: ${#VSCE_PAT}\"\nnpx --yes vsce verify-pat mcp-tool-shop -p \"$VSCE_PAT\"\nnpx --yes vsce publish -p \"$VSCE_PAT\" || {\n  echo \"\"\n  echo \"Marketplace publish failed (likely 401).\"\n  echo \"If verify-pat passes but publish fails, this is often due to Azure DevOps PAT org-scope quirks.\"\n  echo \"Local workaround: npx vsce publish\"\n  exit 1\n}\n"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/publish.yml",
+      "landings": [],
+      "mentions": [
+        {
+          "job": "build",
+          "path": "package.json"
+        }
+      ],
+      "name": "Build and Release",
+      "permissions": [
+        "contents:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 34
+        },
+        {
+          "boundary": "test",
+          "depth": 0,
+          "files": 34
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "build",
+          "path": "src/extension.ts",
+          "runKind": "checks"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/browse-runs.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/cancel-state-machine.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/cancelled-marker-reader.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/csv-edge-cases.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/dataset-path-setting.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/event-stream-consumer.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/export-markdown.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/formatters.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/fs-safe.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/gpu-gating.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/index.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/markdown-snapshots.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/metadata.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/notifications.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/observability-orphan-banner.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/orphan-markers.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/presets.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/python-runner.boundary.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/recover-index-command.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/recovery-report-render.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/regression-coord-003.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/regression-coord-008.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/regression-coord-010.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/regression-iter-5a.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/regression-iter-5b.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/renderers.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/run-id.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/run-manager-pure.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/schema-validation.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/schema.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/status-bar.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/subprocess-boundary.integration.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/version.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        },
+        {
+          "job": "build",
+          "matched": true,
+          "path": "test/workspace-trust-guard.test.ts",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        }
+      ],
+      "runsCount": 35,
+      "secrets": [
+        "GITHUB_TOKEN",
+        "VSCE_PAT"
+      ],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": true
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "event": "push",
+          "tags": [
+            "v*"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/setup-node",
+        "softprops/action-gh-release"
+      ],
+      "usesWorkflowToken": true
+    },
+    {
+      "checksCount": 0,
+      "commands": [],
+      "elsewhere": [],
+      "entry": "src/extension.ts",
+      "file": "package.json",
+      "kind": "package",
+      "landings": [],
+      "mentions": [],
+      "name": "runforge",
+      "permissions": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 31
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "path": "src/extension.ts",
+          "runKind": "executes"
+        }
+      ],
+      "runsCount": 1,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [],
+      "unpublished": true,
+      "uses": [],
+      "usesWorkflowToken": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "test",
+      "fromTests": true,
+      "kind": "file",
+      "to": "src"
+    }
+  ],
+  "generatedFrom": {
+    "commit": "d4f816a71526c9c45f5aa46b14c2381eaad43101",
+    "tracked": 229
+  },
+  "landings": [
+    {
+      "readers": [
+        {
+          "by": "test/version.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "CHANGELOG.md",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "eslint-rules/README.md",
+          "call": "--rulesdir",
+          "confidence": "text"
+        }
+      ],
+      "target": "eslint-rules",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".github/workflows/publish.yml"
+        },
+        {
+          "by": "test/version.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "package.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".eslintrc.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "python",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "src/extension.ts",
+          "call": "literal",
+          "confidence": "ast"
+        }
+      ],
+      "target": "python/ml_runner",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "python/ml_runner/contracts/__init__.py",
+          "call": "open",
+          "confidence": "ast"
+        }
+      ],
+      "target": "python/ml_runner/contracts",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/schema-validation.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "python/ml_runner/contracts/linear_coefficients.schema.v1.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/schema-validation.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/version.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "python/ml_runner/contracts/run.schema.v0.3.6.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "python/ml_runner/test_artifact_inspect.py",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "python/ml_runner/fixtures/golden_inspection.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "python/ml_runner/test_artifact_inspect.py",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "python/ml_runner/fixtures/golden_pipeline.pkl",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".eslintrc.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "site",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "content-collection",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/regression-iter-5b.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "src/runner/gpu-probe.ts",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".eslintrc.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "src/types.ts",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".eslintrc.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "test",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/extension-host/helpers.ts",
+          "call": "existsSync",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/extension-host/helpers.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/extension-host/package.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/extension-host/helpers.ts",
+          "call": "readdirSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/extension-host/test/fixtures/extension-host-workspace",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/csv-edge-cases.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/fixtures",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".vscode-test.mjs",
+          "call": "literal",
+          "confidence": "ast"
+        }
+      ],
+      "target": "test/fixtures/extension-host-workspace",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/python-runner.boundary.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/regression-coord-003.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/regression-coord-008.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/regression-iter-5a.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/subprocess-boundary.integration.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/fixtures/iris-tiny.csv",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/csv-edge-cases.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/fixtures/single-class.csv",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "test/csv-edge-cases.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "test/fixtures/utf8-columns.csv",
+      "writers": []
+    }
+  ],
+  "overlaps": [],
+  "submodules": [],
+  "symlinks": [],
+  "testFiles": 64,
+  "unassigned": []
+}

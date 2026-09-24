@@ -1,0 +1,42 @@
+summary: ""
+boundaries:
+  - name: .github
+    globs:
+      - .github/**
+    role: config
+  - name: assets
+    globs:
+      - assets/**
+    role: data
+  - name: docs
+    globs:
+      - docs/**
+    role: docs
+  - name: eslint-rules
+    globs:
+      - eslint-rules/**
+    role: code
+  - name: python
+    globs:
+      - python/**
+    role: code
+  - name: resources
+    globs:
+      - resources/**
+    role: data
+  - name: root
+    globs:
+      - "*"
+    role: config
+  - name: site
+    globs:
+      - site/**
+    role: site
+  - name: src
+    globs:
+      - src/**
+    role: code
+  - name: test
+    globs:
+      - test/**
+    role: test

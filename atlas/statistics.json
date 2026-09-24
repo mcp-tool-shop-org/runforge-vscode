@@ -1,0 +1,985 @@
+{
+  "authorship": {
+    "parts": [],
+    "places": []
+  },
+  "boundaries": [
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": ".github",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "assets",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "docs",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "eslint-rules",
+      "qualifyingSourceCommits": 1,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "python",
+      "qualifyingSourceCommits": 7,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "resources",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "root",
+      "qualifyingSourceCommits": 2,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "site",
+      "qualifyingSourceCommits": 3,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "test"
+        ]
+      },
+      "cohesion": 1,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "src",
+      "qualifyingSourceCommits": 25,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "test",
+      "qualifyingSourceCommits": 25,
+      "rebaseline": null
+    }
+  ],
+  "churn": {
+    "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
+    "files": [
+      {
+        "commits": 2,
+        "lines": 35,
+        "path": ".eslintrc.json"
+      },
+      {
+        "commits": 1,
+        "lines": 13,
+        "path": ".github/CODEOWNERS"
+      },
+      {
+        "commits": 1,
+        "lines": 100,
+        "path": ".github/ISSUE_TEMPLATE/bug_report.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": ".github/ISSUE_TEMPLATE/config.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": ".github/ISSUE_TEMPLATE/feature_request.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 34,
+        "path": ".github/ISSUE_TEMPLATE/question.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": ".github/PULL_REQUEST_TEMPLATE.md"
+      },
+      {
+        "commits": 9,
+        "lines": 112,
+        "path": ".github/workflows/ci.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 12,
+        "path": ".github/workflows/pages.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 17,
+        "path": ".github/workflows/publish.yml"
+      },
+      {
+        "commits": 4,
+        "lines": 6,
+        "path": ".gitignore"
+      },
+      {
+        "commits": 1,
+        "lines": 43,
+        "path": ".vscode-test.mjs"
+      },
+      {
+        "commits": 7,
+        "lines": 39,
+        "path": ".vscodeignore"
+      },
+      {
+        "commits": 11,
+        "lines": 349,
+        "path": "CHANGELOG.md"
+      },
+      {
+        "commits": 2,
+        "lines": 43,
+        "path": "CLAUDE.md"
+      },
+      {
+        "commits": 3,
+        "lines": 305,
+        "path": "CONTRACT-PHASE-4.md"
+      },
+      {
+        "commits": 3,
+        "lines": 781,
+        "path": "README.es.md"
+      },
+      {
+        "commits": 3,
+        "lines": 723,
+        "path": "README.fr.md"
+      },
+      {
+        "commits": 3,
+        "lines": 1055,
+        "path": "README.hi.md"
+      },
+      {
+        "commits": 3,
+        "lines": 708,
+        "path": "README.it.md"
+      },
+      {
+        "commits": 3,
+        "lines": 642,
+        "path": "README.ja.md"
+      },
+      {
+        "commits": 8,
+        "lines": 81,
+        "path": "README.md"
+      },
+      {
+        "commits": 3,
+        "lines": 683,
+        "path": "README.pt-BR.md"
+      },
+      {
+        "commits": 3,
+        "lines": 555,
+        "path": "README.zh.md"
+      },
+      {
+        "commits": 2,
+        "lines": 59,
+        "path": "SCORECARD.md"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "SHIP_GATE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 25,
+        "path": "assets/activity-icon.svg"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "assets/glyph-256.png"
+      },
+      {
+        "commits": 1,
+        "lines": 17,
+        "path": "assets/glyph-spark.svg"
+      },
+      {
+        "commits": 1,
+        "lines": 54,
+        "path": "assets/glyph.svg"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "assets/hero-spark-master.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "assets/hero-spark.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "assets/hero-spark.webp"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "assets/icon.png"
+      },
+      {
+        "commits": 1,
+        "lines": 90,
+        "path": "assets/marketplace/STORYBOARDS.md"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "assets/walkthrough/01-open-workspace.svg"
+      },
+      {
+        "commits": 1,
+        "lines": 37,
+        "path": "assets/walkthrough/02-train-model.svg"
+      },
+      {
+        "commits": 1,
+        "lines": 28,
+        "path": "assets/walkthrough/03-inspect-results.svg"
+      },
+      {
+        "commits": 3,
+        "lines": 413,
+        "path": "docs/CONTRACTS.md"
+      },
+      {
+        "commits": 2,
+        "lines": 188,
+        "path": "docs/GITHUB_DISCUSSION_v1.0.1.md"
+      },
+      {
+        "commits": 2,
+        "lines": 39,
+        "path": "docs/MARKETPLACE_NOTE_v1.0.1.md"
+      },
+      {
+        "commits": 1,
+        "lines": 185,
+        "path": "docs/PHASE-3.3-ACCEPTANCE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 164,
+        "path": "docs/PHASE-3.4-ACCEPTANCE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 170,
+        "path": "docs/PHASE-3.5-ACCEPTANCE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 176,
+        "path": "docs/PHASE-3.6-ACCEPTANCE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 17,
+        "path": "docs/RELEASE-PROVENANCE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 47,
+        "path": "eslint-rules/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 119,
+        "path": "eslint-rules/no-shadow-canonical-types.js"
+      },
+      {
+        "commits": 2,
+        "lines": 3310,
+        "path": "package-lock.json"
+      },
+      {
+        "commits": 11,
+        "lines": 205,
+        "path": "package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "python/ml_runner/__init__.py"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": "python/ml_runner/cli.py"
+      },
+      {
+        "commits": 1,
+        "lines": 58,
+        "path": "python/ml_runner/contracts/cancelled.schema.v1.0.0.json"
+      },
+      {
+        "commits": 1,
+        "lines": 149,
+        "path": "python/ml_runner/contracts/events.schema.v1.json"
+      },
+      {
+        "commits": 2,
+        "lines": 66,
+        "path": "python/ml_runner/contracts/index-orphan.schema.v1.0.0.json"
+      },
+      {
+        "commits": 1,
+        "lines": 102,
+        "path": "python/ml_runner/contracts/index.schema.v1.0.0.json"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "python/ml_runner/contracts/linear_coefficients.schema.v1.json"
+      },
+      {
+        "commits": 1,
+        "lines": 208,
+        "path": "python/ml_runner/contracts/run.schema.v0.3.6.json"
+      },
+      {
+        "commits": 1,
+        "lines": 13,
+        "path": "python/ml_runner/interpretability_index.py"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": "python/ml_runner/linear_coefficients.py"
+      },
+      {
+        "commits": 1,
+        "lines": 56,
+        "path": "python/ml_runner/metadata.py"
+      },
+      {
+        "commits": 3,
+        "lines": 401,
+        "path": "python/ml_runner/provenance.py"
+      },
+      {
+        "commits": 6,
+        "lines": 1450,
+        "path": "python/ml_runner/runner.py"
+      },
+      {
+        "commits": 1,
+        "lines": 600,
+        "path": "python/ml_runner/test_cancellation_marker.py"
+      },
+      {
+        "commits": 2,
+        "lines": 267,
+        "path": "python/ml_runner/test_csv_actionability.py"
+      },
+      {
+        "commits": 2,
+        "lines": 494,
+        "path": "python/ml_runner/test_event_stream.py"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "python/ml_runner/test_feature_importance.py"
+      },
+      {
+        "commits": 1,
+        "lines": 192,
+        "path": "python/ml_runner/test_index_orphan_marker.py"
+      },
+      {
+        "commits": 1,
+        "lines": 95,
+        "path": "python/ml_runner/test_metadata_metrics_v1_required.py"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "python/ml_runner/test_metadata_phase32.py"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": "python/ml_runner/test_metadata_phase33.py"
+      },
+      {
+        "commits": 1,
+        "lines": 30,
+        "path": "python/ml_runner/test_metadata_phase35.py"
+      },
+      {
+        "commits": 2,
+        "lines": 102,
+        "path": "python/ml_runner/test_metrics_v1.py"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "python/ml_runner/test_model_selection.py"
+      },
+      {
+        "commits": 1,
+        "lines": 277,
+        "path": "python/ml_runner/test_observability.py"
+      },
+      {
+        "commits": 1,
+        "lines": 28,
+        "path": "site/astro.config.mjs"
+      },
+      {
+        "commits": 2,
+        "lines": 6169,
+        "path": "site/package-lock.json"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "site/package.json"
+      },
+      {
+        "commits": 3,
+        "lines": 81,
+        "path": "site/src/content/docs/handbook/beginners.md"
+      },
+      {
+        "commits": 2,
+        "lines": 118,
+        "path": "site/src/content/docs/handbook/cancel-and-recovery.md"
+      },
+      {
+        "commits": 4,
+        "lines": 102,
+        "path": "site/src/content/docs/handbook/getting-started.md"
+      },
+      {
+        "commits": 2,
+        "lines": 8,
+        "path": "site/src/content/docs/handbook/index.md"
+      },
+      {
+        "commits": 4,
+        "lines": 183,
+        "path": "site/src/content/docs/handbook/reference.md"
+      },
+      {
+        "commits": 2,
+        "lines": 42,
+        "path": "site/src/site-config.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 54,
+        "path": "src/extension.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 98,
+        "path": "src/notifications.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 50,
+        "path": "src/observability/artifact-inspect-command.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 255,
+        "path": "src/observability/browse-runs-command.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 185,
+        "path": "src/observability/cancelled-marker-reader.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 429,
+        "path": "src/observability/event-stream-consumer.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 189,
+        "path": "src/observability/export-markdown-command.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 84,
+        "path": "src/observability/feature-importance-command.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 98,
+        "path": "src/observability/fs-safe.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "src/observability/inspect-command.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 122,
+        "path": "src/observability/interpretability-index-command.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 110,
+        "path": "src/observability/linear-coefficients-command.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 109,
+        "path": "src/observability/metadata-command.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 94,
+        "path": "src/observability/metrics-v1-command.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 210,
+        "path": "src/observability/orphan-markers.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 465,
+        "path": "src/observability/recover-index-command.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "src/observability/render/artifact-summary.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": "src/observability/render/diagnostics-summary.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "src/observability/render/escape.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 121,
+        "path": "src/observability/render/recovery-report-summary.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 104,
+        "path": "src/observability/render/run-summary.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "src/runner/gpu-probe.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 187,
+        "path": "src/runner/python-runner.ts"
+      },
+      {
+        "commits": 7,
+        "lines": 765,
+        "path": "src/runner/run-manager.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 177,
+        "path": "src/status-bar.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 467,
+        "path": "src/types.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 14,
+        "path": "src/utils/format.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "src/views/runs-picker.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 174,
+        "path": "src/workspace/index-manager.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 15,
+        "path": "src/workspace/run-folder.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 271,
+        "path": "test/browse-runs.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 331,
+        "path": "test/cancel-state-machine.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 224,
+        "path": "test/cancelled-marker-reader.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 101,
+        "path": "test/csv-edge-cases.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 218,
+        "path": "test/dataset-path-setting.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 309,
+        "path": "test/event-stream-consumer.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 198,
+        "path": "test/export-markdown.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 256,
+        "path": "test/extension-host/helpers.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 658,
+        "path": "test/extension-host/smoke.eh.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": "test/extension-host/tsconfig.json"
+      },
+      {
+        "commits": 1,
+        "lines": 52,
+        "path": "test/fixtures/extension-host-workspace/iris.csv"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "test/fixtures/iris-tiny.csv"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "test/fixtures/single-class.csv"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "test/fixtures/utf8-columns.csv"
+      },
+      {
+        "commits": 1,
+        "lines": 84,
+        "path": "test/formatters.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 67,
+        "path": "test/fs-safe.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 280,
+        "path": "test/index.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 944,
+        "path": "test/markdown-snapshots.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": "test/metadata.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 109,
+        "path": "test/notifications.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 359,
+        "path": "test/observability-orphan-banner.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 292,
+        "path": "test/orphan-markers.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 208,
+        "path": "test/python-runner.boundary.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 494,
+        "path": "test/recover-index-command.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 267,
+        "path": "test/recovery-report-render.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 116,
+        "path": "test/regression-coord-003.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 259,
+        "path": "test/regression-coord-008.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 269,
+        "path": "test/regression-coord-010.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 196,
+        "path": "test/regression-iter-5a.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 302,
+        "path": "test/regression-iter-5b.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 115,
+        "path": "test/renderers.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 282,
+        "path": "test/schema-validation.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 197,
+        "path": "test/status-bar.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 606,
+        "path": "test/subprocess-boundary.integration.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 60,
+        "path": "test/version.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 221,
+        "path": "test/workspace-trust-guard.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "vitest.config.ts"
+      }
+    ]
+  },
+  "confidence": {
+    "level": "low",
+    "reason": "fewer than 20 source files reach 10 revisions in the window"
+  },
+  "generatedAt": "2026-09-24T02:21:24.222Z",
+  "generatedFrom": {
+    "commit": "d4f816a71526c9c45f5aa46b14c2381eaad43101"
+  },
+  "pairs": [
+    {
+      "a": "src/observability/export-markdown-command.ts",
+      "b": "src/observability/interpretability-index-command.ts",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    }
+  ],
+  "parameters": {
+    "appliedChangesetLimit": 50,
+    "changeset": 50,
+    "changesetFraction": 0.25,
+    "cohesionDrop": 0.2,
+    "couplingPopulation": "source",
+    "fallenShared": 3,
+    "floor": "fallen",
+    "floorHeld": false,
+    "floorTrigger": "revision-depth",
+    "headDate": "2026-09-17T18:09:20-07:00",
+    "inScopeFiles": 229,
+    "pinnedStart": null,
+    "priorFloor": null,
+    "qualifyingCommits": 74,
+    "qualifyingMinimum": 30,
+    "revisions": 5,
+    "shared": 10,
+    "sharedFloorUsed": 3,
+    "since": "2026-03-22T01:09:20.000Z",
+    "sourceExtensions": [
+      ".js",
+      ".mjs",
+      ".cjs",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".mts",
+      ".cts",
+      ".py"
+    ],
+    "sourceFileReach": 20,
+    "sourceFileRise": 25,
+    "sourceFilesReachingStrongFloor": 0,
+    "strength": 0.5,
+    "windowDays": 180
+  },
+  "strengthDefinition": "strength is the shared qualifying commits divided by either. either is the number of qualifying commits that touch either file."
+}
