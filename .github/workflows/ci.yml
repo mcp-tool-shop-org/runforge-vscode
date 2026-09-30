@@ -77,7 +77,7 @@ jobs:
       # Atlas requires Node 22 or later, so the check runs on the Node 22 cell only.
       - name: Atlas check
         if: matrix.node-version == '22'
-        run: npx --yes @dogfood-lab/atlas@1.16.0 check
+        run: npx --yes @dogfood-lab/atlas@1.24.0 check
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0

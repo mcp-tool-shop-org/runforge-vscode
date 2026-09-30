@@ -74,7 +74,9 @@
         "collapsed": false,
         "confidence": "low",
         "importsAndCoChanges": [],
-        "importsOnly": []
+        "importsOnly": [
+          "src"
+        ]
       },
       "cohesion": null,
       "cohesionDropped": false,
@@ -163,7 +165,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "test",
-      "qualifyingSourceCommits": 25,
+      "qualifyingSourceCommits": 24,
       "rebaseline": null
     }
   ],
@@ -206,13 +208,13 @@
         "path": ".github/PULL_REQUEST_TEMPLATE.md"
       },
       {
-        "commits": 9,
-        "lines": 112,
+        "commits": 13,
+        "lines": 330,
         "path": ".github/workflows/ci.yml"
       },
       {
-        "commits": 3,
-        "lines": 12,
+        "commits": 5,
+        "lines": 16,
         "path": ".github/workflows/pages.yml"
       },
       {
@@ -236,8 +238,8 @@
         "path": ".vscodeignore"
       },
       {
-        "commits": 11,
-        "lines": 349,
+        "commits": 10,
+        "lines": 344,
         "path": "CHANGELOG.md"
       },
       {
@@ -359,6 +361,36 @@
         "commits": 1,
         "lines": 28,
         "path": "assets/walkthrough/03-inspect-results.svg"
+      },
+      {
+        "commits": 2,
+        "lines": 168,
+        "path": "atlas/README.md"
+      },
+      {
+        "commits": 2,
+        "lines": 84,
+        "path": "atlas/boundaries.yaml"
+      },
+      {
+        "commits": 2,
+        "lines": 624,
+        "path": "atlas/page.json"
+      },
+      {
+        "commits": 2,
+        "lines": 1970,
+        "path": "atlas/statistics.json"
+      },
+      {
+        "commits": 2,
+        "lines": 9218,
+        "path": "atlas/structure.json"
+      },
+      {
+        "commits": 2,
+        "lines": 36,
+        "path": "codecov.yml"
       },
       {
         "commits": 3,
@@ -561,8 +593,8 @@
         "path": "site/package.json"
       },
       {
-        "commits": 3,
-        "lines": 81,
+        "commits": 2,
+        "lines": 6,
         "path": "site/src/content/docs/handbook/beginners.md"
       },
       {
@@ -571,8 +603,8 @@
         "path": "site/src/content/docs/handbook/cancel-and-recovery.md"
       },
       {
-        "commits": 4,
-        "lines": 102,
+        "commits": 3,
+        "lines": 15,
         "path": "site/src/content/docs/handbook/getting-started.md"
       },
       {
@@ -581,8 +613,8 @@
         "path": "site/src/content/docs/handbook/index.md"
       },
       {
-        "commits": 4,
-        "lines": 183,
+        "commits": 3,
+        "lines": 38,
         "path": "site/src/content/docs/handbook/reference.md"
       },
       {
@@ -911,8 +943,8 @@
         "path": "test/subprocess-boundary.integration.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 60,
+        "commits": 1,
+        "lines": 27,
         "path": "test/version.test.ts"
       },
       {
@@ -929,11 +961,11 @@
   },
   "confidence": {
     "level": "low",
-    "reason": "fewer than 20 source files reach 10 revisions in the window"
+    "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-09-24T02:21:24.222Z",
+  "generatedAt": "2026-09-30T20:12:36.156Z",
   "generatedFrom": {
-    "commit": "d4f816a71526c9c45f5aa46b14c2381eaad43101"
+    "commit": "6c5ebe83b8d3dc98cbaffe4af9155593309bb8ca"
   },
   "pairs": [
     {
@@ -954,16 +986,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-09-17T18:09:20-07:00",
-    "inScopeFiles": 229,
+    "headDate": "2026-09-30T08:25:40-07:00",
+    "inScopeFiles": 235,
     "pinnedStart": null,
-    "priorFloor": null,
-    "qualifyingCommits": 74,
+    "priorFloor": "fallen",
+    "qualifyingCommits": 75,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-03-22T01:09:20.000Z",
+    "since": "2026-04-03T15:25:40.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
@@ -973,7 +1005,9 @@
       ".tsx",
       ".mts",
       ".cts",
-      ".py"
+      ".py",
+      ".rs",
+      ".gd"
     ],
     "sourceFileReach": 20,
     "sourceFileRise": 25,

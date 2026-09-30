@@ -1,41 +1,49 @@
 # runforge-vscode: how it works
 
-Mapped at 2026-09-24 from commit d4f816a.
+Mapped at 2026-09-30 from commit 6c5ebe8 by Atlas 1.24.0.
 
 ## What this is
 
-10 parts, mostly TypeScript (71 files). Work enters through 4 doors; the busiest is Build and Release, which reaches 2 parts.
+10 parts, mostly TypeScript (71 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.
 
-## What changed since the last map
+## What changed since 2026-09-24 (d4f816a)
 
-This is the first map.
+- CI's pull request trigger now also names `codecov.yml`.
+- CI's push trigger now also names `codecov.yml`.
+- In src/extension.ts, `activate` lost a step, `isRunning`.
+- In src/extension.ts, `activate` lost a step, `executeRun`.
+- In src/extension.ts, `activate` lost a step, `showRunsPicker`.
+- And 18 more changes to the order of work.
+- 1 file added and 221 changed content, across 9 parts.
 
 ## What comes in
 
-1. **Build and Release.** When a tag matching `v*` is pushed; or by hand. Runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more; checks src/extension.ts.
-2. **CI.** On a pull request touching 12 paths; on a push to main touching 12 paths; or by hand. Runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more; checks src/extension.ts and test/extension-host/.
+1. **CI.** On a pull request to main touching 13 paths; on a push to main touching 13 paths; or by hand. Runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more; builds test/extension-host/; checks src/extension.ts.
+2. **Build and Release.** When a tag matching `v*` is pushed; or by hand. Runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more; checks src/extension.ts.
 3. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
-4. **runforge** (the package's entry, not published from here). Loads src/extension.ts.
+4. **runforge** (the extension people install from the VS Code Marketplace). Loads src/extension.ts.
 
-## What happens through Build and Release
+## What happens through CI
 
-1. The workflow runs 34 files in test; it checks src/extension.ts in src.
-2. It creates a GitHub release.
+1. The workflow runs 34 files in test; it builds test/extension-host/ in test; it checks src/extension.ts in src.
+2. That reaches python (18 files).
+3. It uploads coverage to Codecov.
 
 ## Who reads the results
 
-Build and Release writes nothing this map can see.
+CI writes nothing this map can see.
 
 ## The other doors
 
-**CI** runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more, and checks src/extension.ts and test/extension-host/.
+**Build and Release** runs test/browse-runs.test.ts, test/cancel-state-machine.test.ts, test/cancelled-marker-reader.test.ts and 31 more, checks src/extension.ts, reaches python, creates a GitHub release and uploads SHA256SUMS.txt and files named at run time to the release on a tag push, and publishes to the VS Code Marketplace when run by hand.
 
 **Deploy site to GitHub Pages** runs site/astro.config.mjs and site/src/, and deploys the site.
 
-**runforge** (the package's entry, not published from here) loads src/extension.ts.
+**runforge** (the extension people install from the VS Code Marketplace) loads src/extension.ts and reaches python.
 
 ## What breaks what
 
+- **python** is run as a child process by 1 part (src) and sits on the path of 3 doors.
 - **src** is imported only from tests, by 1 part (test), and sits on the path of 3 doors.
 - **test** is imported by no other part and sits on the path of 2 doors.
 
@@ -43,13 +51,15 @@ Build and Release writes nothing this map can see.
 
 - **src/observability/export-markdown-command.ts** and **src/observability/interpretability-index-command.ts** changed together in 5 of 5 commits, inside the src part.
 
-Confidence is low: fewer than 20 source files reach 10 revisions in the window.
+Confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do.
 
 ## What no test touches
 
 - **eslint-rules** is imported by no test.
+
+23 test files run in no workflow: python/ml_runner/test_artifact_inspect.py, python/ml_runner/test_cancellation_marker.py, python/ml_runner/test_csv_actionability.py and 20 more.
 
 ## Written but never read
 
@@ -65,20 +75,19 @@ Nothing in this repository writes to a tracked place this map can see.
 
 ## Hand-authored
 
-People write .github/, assets/, docs/, resources/, the repository root and site/; 7 writes with paths built at run time may land here.
+People write .github/, assets/, docs/, resources/, the repository root and site/; 1 write with a path built at run time may land here.
 
 ## Where to start
 
-.github/workflows/ci.yml → test/browse-runs.test.ts → src/observability/browse-runs-command.ts
+src/extension.ts → src/runner/run-manager.ts
 
-Read those in order to follow one pull request end to end.
+Read those in order to follow one activation of runforge end to end. This path follows runforge (the extension people install from the VS Code Marketplace) from its entry, since CI runs only tests and checks, and builds test/extension-host/.
 
 ## What this map cannot see
 
-- 83 import sites could not be resolved.
-- 3 files in src use syntax the parser cannot read (src/observability/cancelled-marker-reader.ts, src/observability/orphan-markers.ts and src/observability/recover-index-command.ts), so what they import is not known: an import type followed by `[]` (3).
-- 7 writes and 31 reads use paths built at run time and are not named here.
-- 11 commands are built at run time and not followed, 6 of them in tests.
-- Statistics confidence is low: fewer than 20 source files reach 10 revisions in the window.
+- 1 write and 9 reads use paths built at run time and are not named here.
+- 21 writes and 31 reads go to a path their caller passes, not to this repository.
+- 4 commands are built at run time and not followed, 2 of them in tests.
+- Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
