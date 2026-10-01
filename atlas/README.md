@@ -1,15 +1,14 @@
-# runforge-vscode: how it works
+# runforge: how it works
 
-Mapped at 2026-10-01 from commit 533e239 by Atlas 1.24.0.
+Mapped at 2026-10-01 from commit e36841e by Atlas 1.24.0.
 
 ## What this is
 
 10 parts, mostly TypeScript (71 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.
 
-## What changed since 2026-09-30 (6c5ebe8)
+## What changed since 2026-10-01 (533e239)
 
-- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `python/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `test/**`, `tsconfig.json` and `vitest.config.ts`.
-- 2 files changed content, across 2 parts.
+Nothing structural changed since 2026-10-01; 6 files changed content.
 
 ## What comes in
 

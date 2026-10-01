@@ -9,9 +9,12 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.d.ts'],
-      // Baseline floor (Stage A swarm 2026-04-24): rounded down from measured
-      // lines/stmts ~48%, functions ~54%, branches ~80%. Prevents silent regression.
-      thresholds: { lines: 45, functions: 50, branches: 75, statements: 45 }
+      // Baseline floor, rounded down from measured. Re-baselined 2026-10-01 with the
+      // move from vitest 1 to 5: the same tests measured lines/stmts 73 -> 61%,
+      // functions 74 -> 59%, branches 77 -> 56%, because vitest 4+ counts every
+      // included file and remaps V8 branch coverage more strictly. No test or
+      // source changed; the floors still exist to stop a silent regression.
+      thresholds: { lines: 60, functions: 58, branches: 55, statements: 60 }
     }
   }
 });

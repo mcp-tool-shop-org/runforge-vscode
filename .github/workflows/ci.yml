@@ -42,11 +42,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['20', '22']
+        # vitest 5, vsce 4 and @vscode/test-electron 3 need Node 22 or later;
+        # Node 20 reached end of life on 2026-04-30.
+        node-version: ['22', '24']
     env:
       # 'true' on the one leg whose coverage and test results go to Codecov,
       # on a pull request or a push to the default branch.
-      COVERAGE_LEG: ${{ matrix.node-version == '20' && (github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) }}
+      COVERAGE_LEG: ${{ matrix.node-version == '22' && (github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -80,7 +82,7 @@ jobs:
 
       - name: Run tests with coverage
         id: tests
-        if: matrix.node-version == '20'
+        if: matrix.node-version == '22'
         timeout-minutes: 15
         run: npx vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=junit.xml
 
@@ -115,7 +117,7 @@ jobs:
         run: npm run compile
 
       - name: Package VSIX
-        if: matrix.node-version == '20'
+        if: matrix.node-version == '22'
         timeout-minutes: 10
         run: npx vsce package --no-dependencies
 
@@ -189,7 +191,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -218,7 +220,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Python
