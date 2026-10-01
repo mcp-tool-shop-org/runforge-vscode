@@ -41,30 +41,23 @@
   "changes": {
     "fileCounts": {
       "added": 0,
-      "changed": 2,
+      "changed": 6,
       "moved": 0,
-      "parts": 2,
+      "parts": 3,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `python/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `test/**`, `tsconfig.json` and `vitest.config.ts`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
         "kind": "counts",
-        "sentence": "2 files changed content, across 2 parts.",
+        "sentence": "Nothing structural changed since 2026-10-01; 6 files changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "6c5ebe83b8d3dc98cbaffe4af9155593309bb8ca",
-      "generatedAt": "2026-09-30T20:12:36.156Z"
+      "commit": "533e239e0a974e3fe258462bec7634b49a29a81e",
+      "generatedAt": "2026-10-01T02:12:56.558Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [
     {
@@ -88,8 +81,8 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "533e239e0a974e3fe258462bec7634b49a29a81e",
-  "defaultBranch": "main",
+  "commit": "e36841e119f2cb9b689e56f3c8bab1408a6949d0",
+  "defaultBranch": "chore/toolchain-node22",
   "derived": "10 parts, mostly TypeScript (71 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.",
   "doors": [
     {
@@ -324,7 +317,7 @@
   ],
   "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-10-01T02:12:56.558Z",
+  "generatedAt": "2026-10-01T23:05:11.087Z",
   "limits": [
     "1 write and 9 reads use paths built at run time and are not named here.",
     "21 writes and 31 reads go to a path their caller passes, not to this repository.",
@@ -346,7 +339,7 @@
   },
   "parts": 10,
   "readers": [],
-  "repo": "mcp-tool-shop-org/runforge-vscode",
+  "repo": "runforge",
   "sequences": [],
   "startDoor": "package.json#runforge",
   "startHere": [

@@ -37,15 +37,15 @@
           "path": ".github/dependabot.yml"
         },
         {
-          "hash": "fba60589fc6adf07b3b63b34cb83f22820536bab26559175049e2da0e0d298a4",
+          "hash": "7011a0c03bb9fee21c739c4642d911c94eac52716f06f58a72a4b6fdaabd772d",
           "path": ".github/workflows/ci.yml"
         },
         {
-          "hash": "1bce0de84931e007c590fd4c490f7d654439c8fda07daee35753571305e48388",
+          "hash": "36725af7a62fe7d24c6757d5e806eaa344eab6cc41b21e3a999e8a256f214aad",
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "d3d3bbbdcf98f559ef957014e705262318cafb8167c662367a39ce1973e2cf5c",
+          "hash": "663a664deff3ba826129c0703b46886948c8851ff12db385d6ca1a030bc8039e",
           "path": ".github/workflows/publish.yml"
         }
       ],
@@ -1375,11 +1375,11 @@
           "path": "codecov.yml"
         },
         {
-          "hash": "ae9ac597deb27a5b836e42b3883966c78ac47dc238d7f500236fbceea2b821a8",
+          "hash": "70cb551219511e81ea3885f996a3a59c7ce32cc5a085c3629caebd2c2b6425de",
           "path": "package-lock.json"
         },
         {
-          "hash": "a9c27cf9a81c87e20bf31e203c5b9689f7aa5c77d2e24d3a0760793d00e5ddeb",
+          "hash": "d0ac14e797778b8e14097fb74081e7559f6631efbfdd15b044cb0c1734f70f53",
           "path": "package.json"
         },
         {
@@ -1415,7 +1415,7 @@
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "af5d4f54dca60686724d306eb58759fb25b6f5ba4d66559ab84a968112a184e5",
+          "hash": "0607a19c4f60b635244a906c7ad2424359b50e20c4a83bc140f202abce4a941e",
           "path": "site/package-lock.json"
         },
         {
@@ -3833,12 +3833,12 @@
             {
               "ranges": [
                 {
-                  "from": "20",
-                  "range": ">=20.0.0 <21.0.0-0"
-                },
-                {
                   "from": "22",
                   "range": ">=22.0.0 <23.0.0-0"
+                },
+                {
+                  "from": "24",
+                  "range": ">=24.0.0 <25.0.0-0"
                 }
               ],
               "step": "Setup Node.js ${{ matrix.node-version }}",
@@ -3893,13 +3893,13 @@
             {
               "ranges": [
                 {
-                  "from": "20",
-                  "range": ">=20.0.0 <21.0.0-0"
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
                 }
               ],
               "step": "Setup Node.js",
               "uses": "actions/setup-node",
-              "version": "20"
+              "version": "22"
             }
           ]
         },
@@ -3922,13 +3922,13 @@
             {
               "ranges": [
                 {
-                  "from": "20",
-                  "range": ">=20.0.0 <21.0.0-0"
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
                 }
               ],
               "step": "Setup Node.js",
               "uses": "actions/setup-node",
-              "version": "20"
+              "version": "22"
             },
             {
               "ranges": [
@@ -4599,13 +4599,13 @@
             {
               "ranges": [
                 {
-                  "from": "20",
-                  "range": ">=20.0.0 <21.0.0-0"
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
                 }
               ],
               "step": "Setup Node.js",
               "uses": "actions/setup-node",
-              "version": "20"
+              "version": "22"
             }
           ]
         },
@@ -4628,13 +4628,13 @@
             {
               "ranges": [
                 {
-                  "from": "20",
-                  "range": ">=20.0.0 <21.0.0-0"
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
                 }
               ],
               "step": "Setup Node.js",
               "uses": "actions/setup-node",
-              "version": "20"
+              "version": "22"
             }
           ]
         }
@@ -5036,7 +5036,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "533e239e0a974e3fe258462bec7634b49a29a81e",
+    "commit": "e36841e119f2cb9b689e56f3c8bab1408a6949d0",
     "tracked": 230
   },
   "landings": [
