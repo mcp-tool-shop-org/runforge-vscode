@@ -37,7 +37,7 @@
           "path": ".github/dependabot.yml"
         },
         {
-          "hash": "47a4c5b410529dc9c8eca869cf625dcebf2dad5e96b2d8900b0ac3040403d007",
+          "hash": "fba60589fc6adf07b3b63b34cb83f22820536bab26559175049e2da0e0d298a4",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -1375,7 +1375,7 @@
           "path": "codecov.yml"
         },
         {
-          "hash": "f2faf71487ce3e916abcb26e155d6c866111543610c194e65d2fcf0964114ee7",
+          "hash": "ae9ac597deb27a5b836e42b3883966c78ac47dc238d7f500236fbceea2b821a8",
           "path": "package-lock.json"
         },
         {
@@ -4280,22 +4280,7 @@
           "branches": [
             "main"
           ],
-          "event": "pull_request",
-          "paths": [
-            ".github/workflows/**",
-            "atlas/**",
-            "codecov.yml",
-            "package-lock.json",
-            "package.json",
-            "python/**",
-            "site/astro.config.mjs",
-            "site/package-lock.json",
-            "site/package.json",
-            "src/**",
-            "test/**",
-            "tsconfig.json",
-            "vitest.config.ts"
-          ]
+          "event": "pull_request"
         },
         {
           "branches": [
@@ -5051,7 +5036,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "6c5ebe83b8d3dc98cbaffe4af9155593309bb8ca",
+    "commit": "533e239e0a974e3fe258462bec7634b49a29a81e",
     "tracked": 230
   },
   "landings": [
