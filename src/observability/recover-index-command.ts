@@ -44,6 +44,7 @@ import {
   type RunMetadata,
 } from '../types.js';
 import { exists, readJsonFile, safeReadIndex } from './fs-safe.js';
+import { renderRecoveryReport } from './render/recovery-report-summary.js';
 
 /**
  * Schema version for newly-created `index.json` files. Matches the writer
@@ -424,41 +425,20 @@ export async function recoverIndex(): Promise<RecoveryReport | null> {
     `${report.cancelled_excluded.length} cancelled-excluded).`;
   vscode.window.showInformationMessage(summary);
 
-  // Best-effort: if Bridge's render is on the codebase, open a markdown doc
-  // with the structured report. Failure here must not break recovery.
-  //
-  // The module path is computed dynamically (string variable) so the TS
-  // type checker doesn't try to resolve it statically — Bridge's
-  // FT-BRIDGE-009 work is in parallel and the file may not exist yet.
-  // Using `Function('return import(...)')` ensures the import is resolved
-  // at runtime, not at compile time.
+  // Best-effort: open a markdown doc with the structured report. Failure here
+  // must not break recovery. The renderer is imported statically so it is part
+  // of the esbuild bundle; a runtime import by relative path resolved to nothing
+  // and the report silently never opened.
   try {
-    const renderModulePath = './render/recovery-report-summary.js';
-    const dynamicImport = new Function(
-      'p',
-      'return import(p);'
-    ) as (p: string) => Promise<unknown>;
-    const renderModule: unknown = await dynamicImport(renderModulePath).catch(
-      () => null
-    );
-    const renderFn =
-      renderModule &&
-      typeof renderModule === 'object' &&
-      'renderRecoveryReport' in renderModule
-        ? (renderModule as { renderRecoveryReport: (r: RecoveryReport) => string })
-            .renderRecoveryReport
-        : null;
-    if (renderFn) {
-      const markdown = renderFn(report);
-      const doc = await vscode.workspace.openTextDocument({
-        content: markdown,
-        language: 'markdown',
-      });
-      await vscode.window.showTextDocument(doc, { preview: true });
-    }
+    const markdown = renderRecoveryReport(report);
+    const doc = await vscode.workspace.openTextDocument({
+      content: markdown,
+      language: 'markdown',
+    });
+    await vscode.window.showTextDocument(doc, { preview: true });
   } catch {
-    // Bridge render not yet shipped or threw — info message above is the
-    // sufficient user surface.
+    // Render or editor failed — the info message above is the sufficient
+    // user surface.
   }
 
   return report;
