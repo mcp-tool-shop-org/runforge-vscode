@@ -25,6 +25,18 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      # The test suite runs the Python trainer for real (ml_runner boundary and
+      # regression tests), so the release build needs what ci.yml installs too.
+      # Without it four tests fail and no release is made.
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install Python deps for ml_runner boundary tests
+        timeout-minutes: 10
+        run: pip install scikit-learn pandas numpy joblib jsonschema
+
       - name: Install dependencies
         run: npm ci
         timeout-minutes: 10
