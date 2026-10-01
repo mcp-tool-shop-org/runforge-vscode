@@ -165,8 +165,13 @@ export function formatArtifactInspectResult(result: ArtifactInspectResult): stri
  * Open inspection result as JSON in a new editor tab
  */
 export async function openInspectionInEditor(result: ArtifactInspectResult): Promise<void> {
-  // Format with stable JSON (sorted keys, indented)
-  const json = JSON.stringify(result, Object.keys(result).sort(), 2);
+  // Format with stable JSON (top-level keys sorted, indented). Sort by rebuilding the
+  // object: an array replacer would act as an allow-list at every depth and
+  // blank out the nested pipeline_steps entries.
+  const sorted = Object.fromEntries(
+    Object.entries(result).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  );
+  const json = JSON.stringify(sorted, null, 2);
 
   // Create untitled document
   const doc = await vscode.workspace.openTextDocument({

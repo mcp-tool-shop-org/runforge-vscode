@@ -26,7 +26,10 @@ interface InterpIndexArtifact {
  * Narrow shape of interpretability.index.v1.json — only the fields we read.
  */
 interface InterpIndex {
+  /** Legacy array form. */
   artifacts?: InterpIndexArtifact[];
+  /** Canonical form written by python/ml_runner/interpretability_index.py. */
+  available_artifacts?: Record<string, { schema_version?: string } | undefined>;
 }
 
 /**
@@ -148,7 +151,15 @@ function buildMarkdown(
   if (interpIndex) {
     lines.push('## Interpretability');
     lines.push('');
-    const artifacts = interpIndex.artifacts;
+    const artifacts: InterpIndexArtifact[] | undefined =
+      interpIndex.artifacts ??
+      (interpIndex.available_artifacts
+        ? Object.entries(interpIndex.available_artifacts).map(([name, entry]) => ({
+            name,
+            type: entry?.schema_version,
+            present: true,
+          }))
+        : undefined);
     if (artifacts && artifacts.length > 0) {
       lines.push(`| Artifact | Type | Status |`);
       lines.push(`|----------|------|--------|`);
