@@ -34,6 +34,7 @@ interface FakeProc extends EventEmitter {
   stderr: EventEmitter;
   killed: boolean;
   exitCode: number | null;
+  signalCode: string | null;
   kill: ReturnType<typeof vi.fn>;
 }
 
@@ -94,6 +95,9 @@ vi.mock('../src/presets/registry.js', () => ({
   getPreset: (id: string) => ({ id, name: id, defaults: { device: h.presetDevice.current } }),
 }));
 
+// Captured before any test installs fake timers, so polling keeps working under them.
+const realSetTimeout = globalThis.setTimeout;
+
 const GiB = 1024 ** 3;
 const RUN_ID_RE = /^\d{8}-\d{6}-[a-z0-9-]+-[a-f0-9]{4}$/;
 
@@ -114,6 +118,7 @@ function newProc(): FakeProc {
   p.stderr = new EventEmitter();
   p.killed = false;
   p.exitCode = null;
+  p.signalCode = null;
   // Node semantics: `killed` flips true as soon as a signal was delivered.
   p.kill = vi.fn(() => { p.killed = true; return true; });
   return p;
@@ -156,7 +161,7 @@ async function loadRM(): Promise<RM> {
 async function until(cond: () => boolean, label = 'condition'): Promise<void> {
   for (let i = 0; i < 3000; i++) {
     if (cond()) return;
-    await new Promise((r) => setTimeout(r, 2));
+    await new Promise((r) => realSetTimeout(r, 2));
   }
   throw new Error(`timed out waiting for ${label}`);
 }
@@ -166,7 +171,7 @@ async function untilFileHas(file: string, needle: string): Promise<void> {
     try {
       if ((await fs.readFile(file, 'utf-8')).includes(needle)) return;
     } catch { /* not there yet */ }
-    await new Promise((r) => setTimeout(r, 2));
+    await new Promise((r) => realSetTimeout(r, 2));
   }
   throw new Error('timed out waiting for ' + file);
 }
@@ -218,6 +223,7 @@ async function startRun(
 }
 
 async function finish(rm: RM, s: Started, code: number | null): Promise<void> {
+  s.proc.exitCode = code;
   s.proc.emit('close', code);
   await until(() => !rm.isRunning(), 'run to finish');
 }
@@ -1144,5 +1150,112 @@ describe('output channel and status bar lifecycle', () => {
     await finish(rm, b, 0);
 
     expect(h.statusItems).toHaveLength(1);
+  });
+});
+
+// ── SIGKILL escalation (CONTRACT-PHASE-4.md §3.1.1) ──────────────────────────
+//
+// The fake process follows Node: `proc.killed` becomes true as soon as a signal
+// was delivered, and says nothing about whether the process has exited. A
+// process that ignores SIGTERM therefore still has exitCode === null.
+
+describe('SIGKILL escalation for a process that ignores SIGTERM', () => {
+  const sigkillCalls = (p: FakeProc) => p.kill.mock.calls.filter((c) => c[0] === 'SIGKILL');
+
+  it('cancel: SIGKILL follows 5 s after SIGTERM if the process is still running', async () => {
+    const rm = await loadRM();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const t = fakeToken();
+    const s = await startRun(rm, { token: t.token });
+
+    t.fire();
+    expect(s.proc.kill).toHaveBeenCalledWith('SIGTERM');
+
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(sigkillCalls(s.proc)).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(sigkillCalls(s.proc)).toHaveLength(1);
+    expect(text()).toContain('[cancel] grace window elapsed — sending SIGKILL');
+
+    vi.useRealTimers();
+    await finish(rm, s, 137);
+  });
+
+  it('cancel: a process that exited inside the window is never SIGKILLed', async () => {
+    const rm = await loadRM();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const t = fakeToken();
+    const s = await startRun(rm, { token: t.token });
+
+    t.fire();
+    await vi.advanceTimersByTimeAsync(2000);
+    await finish(rm, s, 143);
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(sigkillCalls(s.proc)).toHaveLength(0);
+    expect(text()).not.toContain('grace window elapsed');
+  });
+
+  it('killActiveRun: SIGKILL follows 2 s after SIGTERM if the process is still running', async () => {
+    const rm = await loadRM();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const s = await startRun(rm);
+
+    rm.killActiveRun('deactivate');
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(sigkillCalls(s.proc)).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(sigkillCalls(s.proc)).toHaveLength(1);
+
+    vi.useRealTimers();
+    await finish(rm, s, 137);
+  });
+
+  it('killActiveRun: no SIGKILL for a process that already exited', async () => {
+    const rm = await loadRM();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const s = await startRun(rm);
+
+    rm.killActiveRun('deactivate');
+    await finish(rm, s, 143);
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(sigkillCalls(s.proc)).toHaveLength(0);
+  });
+
+  it('OOM: SIGKILL follows 2 s after the graceful kill if the process is still running', async () => {
+    const rm = await loadRM();
+    torchCuda(16);
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const s = await startRun(rm);
+
+    s.proc.stderr.emit('data', Buffer.from('CUDA out of memory\n'));
+    expect(s.proc.kill).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(sigkillCalls(s.proc)).toHaveLength(1);
+
+    vi.useRealTimers();
+    await finish(rm, s, 137);
+  });
+});
+
+// ── logs.txt ordering ────────────────────────────────────────────────────────
+
+describe('logs.txt', () => {
+  it('keeps lines in the order the runner printed them', async () => {
+    const rm = await loadRM();
+    const s = await startRun(rm);
+    const expected = Array.from({ length: 200 }, (_, i) => `line-${i}`);
+
+    s.proc.stdout.emit('data', Buffer.from(expected.join('\n') + '\n'));
+    await finish(rm, s, 1);
+    await untilFileHas(path.join(s.runDir, 'logs.txt'), 'line-199');
+    await new Promise((r) => realSetTimeout(r, 50)); // let every queued append land
+
+    const logged = (await fs.readFile(path.join(s.runDir, 'logs.txt'), 'utf-8')).split('\n').filter(Boolean);
+    expect(logged).toEqual(expected);
   });
 });

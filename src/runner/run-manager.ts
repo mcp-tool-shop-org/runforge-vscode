@@ -282,6 +282,15 @@ export async function detectCancelTerminalState(
   return 'crashed';
 }
 
+/**
+ * True until the child has actually exited. Node's `ChildProcess.killed` is
+ * NOT this: it flips to true as soon as a signal was delivered, so a process
+ * that ignores SIGTERM reads as "killed" and would never get its SIGKILL.
+ */
+function isProcessRunning(proc: ChildProcess): boolean {
+  return proc.exitCode === null && proc.signalCode === null;
+}
+
 /** Internal helper — fs.access wrapped to a boolean. */
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -571,6 +580,14 @@ export async function executeRun(
   let progressLastUpdateMs = 0;
   const PROGRESS_THROTTLE_MS = 200;
 
+  // Serialise appends to logs.txt: concurrent fs.appendFile calls complete in
+  // no guaranteed order, which reordered lines on disk. A failed append must
+  // not break the chain or the run.
+  let logChain: Promise<void> = Promise.resolve();
+  const enqueueLog = (line: string): void => {
+    logChain = logChain.then(() => appendLog(runDir, line)).catch(() => {});
+  };
+
   // Set active run (process will be set after spawn)
   activeRun = {
     token: runToken,
@@ -604,7 +621,7 @@ export async function executeRun(
       if (!activeRun || activeRun.token !== runToken) return;
 
       channel.appendLine(line);
-      appendLog(runDir, line).catch(() => {}); // Fire and forget
+      enqueueLog(line);
     },
     /**
      * Stderr line from runner.
@@ -673,7 +690,7 @@ export async function executeRun(
       } else {
         channel.appendLine(`[stderr] ${line}`);
       }
-      appendLog(runDir, `[stderr] ${line}`).catch(() => {});
+      enqueueLog(`[stderr] ${line}`);
 
       // Check for OOM-like patterns (only when using GPU)
       if (actualDevice === 'cuda' && isOomError(line)) {
@@ -862,7 +879,7 @@ function cancelActiveRun(
   }
   activeRun.sigkillTimer = setTimeout(() => {
     try {
-      if (!proc.killed) {
+      if (isProcessRunning(proc)) {
         channel.appendLine('[cancel] grace window elapsed — sending SIGKILL');
         proc.kill('SIGKILL');
       }
@@ -906,7 +923,7 @@ export function killActiveRun(reason: string): void {
 
     setTimeout(() => {
       try {
-        if (!proc.killed) {
+        if (isProcessRunning(proc)) {
           proc.kill('SIGKILL');
         }
       } catch {
@@ -937,8 +954,8 @@ function killRunOnOom(runToken: symbol, channel: vscode.OutputChannel): void {
     // Force kill fallback after timeout (belt-and-suspenders for stuck processes)
     setTimeout(() => {
       try {
-        // Check if process is still alive (killed will be false if it exited)
-        if (!proc.killed) {
+        // Check if process is still alive (exitCode / signalCode stay unset until it exits)
+        if (isProcessRunning(proc)) {
           proc.kill('SIGKILL'); // Force kill
         }
       } catch {
