@@ -1,5 +1,5 @@
 /**
- * Two observability commands that disagree with the artifacts they read.
+ * Three observability commands that do not do what they were written to do.
  *
  * 1. "Inspect Model Artifact" opens the inspection result as JSON, but the
  *    pipeline steps (the thing being inspected) come out as empty objects.
@@ -9,7 +9,13 @@
  *    emits an `available_artifacts` object, so a real run gets an empty
  *    "Interpretability" section.
  *
- * Both tests use the shape the Python writer actually produces.
+ * 3. "Recover Index" is meant to open its structured report as markdown, but it
+ *    loads the renderer through `new Function('return import(p)')` with a
+ *    relative path. That resolves to nothing, the failure is swallowed, and the
+ *    report never opens (the esbuild bundle does not contain the renderer
+ *    either: dist/extension.js has no 'Recovery Report' text).
+ *
+ * The interpretability test uses the shape the Python writer actually produces.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -42,6 +48,7 @@ vi.mock('vscode', () => ({
 
 import { openInspectionInEditor, type ArtifactInspectResult } from '../src/observability/artifact-inspect-command.js';
 import { exportLatestRunAsMarkdown } from '../src/observability/export-markdown-command.js';
+import { recoverIndex } from '../src/observability/recover-index-command.js';
 
 beforeEach(() => {
   h.openTextDocument.mockClear();
@@ -157,5 +164,48 @@ describe('Export Run as Markdown: interpretability section from a real index', (
     expect(md).toContain('## Interpretability');
     expect(md).toContain('| metrics_v1 | metrics.v1 | Available |');
     expect(md).toContain('| feature_importance_v1 | feature_importance.v1 | Available |');
+  });
+});
+
+describe('Recover Index: the structured report is opened as markdown', () => {
+  let root: string;
+
+  beforeEach(async () => {
+    root = await fs.mkdtemp(path.join(os.tmpdir(), 'runforge-drift-recover-'));
+    h.workspace.workspaceFolders = [{ uri: { fsPath: root } }];
+  });
+
+  afterEach(async () => {
+    await fs.rm(root, { recursive: true, force: true });
+  });
+
+  it('opens a "Recovery Report" document listing the recovered run', async () => {
+    const dir = path.join(root, '.ml', 'runs', 'run-1');
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'run.json'),
+      JSON.stringify({
+        run_id: 'run-1',
+        runforge_version: '1.0.1',
+        schema_version: 'run.v0.3.6',
+        created_at: '2026-10-01T08:00:00Z',
+        dataset: { path: 'data/sample.csv', fingerprint_sha256: 'a'.repeat(64) },
+        label_column: 'species',
+        num_samples: 10,
+        num_features: 2,
+        dropped_rows_missing_values: 0,
+        artifacts: { model_pkl: 'artifacts/model.pkl' },
+      })
+    );
+
+    const report = await recoverIndex();
+
+    expect(report?.recovered.map((r) => r.run_id)).toEqual(['run-1']);
+    expect(h.openTextDocument).toHaveBeenCalledTimes(1);
+    const opened = (h.openTextDocument.mock.calls[0] as unknown[])[0] as { content: string; language: string };
+    expect(opened.language).toBe('markdown');
+    expect(opened.content).toContain('# Recovery Report');
+    expect(opened.content).toContain('run-1');
+    expect(h.showTextDocument).toHaveBeenCalledWith(expect.anything(), { preview: true });
   });
 });
