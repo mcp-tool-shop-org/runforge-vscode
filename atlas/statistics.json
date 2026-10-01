@@ -115,7 +115,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "root",
-      "qualifyingSourceCommits": 2,
+      "qualifyingSourceCommits": 3,
       "rebaseline": null
     },
     {
@@ -149,7 +149,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "src",
-      "qualifyingSourceCommits": 25,
+      "qualifyingSourceCommits": 28,
       "rebaseline": null
     },
     {
@@ -162,10 +162,10 @@
       },
       "cohesion": null,
       "cohesionDropped": false,
-      "confidence": "low",
+      "confidence": "full",
       "highWater": null,
       "name": "test",
-      "qualifyingSourceCommits": 24,
+      "qualifyingSourceCommits": 30,
       "rebaseline": null
     }
   ],
@@ -208,8 +208,8 @@
         "path": ".github/PULL_REQUEST_TEMPLATE.md"
       },
       {
-        "commits": 23,
-        "lines": 424,
+        "commits": 24,
+        "lines": 438,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -218,8 +218,8 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 6,
-        "lines": 29,
+        "commits": 7,
+        "lines": 33,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -363,8 +363,8 @@
         "path": "assets/walkthrough/03-inspect-results.svg"
       },
       {
-        "commits": 6,
-        "lines": 304,
+        "commits": 8,
+        "lines": 322,
         "path": "atlas/README.md"
       },
       {
@@ -373,18 +373,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 6,
-        "lines": 1080,
+        "commits": 8,
+        "lines": 1134,
         "path": "atlas/page.json"
       },
       {
-        "commits": 6,
-        "lines": 2206,
+        "commits": 8,
+        "lines": 2306,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 6,
-        "lines": 15056,
+        "commits": 8,
+        "lines": 15148,
         "path": "atlas/structure.json"
       },
       {
@@ -443,13 +443,13 @@
         "path": "eslint-rules/no-shadow-canonical-types.js"
       },
       {
-        "commits": 5,
-        "lines": 9354,
+        "commits": 6,
+        "lines": 15314,
         "path": "package-lock.json"
       },
       {
-        "commits": 12,
-        "lines": 241,
+        "commits": 13,
+        "lines": 277,
         "path": "package.json"
       },
       {
@@ -633,8 +633,8 @@
         "path": "src/notifications.ts"
       },
       {
-        "commits": 2,
-        "lines": 50,
+        "commits": 4,
+        "lines": 68,
         "path": "src/observability/artifact-inspect-command.ts"
       },
       {
@@ -653,8 +653,8 @@
         "path": "src/observability/event-stream-consumer.ts"
       },
       {
-        "commits": 5,
-        "lines": 189,
+        "commits": 7,
+        "lines": 215,
         "path": "src/observability/export-markdown-command.ts"
       },
       {
@@ -698,8 +698,8 @@
         "path": "src/observability/orphan-markers.ts"
       },
       {
-        "commits": 1,
-        "lines": 465,
+        "commits": 3,
+        "lines": 557,
         "path": "src/observability/recover-index-command.ts"
       },
       {
@@ -738,8 +738,8 @@
         "path": "src/runner/python-runner.ts"
       },
       {
-        "commits": 7,
-        "lines": 765,
+        "commits": 9,
+        "lines": 823,
         "path": "src/runner/run-manager.ts"
       },
       {
@@ -786,6 +786,101 @@
         "commits": 1,
         "lines": 224,
         "path": "test/cancelled-marker-reader.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 322,
+        "path": "test/coverage-extension-activate.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 1262,
+        "path": "test/coverage-extension-commands.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 160,
+        "path": "test/coverage-extension-open-summary.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 170,
+        "path": "test/coverage-extension-registry.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 552,
+        "path": "test/coverage-extension-status-notify.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 1132,
+        "path": "test/coverage-observability-artifact-views.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 1064,
+        "path": "test/coverage-observability-browse-runs.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 426,
+        "path": "test/coverage-observability-contract-drift.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 582,
+        "path": "test/coverage-observability-event-stream.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 1064,
+        "path": "test/coverage-observability-export-metadata.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 558,
+        "path": "test/coverage-observability-fs-safe.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 646,
+        "path": "test/coverage-observability-inspect-commands.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 740,
+        "path": "test/coverage-observability-markers-render.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 758,
+        "path": "test/coverage-observability-recover-index.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 798,
+        "path": "test/coverage-runner-gpu-probe.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 830,
+        "path": "test/coverage-runner-python-runner.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 474,
+        "path": "test/coverage-runner-run-folder.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 2526,
+        "path": "test/coverage-runner-run-manager.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 342,
+        "path": "test/coverage-views-runs-picker.test.ts"
       },
       {
         "commits": 1,
@@ -953,8 +1048,8 @@
         "path": "test/workspace-trust-guard.test.ts"
       },
       {
-        "commits": 1,
-        "lines": 5,
+        "commits": 3,
+        "lines": 23,
         "path": "vitest.config.ts"
       }
     ]
@@ -963,17 +1058,17 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-01T23:05:11.087Z",
+  "generatedAt": "2026-10-01T23:25:50.215Z",
   "generatedFrom": {
-    "commit": "e36841e119f2cb9b689e56f3c8bab1408a6949d0"
+    "commit": "c753335f2ad9b4d662ce4bb0aeade3779a20a563"
   },
   "pairs": [
     {
       "a": "src/observability/export-markdown-command.ts",
       "b": "src/observability/interpretability-index-command.ts",
-      "either": 5,
+      "either": 6,
       "shared": 5,
-      "strength": 1
+      "strength": 0.833333
     }
   ],
   "parameters": {
@@ -986,16 +1081,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-10-01T19:05:06-04:00",
-    "inScopeFiles": 235,
+    "headDate": "2026-10-01T19:25:25-04:00",
+    "inScopeFiles": 254,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 83,
+    "qualifyingCommits": 93,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-04T23:05:06.000Z",
+    "since": "2026-04-04T23:25:25.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
