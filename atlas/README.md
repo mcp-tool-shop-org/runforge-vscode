@@ -1,17 +1,14 @@
-# runforge-vscode: how it works
+# runforge: how it works
 
-Mapped at 2026-10-01 from commit c753335 by Atlas 1.24.0.
+Mapped at 2026-10-01 from commit b4242c5 by Atlas 1.24.0.
 
 ## What this is
 
 10 parts, mostly TypeScript (90 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.
 
-## What changed since 2026-10-01 (e36841e)
+## What changed since 2026-10-01 (c753335)
 
-- CI now also runs test/coverage-extension-activate.test.ts, test/coverage-extension-commands.test.ts, test/coverage-extension-open-summary.test.ts and 16 more.
-- Build and Release now also runs test/coverage-extension-activate.test.ts, test/coverage-extension-commands.test.ts, test/coverage-extension-open-summary.test.ts and 16 more.
-- package.json is now also read by test/coverage-extension-activate.test.ts.
-- 19 files added and 5 changed content, across 3 parts.
+Nothing structural changed since 2026-10-01; 5 files changed content.
 
 ## What comes in
 

@@ -45,7 +45,7 @@
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "663a664deff3ba826129c0703b46886948c8851ff12db385d6ca1a030bc8039e",
+          "hash": "b6951804e6e1810814be3c5a8951400c227545c059cef4f2c477fd3fcc304cde",
           "path": ".github/workflows/publish.yml"
         }
       ],
@@ -1303,7 +1303,7 @@
           "path": ".vscodeignore"
         },
         {
-          "hash": "959dbf457b2bfd591b7a9de1902cb4c006f788d7ebac0ca2e60675baa57b499a",
+          "hash": "bd95a6f6af983ab36054d7175f36e298ae9fa390c2d27e1466deb98e4a63dd36",
           "path": "CHANGELOG.md"
         },
         {
@@ -1375,11 +1375,11 @@
           "path": "codecov.yml"
         },
         {
-          "hash": "70cb551219511e81ea3885f996a3a59c7ce32cc5a085c3629caebd2c2b6425de",
+          "hash": "af28060eac24cac766fd9d978c8fa4522964b69fe61d24300132bfbcca40ecb6",
           "path": "package-lock.json"
         },
         {
-          "hash": "d0ac14e797778b8e14097fb74081e7559f6631efbfdd15b044cb0c1734f70f53",
+          "hash": "4a93ac19813aa900e34f64968000e2f1a05b7fab081e59d6cb43830e3d8dd071",
           "path": "package.json"
         },
         {
@@ -1387,7 +1387,7 @@
           "path": "tsconfig.json"
         },
         {
-          "hash": "7aad15688d8695c4fadd1b2fa3d8360c1d4ea7bfd3044e9e967c61592dff9e8c",
+          "hash": "828466da64d73228c7fb3fe091cc81ba43b27ed9e2075edd2f83ed0895e38fec",
           "path": "vitest.config.ts"
         }
       ],
@@ -4798,6 +4798,14 @@
           "dir": "",
           "job": "build",
           "programs": [
+            "pip"
+          ],
+          "step": "Install Python deps for ml_runner boundary tests"
+        },
+        {
+          "dir": "",
+          "job": "build",
+          "programs": [
             "npm"
           ],
           "step": "Install dependencies"
@@ -4938,6 +4946,17 @@
               "step": "Setup Node.js",
               "uses": "actions/setup-node",
               "version": "22"
+            },
+            {
+              "ranges": [
+                {
+                  "from": "3.12",
+                  "range": ">=3.12.0 <3.13.0-0"
+                }
+              ],
+              "step": "Setup Python",
+              "uses": "actions/setup-python",
+              "version": "3.12"
             }
           ]
         },
@@ -5425,6 +5444,7 @@
       "uses": [
         "actions/checkout",
         "actions/setup-node",
+        "actions/setup-python",
         "softprops/action-gh-release"
       ],
       "usesWorkflowToken": true
@@ -5501,7 +5521,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "c753335f2ad9b4d662ce4bb0aeade3779a20a563",
+    "commit": "b4242c55dacfdb41c35027356334f955983091c9",
     "tracked": 249
   },
   "landings": [

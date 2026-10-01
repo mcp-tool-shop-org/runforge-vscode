@@ -40,84 +40,24 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 19,
+      "added": 0,
       "changed": 5,
       "moved": 0,
-      "parts": 3,
+      "parts": 2,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "CI now also runs test/coverage-extension-activate.test.ts, test/coverage-extension-commands.test.ts, test/coverage-extension-open-summary.test.ts and 16 more.",
-        "subjects": [
-          ".github/workflows/ci.yml",
-          "test/coverage-extension-activate.test.ts",
-          "test/coverage-extension-commands.test.ts",
-          "test/coverage-extension-open-summary.test.ts",
-          "test/coverage-extension-registry.test.ts",
-          "test/coverage-extension-status-notify.test.ts",
-          "test/coverage-observability-artifact-views.test.ts",
-          "test/coverage-observability-browse-runs.test.ts",
-          "test/coverage-observability-contract-drift.test.ts",
-          "test/coverage-observability-event-stream.test.ts",
-          "test/coverage-observability-export-metadata.test.ts",
-          "test/coverage-observability-fs-safe.test.ts",
-          "test/coverage-observability-inspect-commands.test.ts",
-          "test/coverage-observability-markers-render.test.ts",
-          "test/coverage-observability-recover-index.test.ts",
-          "test/coverage-runner-gpu-probe.test.ts",
-          "test/coverage-runner-python-runner.test.ts",
-          "test/coverage-runner-run-folder.test.ts",
-          "test/coverage-runner-run-manager.test.ts",
-          "test/coverage-views-runs-picker.test.ts"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "Build and Release now also runs test/coverage-extension-activate.test.ts, test/coverage-extension-commands.test.ts, test/coverage-extension-open-summary.test.ts and 16 more.",
-        "subjects": [
-          ".github/workflows/publish.yml",
-          "test/coverage-extension-activate.test.ts",
-          "test/coverage-extension-commands.test.ts",
-          "test/coverage-extension-open-summary.test.ts",
-          "test/coverage-extension-registry.test.ts",
-          "test/coverage-extension-status-notify.test.ts",
-          "test/coverage-observability-artifact-views.test.ts",
-          "test/coverage-observability-browse-runs.test.ts",
-          "test/coverage-observability-contract-drift.test.ts",
-          "test/coverage-observability-event-stream.test.ts",
-          "test/coverage-observability-export-metadata.test.ts",
-          "test/coverage-observability-fs-safe.test.ts",
-          "test/coverage-observability-inspect-commands.test.ts",
-          "test/coverage-observability-markers-render.test.ts",
-          "test/coverage-observability-recover-index.test.ts",
-          "test/coverage-runner-gpu-probe.test.ts",
-          "test/coverage-runner-python-runner.test.ts",
-          "test/coverage-runner-run-folder.test.ts",
-          "test/coverage-runner-run-manager.test.ts",
-          "test/coverage-views-runs-picker.test.ts"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "package.json is now also read by test/coverage-extension-activate.test.ts.",
-        "subjects": [
-          "package.json",
-          "test/coverage-extension-activate.test.ts"
-        ]
-      },
-      {
         "kind": "counts",
-        "sentence": "19 files added and 5 changed content, across 3 parts.",
+        "sentence": "Nothing structural changed since 2026-10-01; 5 files changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "e36841e119f2cb9b689e56f3c8bab1408a6949d0",
-      "generatedAt": "2026-10-01T23:05:11.087Z"
+      "commit": "c753335f2ad9b4d662ce4bb0aeade3779a20a563",
+      "generatedAt": "2026-10-01T23:25:50.215Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [
     {
@@ -141,8 +81,8 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "c753335f2ad9b4d662ce4bb0aeade3779a20a563",
-  "defaultBranch": "main",
+  "commit": "b4242c55dacfdb41c35027356334f955983091c9",
+  "defaultBranch": "ci/publish-python-deps",
   "derived": "10 parts, mostly TypeScript (90 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.",
   "doors": [
     {
@@ -415,7 +355,7 @@
   ],
   "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-10-01T23:25:50.215Z",
+  "generatedAt": "2026-10-01T23:48:06.337Z",
   "limits": [
     "1 write and 9 reads use paths built at run time and are not named here.",
     "21 writes and 31 reads go to a path their caller passes, not to this repository.",
@@ -437,7 +377,7 @@
   },
   "parts": 10,
   "readers": [],
-  "repo": "mcp-tool-shop-org/runforge-vscode",
+  "repo": "runforge",
   "sequences": [],
   "startDoor": "package.json#runforge",
   "startHere": [

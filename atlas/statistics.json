@@ -115,7 +115,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "root",
-      "qualifyingSourceCommits": 3,
+      "qualifyingSourceCommits": 4,
       "rebaseline": null
     },
     {
@@ -218,8 +218,8 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 7,
-        "lines": 33,
+        "commits": 8,
+        "lines": 45,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -238,8 +238,8 @@
         "path": ".vscodeignore"
       },
       {
-        "commits": 10,
-        "lines": 344,
+        "commits": 12,
+        "lines": 392,
         "path": "CHANGELOG.md"
       },
       {
@@ -363,8 +363,8 @@
         "path": "assets/walkthrough/03-inspect-results.svg"
       },
       {
-        "commits": 8,
-        "lines": 322,
+        "commits": 10,
+        "lines": 368,
         "path": "atlas/README.md"
       },
       {
@@ -373,18 +373,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 8,
-        "lines": 1134,
+        "commits": 10,
+        "lines": 1414,
         "path": "atlas/page.json"
       },
       {
-        "commits": 8,
-        "lines": 2306,
+        "commits": 10,
+        "lines": 2648,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 8,
-        "lines": 15148,
+        "commits": 10,
+        "lines": 16314,
         "path": "atlas/structure.json"
       },
       {
@@ -443,13 +443,13 @@
         "path": "eslint-rules/no-shadow-canonical-types.js"
       },
       {
-        "commits": 6,
-        "lines": 15314,
+        "commits": 8,
+        "lines": 15322,
         "path": "package-lock.json"
       },
       {
-        "commits": 13,
-        "lines": 277,
+        "commits": 15,
+        "lines": 281,
         "path": "package.json"
       },
       {
@@ -633,8 +633,8 @@
         "path": "src/notifications.ts"
       },
       {
-        "commits": 4,
-        "lines": 68,
+        "commits": 5,
+        "lines": 77,
         "path": "src/observability/artifact-inspect-command.ts"
       },
       {
@@ -653,8 +653,8 @@
         "path": "src/observability/event-stream-consumer.ts"
       },
       {
-        "commits": 7,
-        "lines": 215,
+        "commits": 8,
+        "lines": 228,
         "path": "src/observability/export-markdown-command.ts"
       },
       {
@@ -698,8 +698,8 @@
         "path": "src/observability/orphan-markers.ts"
       },
       {
-        "commits": 3,
-        "lines": 557,
+        "commits": 4,
+        "lines": 603,
         "path": "src/observability/recover-index-command.ts"
       },
       {
@@ -738,8 +738,8 @@
         "path": "src/runner/python-runner.ts"
       },
       {
-        "commits": 9,
-        "lines": 823,
+        "commits": 10,
+        "lines": 852,
         "path": "src/runner/run-manager.ts"
       },
       {
@@ -788,98 +788,98 @@
         "path": "test/cancelled-marker-reader.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 322,
+        "commits": 3,
+        "lines": 483,
         "path": "test/coverage-extension-activate.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 1262,
+        "commits": 3,
+        "lines": 1893,
         "path": "test/coverage-extension-commands.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 160,
+        "commits": 3,
+        "lines": 240,
         "path": "test/coverage-extension-open-summary.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 170,
+        "commits": 3,
+        "lines": 255,
         "path": "test/coverage-extension-registry.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 552,
+        "commits": 3,
+        "lines": 828,
         "path": "test/coverage-extension-status-notify.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 1132,
+        "commits": 3,
+        "lines": 1698,
         "path": "test/coverage-observability-artifact-views.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 1064,
+        "commits": 3,
+        "lines": 1596,
         "path": "test/coverage-observability-browse-runs.test.ts"
       },
       {
-        "commits": 3,
-        "lines": 426,
+        "commits": 4,
+        "lines": 637,
         "path": "test/coverage-observability-contract-drift.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 582,
+        "commits": 3,
+        "lines": 873,
         "path": "test/coverage-observability-event-stream.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 1064,
+        "commits": 3,
+        "lines": 1596,
         "path": "test/coverage-observability-export-metadata.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 558,
+        "commits": 3,
+        "lines": 837,
         "path": "test/coverage-observability-fs-safe.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 646,
+        "commits": 3,
+        "lines": 969,
         "path": "test/coverage-observability-inspect-commands.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 740,
+        "commits": 3,
+        "lines": 1110,
         "path": "test/coverage-observability-markers-render.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 758,
+        "commits": 3,
+        "lines": 1137,
         "path": "test/coverage-observability-recover-index.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 798,
+        "commits": 3,
+        "lines": 1197,
         "path": "test/coverage-runner-gpu-probe.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 830,
+        "commits": 3,
+        "lines": 1245,
         "path": "test/coverage-runner-python-runner.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 474,
+        "commits": 3,
+        "lines": 711,
         "path": "test/coverage-runner-run-folder.test.ts"
       },
       {
-        "commits": 3,
-        "lines": 2526,
+        "commits": 4,
+        "lines": 3787,
         "path": "test/coverage-runner-run-manager.test.ts"
       },
       {
-        "commits": 2,
-        "lines": 342,
+        "commits": 3,
+        "lines": 513,
         "path": "test/coverage-views-runs-picker.test.ts"
       },
       {
@@ -1048,8 +1048,8 @@
         "path": "test/workspace-trust-guard.test.ts"
       },
       {
-        "commits": 3,
-        "lines": 23,
+        "commits": 5,
+        "lines": 31,
         "path": "vitest.config.ts"
       }
     ]
@@ -1058,11 +1058,53 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-01T23:25:50.215Z",
+  "generatedAt": "2026-10-01T23:48:06.337Z",
   "generatedFrom": {
-    "commit": "c753335f2ad9b4d662ce4bb0aeade3779a20a563"
+    "commit": "b4242c55dacfdb41c35027356334f955983091c9"
   },
   "pairs": [
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/page.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/statistics.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/page.json",
+      "b": "atlas/statistics.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/page.json",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/statistics.json",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
     {
       "a": "src/observability/export-markdown-command.ts",
       "b": "src/observability/interpretability-index-command.ts",
@@ -1081,16 +1123,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-10-01T19:25:25-04:00",
+    "headDate": "2026-10-01T19:47:44-04:00",
     "inScopeFiles": 254,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 93,
+    "qualifyingCommits": 97,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-04T23:25:25.000Z",
+    "since": "2026-04-04T23:47:44.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
