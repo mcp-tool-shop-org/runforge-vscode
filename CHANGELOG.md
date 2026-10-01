@@ -4,6 +4,30 @@ All notable changes to the RunForge VS Code extension will be documented in this
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-10-01
+
+### Fixed
+- **Cancel now force-stops a training run that ignores it.** Cancelling,
+  closing the extension, or an out-of-memory stop sends a polite stop first and
+  is meant to force-kill the run if it is still going 5 seconds (cancel) or
+  2 seconds (kill, out of memory) later. The force-kill never happened, so a
+  run that ignored the polite stop kept running. It does now.
+- **`logs.txt` keeps the run's output in order.** Lines written in quick
+  succession could land in the log file out of order.
+- **Inspect Model Artifact shows the pipeline steps.** Every step in the
+  inspection view appeared as `{}`; it now shows each step's contents.
+- **Export Run as Markdown includes the Interpretability section.** For real
+  runs the section came out empty, because the export read a different field
+  from the one the trainer writes. Both forms are read now.
+- **Recover Index opens its report.** The recovery ran but the report that
+  should open afterwards never did in the published extension.
+
+### Changed
+- Developing the extension now needs Node.js 22 or later (CI runs 22 and 24).
+  The build and test tools were brought up to date; the published extension
+  is unaffected.
+
+
 ## [1.2.1] - 2026-04-26
 
 ### Fixed
