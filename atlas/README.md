@@ -1,14 +1,14 @@
-# runforge: how it works
+# runforge-vscode: how it works
 
-Mapped at 2026-10-01 from commit b4242c5 by Atlas 1.24.0.
+Mapped at 2026-11-11 from commit 7bda38c by Atlas 1.26.0.
 
 ## What this is
 
 10 parts, mostly TypeScript (90 files), Python (45), JavaScript (3), CSS (2) and Astro (1). Work enters through 4 doors; CI and Build and Release each reach 3 parts, and CI is followed because a pull request goes through it. It publishes to the VS Code Marketplace. It deploys a site to GitHub Pages. People install the runforge extension.
 
-## What changed since 2026-10-01 (c753335)
+## What changed since 2026-10-01 (b4242c5)
 
-Nothing structural changed since 2026-10-01; 5 files changed content.
+Nothing structural changed since 2026-10-01; 1 file changed content.
 
 ## What comes in
 
@@ -73,9 +73,11 @@ People write .github/, assets/, docs/, resources/, the repository root and site/
 
 ## Where to start
 
-src/extension.ts → src/runner/run-manager.ts
+src/extension.ts → src/runner/run-manager.ts → src/runner/python-runner.ts → src/types.ts
 
 Read those in order to follow one activation of runforge end to end. This path follows runforge (the extension people install from the VS Code Marketplace) from its entry, since CI runs only tests and checks, and builds test/extension-host/.
+
+Beside the path, src/runner/run-manager.ts also calls src/runner/gpu-probe.ts, src/presets/registry.ts, src/workspace/run-folder.ts, src/workspace/index-manager.ts and 1 more file.
 
 ## What this map cannot see
 
